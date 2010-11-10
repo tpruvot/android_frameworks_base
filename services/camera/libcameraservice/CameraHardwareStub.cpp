@@ -393,6 +393,17 @@ static CameraInfo sCameraInfo[] = {
     }
 };
 
+#ifdef USE_GETBUFFERINFO
+status_t CameraHardwareStub::getBufferInfo(sp<IMemory>& Frame, size_t *alignedSize) {
+    /* No Support for this API in STUB Camera. Just return NULL */
+    Frame = NULL;
+    if( alignedSize != NULL)
+        *alignedSize = 0;
+
+    return UNKNOWN_ERROR;
+}
+#endif
+
 extern "C" int HAL_getNumberOfCameras()
 {
     return sizeof(sCameraInfo) / sizeof(sCameraInfo[0]);

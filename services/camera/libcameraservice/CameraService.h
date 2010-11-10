@@ -93,6 +93,10 @@ private:
         virtual status_t        setPreviewDisplay(const sp<Surface>& surface);
         virtual status_t        setPreviewTexture(const sp<ISurfaceTexture>& surfaceTexture);
         virtual void            setPreviewCallbackFlag(int flag);
+#ifdef USE_GETBUFFERINFO
+        // get the recording buffers information from HAL Layer.
+        virtual status_t        getBufferInfo(sp<IMemory>& Frame, size_t *alignedSize);
+#endif
         virtual status_t        startPreview();
         virtual void            stopPreview();
         virtual bool            previewEnabled();

@@ -89,6 +89,11 @@ public:
             // pass the buffered ISurfaceTexture to the camera service
             status_t    setPreviewTexture(const sp<ISurfaceTexture>& surfaceTexture);
 
+#ifdef USE_GETBUFFERINFO
+            // query the recording buffer information from HAL layer.
+            status_t    getBufferInfo(sp<IMemory>& Frame, size_t *alignedSize);
+#endif
+
             // start preview mode, must call setPreviewDisplay first
             status_t    startPreview();
 

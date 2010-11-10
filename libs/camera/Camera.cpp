@@ -201,6 +201,16 @@ status_t Camera::setPreviewTexture(const sp<ISurfaceTexture>& surfaceTexture)
     }
 }
 
+#ifdef USE_GETBUFFERINFO
+status_t Camera::getBufferInfo(sp<IMemory>& Frame, size_t *alignedSize)
+{
+    LOGV("getBufferInfo");
+    sp <ICamera> c = mCamera;
+    if (c == 0) return NO_INIT;
+    return c->getBufferInfo(Frame, alignedSize);
+}
+#endif
+
 // start preview mode
 status_t Camera::startPreview()
 {

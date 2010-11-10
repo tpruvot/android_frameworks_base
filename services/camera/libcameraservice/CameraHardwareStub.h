@@ -60,7 +60,9 @@ public:
     virtual status_t    sendCommand(int32_t command, int32_t arg1,
                                     int32_t arg2);
     virtual void release();
-
+#ifdef USE_GETBUFFERINFO
+    virtual status_t getBufferInfo( sp<IMemory>& Frame, size_t *alignedSize);
+#endif
     static sp<CameraHardwareInterface> createInstance();
 
 private:

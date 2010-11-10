@@ -21,4 +21,35 @@ LOCAL_SHARED_LIBRARIES:= \
 
 LOCAL_MODULE:= libcameraservice
 
+ifeq ($(BOARD_CAMERA_USE_GETBUFFERINFO),true)
+    LOCAL_CFLAGS += -DUSE_GETBUFFERINFO
+endif
+
 include $(BUILD_SHARED_LIBRARY)
+
+ifeq ($(USE_CAMERA_STUB),true)
+#
+# libcamerastub
+#
+
+include $(CLEAR_VARS)
+
+LOCAL_SRC_FILES:=               \
+    CameraHardwareStub.cpp      \
+    FakeCamera.cpp
+
+LOCAL_MODULE:= libcamerastub
+
+ifeq ($(TARGET_SIMULATOR),true)
+    LOCAL_CFLAGS += -DSINGLE_PROCESS
+endif
+
+LOCAL_SHARED_LIBRARIES:= libui
+
+ifeq ($(BOARD_CAMERA_USE_GETBUFFERINFO),true)
+    LOCAL_CFLAGS += -DUSE_GETBUFFERINFO
+endif
+
+include $(BUILD_STATIC_LIBRARY)
+endif # USE_CAMERA_STUB
+
