@@ -62,6 +62,10 @@ LOCAL_WHOLE_STATIC_LIBRARY := libmedia_helper
 
 LOCAL_MODULE:= libmedia
 
+ifeq ($(BOARD_USE_KINETO_COMPATIBILITY),true)
+LOCAL_CFLAGS += -DUSE_KINETO_COMPATIBILITY
+endif
+
 LOCAL_C_INCLUDES := \
     $(JNI_H_INCLUDE) \
     $(call include-path-for, graphics corecg) \
