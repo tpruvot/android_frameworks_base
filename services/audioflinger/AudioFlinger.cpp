@@ -125,6 +125,10 @@ static bool settingsAllowed() {
 #endif
 }
 
+static uint32_t getInputChannelCount(uint32_t channels) {
+    // only mono or stereo is supported for input sources
+    return AudioSystem::popCount((channels) & (AudioSystem::CHANNEL_IN_STEREO | AudioSystem::CHANNEL_IN_MONO));
+}
 // ----------------------------------------------------------------------------
 AudioFlinger::AudioFlinger()
     : BnAudioFlinger(),
@@ -3907,7 +3911,7 @@ AudioFlinger::RecordThread::RecordThread(const sp<AudioFlinger>& audioFlinger, A
     ThreadBase(audioFlinger, id),
     mInput(input), mResampler(0), mRsmpOutBuffer(0), mRsmpInBuffer(0)
 {
-    mReqChannelCount = AudioSystem::popCount((channels) & (AudioSystem::CHANNEL_IN_STEREO | AudioSystem::CHANNEL_IN_MONO));
+    mReqChannelCount = getInputChannelCount(channels);
     mReqSampleRate = sampleRate;
     readInputParameters();
 }
@@ -4284,7 +4288,7 @@ bool AudioFlinger::RecordThread::checkForNewParameters_l()
             reconfig = true;
         }
         if (param.getInt(String8(AudioParameter::keyChannels), value) == NO_ERROR) {
-            reqChannelCount = AudioSystem::popCount(value);
+            reqChannelCount = getInputChannelCount(value);
             reconfig = true;
         }
         if (param.getInt(String8(AudioParameter::keyFrameCount), value) == NO_ERROR) {
@@ -4307,7 +4311,7 @@ bool AudioFlinger::RecordThread::checkForNewParameters_l()
                 if (status == BAD_VALUE &&
                     reqFormat == mInput->format() && reqFormat == AudioSystem::PCM_16_BIT &&
                     ((int)mInput->sampleRate() <= 2 * reqSamplingRate) &&
-                    (AudioSystem::popCount(mInput->channels()) < 3) && (reqChannelCount < 3)) {
+                    (getInputChannelCount(mInput->channels()) < 3) && (reqChannelCount < 3)) {
                     status = NO_ERROR;
                 }
                 if (status == NO_ERROR) {
@@ -4362,7 +4366,7 @@ void AudioFlinger::RecordThread::readInputParameters()
 
     mSampleRate = mInput->sampleRate();
     mChannels = mInput->channels();
-    mChannelCount = (uint16_t)AudioSystem::popCount(mChannels);
+    mChannelCount = getInputChannelCount(mInput->channels());
     mFormat = mInput->format();
     mFrameSize = (uint16_t)mInput->frameSize();
     mInputBytes = mInput->bufferSize();
@@ -4603,7 +4607,7 @@ int AudioFlinger::openInput(uint32_t *pDevices,
     if (input == 0 && status == BAD_VALUE &&
         reqFormat == format && format == AudioSystem::PCM_16_BIT &&
         (samplingRate <= 2 * reqSamplingRate) &&
-        (AudioSystem::popCount(channels) < 3) && (AudioSystem::popCount(reqChannels) < 3)) {
+        (getInputChannelCount(channels) < 3) && (getInputChannelCount(reqChannels) < 3)) {
         LOGV("openInput() reopening with proposed sampling rate and channels");
         input = mAudioHardware->openInputStream(*pDevices,
                                                  (int *)&format,
