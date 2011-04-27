@@ -164,15 +164,7 @@ static const CodecInfo kDecoderInfo[] = {
     { MEDIA_MIMETYPE_AUDIO_AMR_NB, "OMX.TI.AMR.decode" },
     { MEDIA_MIMETYPE_AUDIO_AMR_NB, "OMX.PV.amrdec" },
     { MEDIA_MIMETYPE_AUDIO_AMR_WB, "OMX.TI.WBAMR.decode" },
-<<<<<<< HEAD
     { MEDIA_MIMETYPE_AUDIO_AMR_WB, "OMX.PV.amrdec" },
-=======
-    { MEDIA_MIMETYPE_AUDIO_AMR_WB, "AMRWBDecoder" },
-//    { MEDIA_MIMETYPE_AUDIO_AMR_WB, "OMX.PV.amrdec" },
-#ifndef USE_SOFTWARE_AUDIO_AAC
-    { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.Nvidia.aac.decoder" },
-#endif
->>>>>>> 297468b0a9aec9caa54f7773679a0d588d799488
     { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.TI.AAC.decode" },
     { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.ITTIAM.AAC.decode" },
     { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.PV.aacdec" },
@@ -185,10 +177,10 @@ static const CodecInfo kDecoderInfo[] = {
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.TI.720P.Decoder" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.TI.Video.Decoder" },
     { MEDIA_MIMETYPE_AUDIO_VORBIS, "VorbisDecoder" },
-   /* { MEDIA_MIMETYPE_VIDEO_WMV, "OMX.TI.Video.Decoder" },
+    { MEDIA_MIMETYPE_VIDEO_WMV, "OMX.TI.Video.Decoder" },
     { MEDIA_MIMETYPE_VIDEO_WMV, "OMX.TI.720P.Decoder" },
     { MEDIA_MIMETYPE_AUDIO_WMA, "OMX.TI.WMA.decode"},
-    { MEDIA_MIMETYPE_AUDIO_WMA, "OMX.ITTIAM.WMA.decode"},*/
+    { MEDIA_MIMETYPE_AUDIO_WMA, "OMX.ITTIAM.WMA.decode"},
     { MEDIA_MIMETYPE_VIDEO_VPX, "VPXDecoder" },
 };
 
@@ -351,6 +343,14 @@ uint32_t OMXCodec::getComponentQuirks(
     if (!strcmp(componentName, "OMX.PV.avcdec")) {
         quirks |= kWantsNALFragments;
     }
+
+    if (!strcmp(componentName, "OMX.Nvidia.amr.decoder") ||
+         !strcmp(componentName, "OMX.Nvidia.amrwb.decoder") ||
+         !strcmp(componentName, "OMX.Nvidia.aac.decoder") ||
+         !strcmp(componentName, "OMX.Nvidia.mp3.decoder")) {
+        quirks |= kDecoderLiesAboutNumberOfChannels;
+    }
+
     if (!strcmp(componentName, "OMX.TI.MP3.decode")) {
         quirks |= kNeedsFlushBeforeDisable;
         quirks |= kDecoderLiesAboutNumberOfChannels;
@@ -359,6 +359,29 @@ uint32_t OMXCodec::getComponentQuirks(
         quirks |= kNeedsFlushBeforeDisable;
         quirks |= kRequiresFlushCompleteEmulation;
         quirks |= kSupportsMultipleFramesPerInputBuffer;
+    }
+    if (!strcmp(componentName, "OMX.TI.WMA.decode")) {
+        quirks |= kNeedsFlushBeforeDisable;
+        quirks |= kRequiresFlushCompleteEmulation;
+    }
+    if (!strcmp(componentName, "OMX.ITTIAM.WMA.decode")) {
+       quirks |= kNeedsFlushBeforeDisable;
+       quirks |= kRequiresFlushCompleteEmulation;
+    }
+    if (!strcmp(componentName, "OMX.ITTIAM.WMALSL.decode")) {
+        quirks |= kNeedsFlushBeforeDisable;
+        quirks |= kRequiresFlushCompleteEmulation;
+    }
+    if (!strcmp(componentName, "OMX.ITTIAM.WMAPRO.decode")) {
+        quirks |= kNeedsFlushBeforeDisable;
+        quirks |= kRequiresFlushCompleteEmulation;
+    }
+    if (!strcmp(componentName, "OMX.ITTIAM.AAC.decode")) {
+
+        quirks |= kNeedsFlushBeforeDisable;
+    }
+    if (!strcmp(componentName, "OMX.PV.aacdec")) {
+        quirks |= kNeedsFlushBeforeDisable;
     }
     if (!strncmp(componentName, "OMX.qcom.video.encoder.", 23)) {
         quirks |= kRequiresLoadedToIdleAfterAllocation;
@@ -399,7 +422,7 @@ uint32_t OMXCodec::getComponentQuirks(
 
         quirks |= kRequiresAllocateBufferOnInputPorts;
         quirks |= kRequiresAllocateBufferOnOutputPorts;
-        if (!strncmp(componentName, "OMX.TI.Video.encoder", 20) ||
+      if (!strncmp(componentName, "OMX.TI.Video.encoder", 20) ||
             !strncmp(componentName, "OMX.TI.720P.Encoder", 19)) {
             quirks |= kAvoidMemcopyInputRecordingFrames;
         }
@@ -550,6 +573,7 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta, uint32_t flags) {
         uint32_t type;
         const void *data;
         size_t size;
+
         if (meta->findData(kKeyESDS, &type, &data, &size)) {
             ESDS esds((const char *)data, size);
             CHECK_EQ(esds.InitCheck(), OK);
@@ -641,6 +665,16 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta, uint32_t flags) {
     if (mIsEncoder) {
         CHECK(meta->findInt32(kKeyBitRate, &bitRate));
     }
+    if (!strcmp(mComponentName, "OMX.TI.Video.encoder")) {
+            int32_t width, height;
+            bool success = meta->findInt32(kKeyWidth, &width);
+            success = success && meta->findInt32(kKeyHeight, &height);
+            CHECK(success);
+            if (width*height > MAX_RESOLUTION) {
+                // need OMX.TI.720P.Encoder
+                return ERROR_UNSUPPORTED;
+            }
+        }
     if (!strcasecmp(MEDIA_MIMETYPE_AUDIO_AMR_NB, mMIME)) {
         setAMRFormat(false /* isWAMR */, bitRate);
     }
@@ -653,6 +687,26 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta, uint32_t flags) {
         CHECK(meta->findInt32(kKeySampleRate, &sampleRate));
 
         setAACFormat(numChannels, sampleRate, bitRate);
+        // Configure TI OMX component to FrameMode for AAC-ADTS
+        if (!strcmp(mComponentName, "OMX.TI.AAC.decode")) {
+            OMX_INDEXTYPE index;
+
+            CODEC_LOGV("OMXCodec::configureCodec() TI AAC - Configure Component to FrameMode");
+
+            // Get Extension Index from Component
+            status_t err = mOMX->getExtensionIndex(mNode, "OMX.TI.index.config.AacDecFrameModeInfo", &index);
+            if (err != OK) {
+                CODEC_LOGV("OMXCodec::configureCodec() TI AAC - Problem getting ExtensionIndex - Use SteamMode");
+            }
+            else {
+                OMX_U16 framemode = 1;
+                // Set FrameMode for ADTS streams
+                err = mOMX->setConfig(mNode, index, &framemode, sizeof(framemode));
+                if (err != OK) {
+                    CODEC_LOGV("OMXCodec::configureCodec() TI AAC - Problem configuring FrameMode - Use SteamMode");
+                }
+            }
+        }
     }
 
     if (!strncasecmp(mMIME, "video/", 6)) {
@@ -665,7 +719,7 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta, uint32_t flags) {
             success = success && meta->findInt32(kKeyHeight, &height);
             CHECK(success);
             status_t err = setVideoOutputFormat(
-                    mMIME, width, height);
+            mMIME, width, height);
 
             if (err != OK) {
                 return err;
@@ -698,6 +752,13 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta, uint32_t flags) {
 
     int32_t maxInputSize;
     if (meta->findInt32(kKeyMaxInputSize, &maxInputSize)) {
+        if (!strcmp(mComponentName, "OMX.TI.Video.Decoder") || !strcmp(mComponentName, "OMX.TI.720P.Decoder")) {
+            // We need to allocate at least twice the "maxInputSize"
+            // to get enough room for internal OMX buffer handling.
+            maxInputSize += maxInputSize;
+            
+     CODEC_LOGV("Resize maxInputSize*2, maxInputSize=%d", maxInputSize);
+        }
         setMinBufferSize(kPortIndexInput, (OMX_U32)maxInputSize);
     }
 
@@ -1510,6 +1571,14 @@ void OMXCodec::setComponentRole(
             "video_decoder.mpeg4", "video_encoder.mpeg4" },
         { MEDIA_MIMETYPE_VIDEO_H263,
             "video_decoder.h263", "video_encoder.h263" },
+        { MEDIA_MIMETYPE_VIDEO_WMV,
+            "video_decoder.wmv", "video_encoder.wmv" },
+        { MEDIA_MIMETYPE_AUDIO_WMA,
+            "audio_decoder.wma", "audio_encoder.wma" },
+        { MEDIA_MIMETYPE_AUDIO_WMAPRO,
+            "audio_decoder.wmapro", "audio_encoder.wmapro" },
+        { MEDIA_MIMETYPE_AUDIO_WMALSL,
+            "audio_decoder.wmalsl", "audio_encoder.wmalsl" },
     };
 
     static const size_t kNumMimeToRole =
@@ -2023,7 +2092,15 @@ void OMXCodec::onEvent(OMX_EVENTTYPE event, OMX_U32 data1, OMX_U32 data2) {
         case OMX_EventPortSettingsChanged:
         {
             if(mState == EXECUTING)
-              onPortSettingsChanged(data1);
+                CODEC_LOGV("OMX_EventPortSettingsChanged(port=%ld, data2=0x%08lx)",
+                       data1, data2);
+
+                if (data2 == 0 || data2 == OMX_IndexParamPortDefinition) {
+                    onPortSettingsChanged(data1);
+                } else if (data1 == kPortIndexOutput
+                        && data2 == OMX_IndexConfigCommonOutputCrop) {
+                    // todo: handle crop rect
+                }
             else
               LOGE("Ignore PortSettingsChanged event \n");
             break;
@@ -2137,7 +2214,9 @@ void OMXCodec::onCmdComplete(OMX_COMMANDTYPE cmd, OMX_U32 data) {
                 CHECK_EQ(portIndex, kPortIndexOutput);
 
                 sp<MetaData> oldOutputFormat = mOutputFormat;
-                initOutputFormat(mSource->getFormat());
+                if (strncmp(mComponentName, "OMX.Nvidia.h26",14)) {
+                    initOutputFormat(mSource->getFormat());
+                }
 
                 // Don't notify clients if the output port settings change
                 // wasn't of importance to them, i.e. it may be that just the
@@ -3787,8 +3866,15 @@ void OMXCodec::initOutputFormat(const sp<MetaData> &inputFormat) {
                 else {
                     LOGV("video_def->nStride = %d, video_def->nSliceHeight = %d", video_def->nStride,
                             video_def->nSliceHeight );
-                    mOutputFormat->setInt32(kKeyWidth, video_def->nStride);
-                    mOutputFormat->setInt32(kKeyHeight, video_def->nSliceHeight);
+                    if (video_def->nStride && video_def->nSliceHeight) {
+                        /* Make sure we actually got the values from the decoder */
+                        mOutputFormat->setInt32(kKeyWidth, video_def->nStride);
+                        mOutputFormat->setInt32(kKeyHeight, video_def->nSliceHeight);
+                    } else {
+                        /* We didn't. Use the old behavior */
+                        mOutputFormat->setInt32(kKeyWidth, video_def->nFrameWidth);
+                        mOutputFormat->setInt32(kKeyHeight, video_def->nFrameHeight);
+                    }
                 }
 #else
                 //Some hardware expects the old behavior
