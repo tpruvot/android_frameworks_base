@@ -1410,7 +1410,7 @@ status_t OMXCodec::setVideoOutputFormat(
 #if 1
         if (!strncmp(mComponentName, "OMX.qcom.7x30",13)) {
             OMX_U32 index;
-	    
+
             for(index = 0 ;; index++){
               format.nIndex = index;
 	      if(mOMX->getParameter(
@@ -3952,3 +3952,4 @@ status_t QueryCodecs(
 }
 
 }  // namespace android
+
