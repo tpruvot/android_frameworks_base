@@ -159,79 +159,41 @@ static sp<MediaSource> InstantiateSoftwareCodec(
 
 static const CodecInfo kDecoderInfo[] = {
     { MEDIA_MIMETYPE_IMAGE_JPEG, "OMX.TI.JPEG.decode" },
-    { MEDIA_MIMETYPE_AUDIO_MPEG, "OMX.Nvidia.mp3.decoder" },
-//    { MEDIA_MIMETYPE_AUDIO_MPEG, "OMX.TI.MP3.decode" },
-    { MEDIA_MIMETYPE_AUDIO_MPEG, "MP3Decoder" },
-//    { MEDIA_MIMETYPE_AUDIO_MPEG, "OMX.PV.mp3dec" },
-//    { MEDIA_MIMETYPE_AUDIO_AMR_NB, "OMX.TI.AMR.decode" },
-    { MEDIA_MIMETYPE_AUDIO_AMR_NB, "AMRNBDecoder" },
-//    { MEDIA_MIMETYPE_AUDIO_AMR_NB, "OMX.PV.amrdec" },
+    { MEDIA_MIMETYPE_AUDIO_MPEG, "OMX.TI.MP3.decode" },
+    { MEDIA_MIMETYPE_AUDIO_MPEG, "OMX.PV.mp3dec" },
+    { MEDIA_MIMETYPE_AUDIO_AMR_NB, "OMX.TI.AMR.decode" },
+    { MEDIA_MIMETYPE_AUDIO_AMR_NB, "OMX.PV.amrdec" },
     { MEDIA_MIMETYPE_AUDIO_AMR_WB, "OMX.TI.WBAMR.decode" },
-    { MEDIA_MIMETYPE_AUDIO_AMR_WB, "AMRWBDecoder" },
-//    { MEDIA_MIMETYPE_AUDIO_AMR_WB, "OMX.PV.amrdec" },
-#ifndef USE_SOFTWARE_AUDIO_AAC
-    { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.Nvidia.aac.decoder" },
-#endif
+    { MEDIA_MIMETYPE_AUDIO_AMR_WB, "OMX.PV.amrdec" },
     { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.TI.AAC.decode" },
+    { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.ITTIAM.AAC.decode" },
+    { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.PV.aacdec" },
     { MEDIA_MIMETYPE_AUDIO_AAC, "AACDecoder" },
-//    { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.PV.aacdec" },
-    //{ MEDIA_MIMETYPE_AUDIO_WMA, "OMX.Nvidia.wma.decoder" },
-    { MEDIA_MIMETYPE_AUDIO_G711_ALAW, "G711Decoder" },
-    { MEDIA_MIMETYPE_AUDIO_G711_MLAW, "G711Decoder" },
-    { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.Nvidia.mp4.decode" },
-    { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.qcom.7x30.video.decoder.mpeg4" },
-    { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.qcom.video.decoder.mpeg4" },
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.TI.Video.Decoder" },
-    { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.SEC.MPEG4.Decoder" },
-    { MEDIA_MIMETYPE_VIDEO_MPEG4, "M4vH263Decoder" },
-    { MEDIA_MIMETYPE_VIDEO_H263, "OMX.Nvidia.h263.decode" },
-//    { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.PV.mpeg4dec" },
-    { MEDIA_MIMETYPE_VIDEO_H263, "OMX.qcom.7x30.video.decoder.h263" },
-    { MEDIA_MIMETYPE_VIDEO_H263, "OMX.qcom.video.decoder.h263" },
-    { MEDIA_MIMETYPE_VIDEO_H263, "OMX.SEC.H263.Decoder" },
-    { MEDIA_MIMETYPE_VIDEO_H263, "M4vH263Decoder" },
-//    { MEDIA_MIMETYPE_VIDEO_H263, "OMX.PV.h263dec" },
-    { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.Nvidia.h264.decode" },
-    { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.qcom.7x30.video.decoder.avc" },
-    { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.qcom.video.decoder.avc" },
+    { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.TI.720P.Decoder" },
+    { MEDIA_MIMETYPE_VIDEO_H263, "OMX.TI.Video.Decoder" },
+    /* 720p Video Decoder must be placed before the TI Video Decoder.
+       DO NOT CHANGE THIS SEQUENCE. IT WILL BREAK FLASH. */
+    { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.TI.720P.Decoder" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.TI.Video.Decoder" },
-    { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.SEC.AVC.Decoder" },
-    { MEDIA_MIMETYPE_VIDEO_AVC, "AVCDecoder" },
-//    { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.PV.avcdec" },
-    //{MEDIA_MIMETYPE_VIDEO_WMV, "OMX.Nvidia.vc1.decode" },
     { MEDIA_MIMETYPE_AUDIO_VORBIS, "VorbisDecoder" },
+   /* { MEDIA_MIMETYPE_VIDEO_WMV, "OMX.TI.Video.Decoder" },
+    { MEDIA_MIMETYPE_VIDEO_WMV, "OMX.TI.720P.Decoder" },
+    { MEDIA_MIMETYPE_AUDIO_WMA, "OMX.TI.WMA.decode"},
+    { MEDIA_MIMETYPE_AUDIO_WMA, "OMX.ITTIAM.WMA.decode"},*/
     { MEDIA_MIMETYPE_VIDEO_VPX, "VPXDecoder" },
 };
 
 static const CodecInfo kEncoderInfo[] = {
     { MEDIA_MIMETYPE_AUDIO_AMR_NB, "OMX.TI.AMR.encode" },
-    { MEDIA_MIMETYPE_AUDIO_AMR_NB, "AMRNBEncoder" },
     { MEDIA_MIMETYPE_AUDIO_AMR_WB, "OMX.TI.WBAMR.encode" },
-    { MEDIA_MIMETYPE_AUDIO_AMR_WB, "AMRWBEncoder" },
     { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.TI.AAC.encode" },
-    { MEDIA_MIMETYPE_AUDIO_AAC, "AACEncoder" },
-//    { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.PV.aacenc" },
-    { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.Nvidia.mp4.encoder" },
-    { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.qcom.7x30.video.encoder.mpeg4" },
-    { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.qcom.video.encoder.mpeg4" },
+    { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.ITTIAM.AAC.encode" },
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.TI.Video.encoder" },
-    { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.SEC.MPEG4.Encoder" },
-    { MEDIA_MIMETYPE_VIDEO_MPEG4, "M4vH263Encoder" },
-//    { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.PV.mpeg4enc" },
-    { MEDIA_MIMETYPE_VIDEO_H263, "OMX.Nvidia.h263.encoder" },
-    { MEDIA_MIMETYPE_VIDEO_H263, "OMX.qcom.7x30.video.encoder.h263" },
-    { MEDIA_MIMETYPE_VIDEO_H263, "OMX.qcom.video.encoder.h263" },
+    { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.TI.720P.Encoder" },
     { MEDIA_MIMETYPE_VIDEO_H263, "OMX.TI.Video.encoder" },
-    { MEDIA_MIMETYPE_VIDEO_H263, "OMX.SEC.H263.Encoder" },
-    { MEDIA_MIMETYPE_VIDEO_H263, "M4vH263Encoder" },
-//    { MEDIA_MIMETYPE_VIDEO_H263, "OMX.PV.h263enc" },
-    { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.Nvidia.h264.encoder" },
-    { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.qcom.7x30.video.encoder.avc" },
-    { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.qcom.video.encoder.avc" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.TI.Video.encoder" },
-    { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.SEC.AVC.Encoder" },
-    { MEDIA_MIMETYPE_VIDEO_AVC, "AVCEncoder" },
-//    { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.PV.avcenc" },
+    { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.TI.720P.Encoder" },
 };
 
 #undef OPTIONAL
@@ -381,14 +343,6 @@ uint32_t OMXCodec::getComponentQuirks(
     if (!strcmp(componentName, "OMX.PV.avcdec")) {
         quirks |= kWantsNALFragments;
     }
-
-    if (!strcmp(componentName, "OMX.Nvidia.amr.decoder") ||
-         !strcmp(componentName, "OMX.Nvidia.amrwb.decoder") ||
-         !strcmp(componentName, "OMX.Nvidia.aac.decoder") ||
-         !strcmp(componentName, "OMX.Nvidia.mp3.decoder")) {
-        quirks |= kDecoderLiesAboutNumberOfChannels;
-    }
-
     if (!strcmp(componentName, "OMX.TI.MP3.decode")) {
         quirks |= kNeedsFlushBeforeDisable;
         quirks |= kDecoderLiesAboutNumberOfChannels;
@@ -436,7 +390,8 @@ uint32_t OMXCodec::getComponentQuirks(
 
         quirks |= kRequiresAllocateBufferOnInputPorts;
         quirks |= kRequiresAllocateBufferOnOutputPorts;
-        if (!strncmp(componentName, "OMX.TI.Video.encoder", 20)) {
+        if (!strncmp(componentName, "OMX.TI.Video.encoder", 20) ||
+            !strncmp(componentName, "OMX.TI.720P.Encoder", 19)) {
             quirks |= kAvoidMemcopyInputRecordingFrames;
         }
     }
@@ -586,7 +541,6 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta, uint32_t flags) {
         uint32_t type;
         const void *data;
         size_t size;
-
         if (meta->findData(kKeyESDS, &type, &data, &size)) {
             ESDS esds((const char *)data, size);
             CHECK_EQ(esds.InitCheck(), OK);
@@ -839,7 +793,8 @@ status_t OMXCodec::setVideoPortFormatType(
              index, format.eCompressionFormat, format.eColorFormat);
 #endif
 
-        if (!strcmp("OMX.TI.Video.encoder", mComponentName)) {
+        if (!strcmp("OMX.TI.Video.encoder", mComponentName) ||
+            !strcmp("OMX.TI.720P.Encoder", mComponentName)) {
             if (portIndex == kPortIndexInput
                     && colorFormat == format.eColorFormat) {
                 // eCompressionFormat does not seem right.
@@ -902,7 +857,8 @@ status_t OMXCodec::findTargetColorFormat(
     if (meta->findInt32(kKeyColorFormat, &targetColorFormat)) {
         *colorFormat = (OMX_COLOR_FORMATTYPE) targetColorFormat;
     } else {
-        if (!strcasecmp("OMX.TI.Video.encoder", mComponentName)) {
+        if (!strcasecmp("OMX.TI.Video.encoder", mComponentName) ||
+            !strcasecmp("OMX.TI.720P.Encoder", mComponentName)) {
             *colorFormat = OMX_COLOR_FormatYCbYCr;
         }
     }
@@ -1132,6 +1088,8 @@ status_t OMXCodec::getVideoProfileLevel(
         CodecProfileLevel &profileLevel) {
     CODEC_LOGV("Default profile: %ld, level %ld",
             defaultProfileLevel.mProfile, defaultProfileLevel.mLevel);
+
+    return OK;
 
     // Are the default profile and level overwriten?
     int32_t profile, level;
@@ -1386,7 +1344,7 @@ status_t OMXCodec::setVideoOutputFormat(
 #if 1
         if (!strncmp(mComponentName, "OMX.qcom.7x30",13)) {
             OMX_U32 index;
-	    
+
             for(index = 0 ;; index++){
               format.nIndex = index;
 	      if(mOMX->getParameter(
@@ -2060,15 +2018,7 @@ void OMXCodec::onEvent(OMX_EVENTTYPE event, OMX_U32 data1, OMX_U32 data2) {
         case OMX_EventPortSettingsChanged:
         {
             if(mState == EXECUTING)
-                CODEC_LOGV("OMX_EventPortSettingsChanged(port=%ld, data2=0x%08lx)",
-                       data1, data2);
-
-                if (data2 == 0 || data2 == OMX_IndexParamPortDefinition) {
-                    onPortSettingsChanged(data1);
-                } else if (data1 == kPortIndexOutput
-                        && data2 == OMX_IndexConfigCommonOutputCrop) {
-                    // todo: handle crop rect
-                }
+              onPortSettingsChanged(data1);
             else
               LOGE("Ignore PortSettingsChanged event \n");
             break;
@@ -2182,9 +2132,7 @@ void OMXCodec::onCmdComplete(OMX_COMMANDTYPE cmd, OMX_U32 data) {
                 CHECK_EQ(portIndex, kPortIndexOutput);
 
                 sp<MetaData> oldOutputFormat = mOutputFormat;
-                if (strncmp(mComponentName, "OMX.Nvidia.h26",14)) {
-                    initOutputFormat(mSource->getFormat());
-                }
+                initOutputFormat(mSource->getFormat());
 
                 // Don't notify clients if the output port settings change
                 // wasn't of importance to them, i.e. it may be that just the
@@ -2722,7 +2670,9 @@ void OMXCodec::drainInputBuffer(BufferInfo *info) {
 
     // This component does not ever signal the EOS flag on output buffers,
     // Thanks for nothing.
-    if (mSignalledEOS && !strcmp(mComponentName, "OMX.TI.Video.encoder")) {
+    if (mSignalledEOS &&
+            (!strcmp(mComponentName, "OMX.TI.Video.encoder") ||
+             !strcmp(mComponentName, "OMX.TI.720P.Encoder"))) {
         mNoMoreOutputData = true;
         mBufferFilled.signal();
     }
@@ -3832,15 +3782,8 @@ void OMXCodec::initOutputFormat(const sp<MetaData> &inputFormat) {
                 else {
                     LOGV("video_def->nStride = %d, video_def->nSliceHeight = %d", video_def->nStride,
                             video_def->nSliceHeight );
-                    if (video_def->nStride && video_def->nSliceHeight) {
-                        /* Make sure we actually got the values from the decoder */
-                        mOutputFormat->setInt32(kKeyWidth, video_def->nStride);
-                        mOutputFormat->setInt32(kKeyHeight, video_def->nSliceHeight);
-                    } else {
-                        /* We didn't. Use the old behavior */
-                        mOutputFormat->setInt32(kKeyWidth, video_def->nFrameWidth);
-                        mOutputFormat->setInt32(kKeyHeight, video_def->nFrameHeight);
-                    }
+                    mOutputFormat->setInt32(kKeyWidth, video_def->nStride);
+                    mOutputFormat->setInt32(kKeyHeight, video_def->nSliceHeight);
                 }
 #else
                 //Some hardware expects the old behavior
@@ -3944,3 +3887,4 @@ status_t QueryCodecs(
 }
 
 }  // namespace android
+
