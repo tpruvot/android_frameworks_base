@@ -46,7 +46,7 @@ public class ProfileManagerService extends IProfileManager.Stub {
 
     private Map<String, NotificationGroup> mGroups = new HashMap<String, NotificationGroup>();
 
-    private String mActiveProfile;
+    private Profile mActiveProfile;
 
     private Context mContext;
 
@@ -75,9 +75,16 @@ public class ProfileManagerService extends IProfileManager.Stub {
     // TODO: Exceptions not supported in aidl.
     @Override
     public void setActiveProfile(String profileName) throws RemoteException {
+        setActiveProfile(profileName, true);
+    }
+
+    private void setActiveProfile(String profileName, boolean doinit) throws RemoteException {
         if(mProfiles.containsKey(profileName)){
             Log.d(TAG, "Set active profile to: " + profileName);
-            mActiveProfile = profileName;
+            mActiveProfile = getProfile(profileName);
+            if(doinit){
+                mActiveProfile.doSelect(mContext);
+            }
         }else{
             Log.e(TAG, "Cannot set active profile to: " + profileName + " - does not exist.");
         }
@@ -106,7 +113,7 @@ public class ProfileManagerService extends IProfileManager.Stub {
 
     @Override
     public Profile getActiveProfile() throws RemoteException {
-        return mProfiles.get(mActiveProfile);
+        return mActiveProfile;
     }
 
     @Override
@@ -187,7 +194,9 @@ public class ProfileManagerService extends IProfileManager.Stub {
             }
             event = xpp.next();
         }
-        setActiveProfile(active);
+        // Don't do initialisation on startup. The AudioManager doesn't exist yet
+        // and besides, the volume settings will have survived the reboot.
+        setActiveProfile(active, false);
     }
 
     private void initialiseStructure() throws RemoteException, XmlPullParserException, IOException {
