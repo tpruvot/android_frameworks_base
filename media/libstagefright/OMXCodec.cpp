@@ -159,49 +159,50 @@ static sp<MediaSource> InstantiateSoftwareCodec(
 
 static const CodecInfo kDecoderInfo[] = {
     { MEDIA_MIMETYPE_IMAGE_JPEG, "OMX.TI.JPEG.decode" },
-    { MEDIA_MIMETYPE_AUDIO_MPEG, "OMX.TI.MP3.decode" },
-    { MEDIA_MIMETYPE_AUDIO_MPEG, "OMX.PV.mp3dec" },
-    { MEDIA_MIMETYPE_AUDIO_AMR_NB, "OMX.TI.AMR.decode" },
-    { MEDIA_MIMETYPE_AUDIO_AMR_NB, "OMX.PV.amrdec" },
+    { MEDIA_MIMETYPE_AUDIO_MPEG, "OMX.Nvidia.mp3.decoder" },
+    { MEDIA_MIMETYPE_AUDIO_MPEG, "MP3Decoder" },
+    { MEDIA_MIMETYPE_AUDIO_AMR_NB, "AMRNBDecoder" },
     { MEDIA_MIMETYPE_AUDIO_AMR_WB, "OMX.TI.WBAMR.decode" },
 #ifndef USE_SOFTWARE_AUDIO_AAC
     { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.Nvidia.aac.decoder" },
 #endif
-    { MEDIA_MIMETYPE_AUDIO_AMR_WB, "AMRWBDecoder" },
 #ifndef USE_SOFTWARE_AUDIO_AAC
     { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.Nvidia.aac.decoder" },
 #endif
-    { MEDIA_MIMETYPE_AUDIO_AMR_WB, "OMX.PV.amrdec" },
+    { MEDIA_MIMETYPE_AUDIO_AMR_WB, "AMRWBDecoder" },
     { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.TI.AAC.decode" },
-    { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.ITTIAM.AAC.decode" },
-    { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.PV.aacdec" },
     { MEDIA_MIMETYPE_AUDIO_AAC, "AACDecoder" },
+    { MEDIA_MIMETYPE_AUDIO_G711_ALAW, "G711Decoder" },
+    { MEDIA_MIMETYPE_AUDIO_G711_MLAW, "G711Decoder" },
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.TI.Video.Decoder" },
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.TI.720P.Decoder" },
+    { MEDIA_MIMETYPE_VIDEO_MPEG4, "M4vH263Decoder" },
+    { MEDIA_MIMETYPE_VIDEO_H263, "M4vH263Decoder" },
     { MEDIA_MIMETYPE_VIDEO_H263, "OMX.TI.Video.Decoder" },
-    /* 720p Video Decoder must be placed before the TI Video Decoder.
-       DO NOT CHANGE THIS SEQUENCE. IT WILL BREAK FLASH. */
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.TI.720P.Decoder" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.TI.Video.Decoder" },
+    { MEDIA_MIMETYPE_VIDEO_AVC, "AVCDecoder" },
     { MEDIA_MIMETYPE_AUDIO_VORBIS, "VorbisDecoder" },
-    { MEDIA_MIMETYPE_VIDEO_WMV, "OMX.TI.Video.Decoder" },
-    { MEDIA_MIMETYPE_VIDEO_WMV, "OMX.TI.720P.Decoder" },
-    { MEDIA_MIMETYPE_AUDIO_WMA, "OMX.TI.WMA.decode"},
-    { MEDIA_MIMETYPE_AUDIO_WMA, "OMX.ITTIAM.WMA.decode"},
     { MEDIA_MIMETYPE_VIDEO_VPX, "VPXDecoder" },
 };
 
 static const CodecInfo kEncoderInfo[] = {
     { MEDIA_MIMETYPE_AUDIO_AMR_NB, "OMX.TI.AMR.encode" },
+    { MEDIA_MIMETYPE_AUDIO_AMR_NB, "AMRNBEncoder" },
     { MEDIA_MIMETYPE_AUDIO_AMR_WB, "OMX.TI.WBAMR.encode" },
+    { MEDIA_MIMETYPE_AUDIO_AMR_WB, "AMRWBEncoder" },
     { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.TI.AAC.encode" },
-    { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.ITTIAM.AAC.encode" },
+    { MEDIA_MIMETYPE_AUDIO_AAC, "AACEncoder" },
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.TI.Video.encoder" },
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.TI.720P.Encoder" },
+    { MEDIA_MIMETYPE_VIDEO_MPEG4, "M4vH263Encoder" },
     { MEDIA_MIMETYPE_VIDEO_H263, "OMX.TI.Video.encoder" },
+    { MEDIA_MIMETYPE_VIDEO_H263, "M4vH263Encoder" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.TI.Video.encoder" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.TI.720P.Encoder" },
+    { MEDIA_MIMETYPE_VIDEO_AVC, "AVCEncoder" },
 };
+
 
 #undef OPTIONAL
 
