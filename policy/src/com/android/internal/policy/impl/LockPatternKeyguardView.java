@@ -220,6 +220,7 @@ public class LockPatternKeyguardView extends KeyguardViewBase {
             }
 
             public void goToUnlockScreen() {
+
                 final IccCard.State simState = mUpdateMonitor.getSimState();
                 if (stuckOnLockScreenBecauseSimMissing()
                          || (simState == IccCard.State.PUK_REQUIRED)){
@@ -227,6 +228,7 @@ public class LockPatternKeyguardView extends KeyguardViewBase {
                     return;
                 }
                 if (!isSecure()) {
+                    mUpdateMonitor.reportScreenUnlocked();
                     getCallback().keyguardDone(true);
                 } else {
                     updateScreen(Mode.UnlockScreen);
@@ -311,6 +313,7 @@ public class LockPatternKeyguardView extends KeyguardViewBase {
             }
 
             public void reportSuccessfulUnlockAttempt() {
+		mUpdateMonitor.reportSuccessfulUnlockAttempt();
                 mLockPatternUtils.reportSuccessfulPasswordAttempt();
             }
         };
@@ -534,6 +537,17 @@ public class LockPatternKeyguardView extends KeyguardViewBase {
             default:
                 throw new IllegalStateException("unknown unlock mode " + unlockMode);
         }
+
+        long patternTimeout = (long)mLockPatternUtils.getPatternLockTimeout(); 
+        if (secure && patternTimeout != 0) {
+
+            long currentTime = SystemClock.elapsedRealtime();
+            long unlockedUntill = mUpdateMonitor.getUnlockedUntill();
+        	
+            if (unlockedUntill != 0 && currentTime < unlockedUntill ) 
+                secure = false;
+        }
+
         return secure;
     }
 
@@ -657,10 +671,14 @@ public class LockPatternKeyguardView extends KeyguardViewBase {
         if (stuckOnLockScreenBecauseSimMissing() || (simState == IccCard.State.PUK_REQUIRED)) {
             return Mode.LockScreen;
         } else {
-            // Show LockScreen first for any screen other than Pattern unlock.
+            // Show LockScreen first for any screen other than Pattern unlock, unless pattern lock
+			// has a configured timeout
             final boolean usingLockPattern = mLockPatternUtils.getKeyguardStoredPasswordQuality()
                     == DevicePolicyManager.PASSWORD_QUALITY_SOMETHING;
-            if (isSecure() && usingLockPattern) {
+
+            final long patternTimeout = (long)mLockPatternUtils.getPatternLockTimeout(); 
+
+            if (isSecure() && usingLockPattern && (patternTimeout == 0)) {
                 return Mode.UnlockScreen;
             } else {
                 return Mode.LockScreen;
