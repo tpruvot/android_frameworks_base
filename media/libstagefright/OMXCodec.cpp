@@ -1668,7 +1668,7 @@ status_t OMXCodec::allocateBuffersOnPort(OMX_U32 portIndex) {
     if (err != OK) {
         return err;
     }
-if((def.nBufferSize==814080)||(def.nBufferSize==153600)) def.nBufferSize+=2048;
+if((def.nBufferSize==814080)||(def.nBufferSize==153600)) def.nBufferSize+=1030;
     CODEC_LOGI("allocating %lu buffers of size %lu on %s port",
             def.nBufferCountActual, def.nBufferSize,
             portIndex == kPortIndexInput ? "input" : "output");
