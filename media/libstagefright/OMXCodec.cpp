@@ -1668,7 +1668,6 @@ status_t OMXCodec::allocateBuffersOnPort(OMX_U32 portIndex) {
     if (err != OK) {
         return err;
     }
-if((def.nBufferSize==814080)||(def.nBufferSize==153600)) def.nBufferSize+=1030;
     CODEC_LOGI("allocating %lu buffers of size %lu on %s port",
             def.nBufferCountActual, def.nBufferSize,
             portIndex == kPortIndexInput ? "input" : "output");
@@ -2623,7 +2622,7 @@ void OMXCodec::drainInputBuffer(BufferInfo *info) {
         }
 
         size_t remainingBytes = info->mSize - offset;
-
+	if((srcBuffer->range_length()==815104)||(srcBuffer->range_length()==155648)) srcBuffer->set_range(srcBuffer->range_offset(),info->mSize);
         if (srcBuffer->range_length() > remainingBytes) {
             if (offset == 0) {
                 CODEC_LOGE(
