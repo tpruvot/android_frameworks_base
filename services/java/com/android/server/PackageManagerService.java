@@ -3351,7 +3351,7 @@ class PackageManagerService extends IPackageManager.Stub {
                      * Gingerbread.
                      */
                  //   Slog.i(TAG, "Unpacking native libraries for " + path);
-                    mInstaller.unlinkNativeLibraryDirectory(dataPathString);
+                  //   mInstaller.unlinkNativeLibraryDirectory(dataPathString);
               //      NativeLibraryHelper.copyNativeBinariesLI(scanFile, nativeLibraryDir);
                 } else {
                     Slog.i(TAG, "Linking native library dir for " + path);
