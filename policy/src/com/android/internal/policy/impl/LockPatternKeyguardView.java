@@ -228,7 +228,6 @@ public class LockPatternKeyguardView extends KeyguardViewBase {
                     return;
                 }
                 if (!isSecure()) {
-                    mUpdateMonitor.reportScreenUnlocked();
                     getCallback().keyguardDone(true);
                 } else {
                     updateScreen(Mode.UnlockScreen);
@@ -313,7 +312,6 @@ public class LockPatternKeyguardView extends KeyguardViewBase {
             }
 
             public void reportSuccessfulUnlockAttempt() {
-		mUpdateMonitor.reportSuccessfulUnlockAttempt();
                 mLockPatternUtils.reportSuccessfulPasswordAttempt();
             }
         };
@@ -540,11 +538,10 @@ public class LockPatternKeyguardView extends KeyguardViewBase {
 
         long patternTimeout = (long)mLockPatternUtils.getPatternLockTimeout(); 
         if (secure && patternTimeout != 0) {
-
             long currentTime = SystemClock.elapsedRealtime();
-            long unlockedUntill = mUpdateMonitor.getUnlockedUntill();
+            long unlockedUntil = mUpdateMonitor.getUnlockedUntil();
         	
-            if (unlockedUntill != 0 && currentTime < unlockedUntill ) 
+            if (unlockedUntil != 0 && currentTime < unlockedUntil ) 
                 secure = false;
         }
 
@@ -672,7 +669,7 @@ public class LockPatternKeyguardView extends KeyguardViewBase {
             return Mode.LockScreen;
         } else {
             // Show LockScreen first for any screen other than Pattern unlock, unless pattern lock
-			// has a configured timeout
+            // has a configured timeout
             final boolean usingLockPattern = mLockPatternUtils.getKeyguardStoredPasswordQuality()
                     == DevicePolicyManager.PASSWORD_QUALITY_SOMETHING;
 
