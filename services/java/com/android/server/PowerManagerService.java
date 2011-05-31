@@ -53,6 +53,7 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.os.WorkSource;
+import android.os.SystemProperties;
 import android.provider.Settings.SettingNotFoundException;
 import android.provider.Settings;
 import android.util.EventLog;
@@ -246,7 +247,7 @@ class PowerManagerService extends IPowerManager.Stub
     private int mScreenBrightnessOverride = -1;
     private int mButtonBrightnessOverride = -1;
     private boolean mUseSoftwareAutoBrightness;
-    private boolean mAutoBrightessEnabled;
+    private boolean mAutoBrightessEnabled = true;
     private int[] mAutoBrightnessLevels;
     private int[] mLcdBacklightValues;
     private int[] mButtonBacklightValues;
@@ -297,6 +298,9 @@ class PowerManagerService extends IPowerManager.Stub
     private long mTotalTouchDownTime;
     private long mLastTouchDown;
     private int mTouchCycles;
+
+    // used for pattern lock timeout 
+    private long mLastScreenUnlockTime = 0;
 
     // could be either static or controllable at runtime
     private static final boolean mSpew = false;
@@ -482,6 +486,7 @@ class PowerManagerService extends IPowerManager.Stub
         }
 
         public void update(Observable o, Object arg) {
+
             synchronized (mLocks) {
                 // STAY_ON_WHILE_PLUGGED_IN, default to when plugged into AC
                 mStayOnConditions = getInt(STAY_ON_WHILE_PLUGGED_IN,
@@ -1688,6 +1693,13 @@ class PowerManagerService extends IPowerManager.Stub
                     lightFilterStop();
                     resetLastLightValues();
                 }
+                else if (!mAutoBrightessEnabled && SystemProperties.getBoolean(
+                    "ro.hardware.respect_als", false)) {
+                    /* Force a light sensor reset since we enabled it
+                       when the screen came on */
+                    mAutoBrightessEnabled = true;
+                    setScreenBrightnessMode(Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
+                }
             }
         }
         return err;
@@ -2572,6 +2584,7 @@ class PowerManagerService extends IPowerManager.Stub
             return;
         }
 
+
         // do not allow light sensor value to decrease unless
         // user has actively permitted it
         if (mLightDecrease) {
@@ -3300,6 +3313,14 @@ class PowerManagerService extends IPowerManager.Stub
             else
                 mFnLight.turnOff();
         }
+    }
+
+    public void setLastScreenUnlockTime(long time) {
+        mLastScreenUnlockTime = time;
+    }
+    
+    public long getLastScreenUnlockTime() {
+        return mLastScreenUnlockTime;
     }
 
 

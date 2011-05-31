@@ -2120,6 +2120,16 @@ public final class Settings {
         public static final String LOCK_MMS_IN_MEMORY = "lock_mms_in_memory";
 
         /**
+         * Display style of AM/PM next to clock in status bar
+         * 0: Normal display (Eclair stock)
+         * 1: Small display (Froyo stock)
+         * 2: No display (Gingerbread stock)
+         * default: 2
+         * @hide
+         */
+        public static final String STATUS_BAR_AM_PM = "status_bar_am_pm";
+
+        /**
          * Whether to show the CM battery percentage implementation instead
          * of the stock battery icon
          * 0: don't show / show stock icon instead
@@ -2301,6 +2311,13 @@ public final class Settings {
          */
         public static final String STATUS_BAR_COMPACT_CARRIER = "status_bar_compact_carrier";
 
+         /**
+         * Whether to control brightness from status bar
+         *
+         * @hide
+         */
+        public static final String STATUS_BAR_BRIGHTNESS_TOGGLE = "status_bar_brightness_toggle";
+
         /**
          * Whether to wake the screen with the trackball. The value is boolean (1 or 0).
          * @hide
@@ -2312,6 +2329,12 @@ public final class Settings {
          * @hide
          */
         public static final String TRACKBALL_UNLOCK_SCREEN = "trackball_unlock_screen";
+
+        /**
+         * Whether to wake the screen with the volume keys. The value is boolean (1 or 0).
+         * @hide
+         */
+        public static final String VOLUME_WAKE_SCREEN = "volume_wake_screen";
 
         /**
          * Whether to use the custom quick unlock screen control
@@ -2357,6 +2380,12 @@ public final class Settings {
          * @hide
          */
         public static final String LOCKSCREEN_STYLE_PREF = "lockscreen_style_pref";
+
+        /**
+         * Sets the incoming call accept/reject style
+         * @hide
+         */
+        public static final String IN_CALL_STYLE_PREF = "in_call_style_pref";
 
         /**
          * Pulse the Trackball with Screen On.  The value is boolean (1 or 0).
@@ -2529,6 +2558,13 @@ public final class Settings {
          * @hide
          */
         public static final String EXPANDED_HIDE_SCROLLBAR = "expanded_hide_scrollbar";
+
+        /**
+         * Hide indicator in status bar widget
+         *
+         * @hide
+         */
+        public static final String EXPANDED_HIDE_INDICATOR = "expanded_hide_indicator";
 
         /**
          * Notification Indicator Color
@@ -3384,6 +3420,12 @@ public final class Settings {
          * @hide
          */
         public static final String LOCK_DOTS_VISIBLE = "lock_pattern_dotsvisible";
+
+        /**
+         * PATTERN_LOCK_TIMEOUT 
+         * @hide
+         */
+        public static final String PATTERN_LOCK_TIMEOUT = "pattern_lock_timeout_msec";
 
         /**
          * LOCK_SHOW_ERROR_PATH
@@ -4520,6 +4562,12 @@ public final class Settings {
          * @hide
          */
         public static final String MVNO_ROAMING = "button_mvno_roaming_key";
+
+        /**
+         * Whether to enable permissions management.
+         * @hide
+         */
+        public static final String ENABLE_PERMISSIONS_MANAGEMENT = "enable_permissions_management";
 
         /**
          * @hide
