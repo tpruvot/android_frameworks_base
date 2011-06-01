@@ -930,9 +930,6 @@ public class RotarySelector extends View {
             long[] hapFeedback = Settings.System.getLongArray(cr, Settings.System.HAPTIC_DOWN_ARRAY, new long[] { 0 });
             mVibrator.vibrate(hapFeedback, -1);
         }
-        final boolean hapticsEnabled = Settings.System.getInt(mContext.getContentResolver(), Settings.System.HAPTIC_FEEDBACK_ENABLED, 0) == 1;
-        long[] hapFeedback = stringToLongArray(Settings.System.getString(getContext().getContentResolver(),Settings.System.HAPTIC_DOWN_ARRAY));
-        if (hapticsEnabled) mVibrator.vibrate(hapFeedback, -1);
     }
 
     /**
