@@ -299,6 +299,9 @@ class PowerManagerService extends IPowerManager.Stub
     private long mLastTouchDown;
     private int mTouchCycles;
 
+    // used for pattern lock timeout 
+    private long mLastScreenUnlockTime = 0;
+
     // could be either static or controllable at runtime
     private static final boolean mSpew = false;
     private static final boolean mDebugProximitySensor = (false || mSpew);
@@ -1008,8 +1011,11 @@ class PowerManagerService extends IPowerManager.Stub
             if ((wl.flags & LOCK_MASK) == PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK) {
                 mProximityWakeLockCount--;
                 if (mProximityWakeLockCount == 0) {
+                    int buggyProximity = Settings.System.getInt(mContext.getContentResolver(),
+                                                Settings.System.INACCURATE_PROXIMITY_WORKAROUND, 0);
                     if (mProximitySensorActive &&
-                            ((flags & PowerManager.WAIT_FOR_PROXIMITY_NEGATIVE) != 0)) {
+                            ((flags & PowerManager.WAIT_FOR_PROXIMITY_NEGATIVE) != 0) && 
+                            (buggyProximity == 0) ) {
                         // wait for proximity sensor to go negative before disabling sensor
                         if (mDebugProximitySensor) {
                             Slog.d(TAG, "waiting for proximity sensor to go negative");
@@ -3310,6 +3316,14 @@ class PowerManagerService extends IPowerManager.Stub
             else
                 mFnLight.turnOff();
         }
+    }
+
+    public void setLastScreenUnlockTime(long time) {
+        mLastScreenUnlockTime = time;
+    }
+    
+    public long getLastScreenUnlockTime() {
+        return mLastScreenUnlockTime;
     }
 
 

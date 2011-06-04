@@ -2067,6 +2067,14 @@ public final class Settings {
         public static final String UNLOCK_SOUND = "unlock_sound";
 
         /**
+         * Always turn on screen after call ignoring proximity?
+         * 0 = no
+         * 1 = yes
+         * @hide
+         */
+        public static final String INACCURATE_PROXIMITY_WORKAROUND = "inaccurate_proximity_sensor";
+
+        /**
          * Receive incoming SIP calls?
          * 0 = no
          * 1 = yes
@@ -3420,6 +3428,12 @@ public final class Settings {
          * @hide
          */
         public static final String LOCK_DOTS_VISIBLE = "lock_pattern_dotsvisible";
+
+        /**
+         * PATTERN_LOCK_TIMEOUT 
+         * @hide
+         */
+        public static final String PATTERN_LOCK_TIMEOUT = "pattern_lock_timeout_msec";
 
         /**
          * LOCK_SHOW_ERROR_PATH
