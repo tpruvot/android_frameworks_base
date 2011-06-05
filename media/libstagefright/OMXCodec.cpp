@@ -163,16 +163,8 @@ static const CodecInfo kDecoderInfo[] = {
     { MEDIA_MIMETYPE_AUDIO_MPEG, "MP3Decoder" },
     { MEDIA_MIMETYPE_AUDIO_AMR_NB, "AMRNBDecoder" },
     { MEDIA_MIMETYPE_AUDIO_AMR_WB, "OMX.TI.WBAMR.decode" },
-#ifndef USE_SOFTWARE_AUDIO_AAC
-    { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.Nvidia.aac.decoder" },
-#endif
-#ifndef USE_SOFTWARE_AUDIO_AAC
-    { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.Nvidia.aac.decoder" },
-#endif
     { MEDIA_MIMETYPE_AUDIO_AMR_WB, "AMRWBDecoder" },
     { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.TI.AAC.decode" },
-    { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.ITTIAM.AAC.decode" },
-    { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.PV.aacdec" },
     { MEDIA_MIMETYPE_AUDIO_AAC, "AACDecoder" },
     { MEDIA_MIMETYPE_AUDIO_G711_ALAW, "G711Decoder" },
     { MEDIA_MIMETYPE_AUDIO_G711_MLAW, "G711Decoder" },
@@ -185,16 +177,14 @@ static const CodecInfo kDecoderInfo[] = {
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.TI.Video.Decoder" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "AVCDecoder" },
     { MEDIA_MIMETYPE_AUDIO_VORBIS, "VorbisDecoder" },
-   /* { MEDIA_MIMETYPE_VIDEO_WMV, "OMX.TI.Video.Decoder" },
-    { MEDIA_MIMETYPE_VIDEO_WMV, "OMX.TI.720P.Decoder" },
-    { MEDIA_MIMETYPE_AUDIO_WMA, "OMX.TI.WMA.decode"},
-    { MEDIA_MIMETYPE_AUDIO_WMA, "OMX.ITTIAM.WMA.decode"},*/
     { MEDIA_MIMETYPE_VIDEO_VPX, "VPXDecoder" },
 };
 
 static const CodecInfo kEncoderInfo[] = {
     { MEDIA_MIMETYPE_AUDIO_AMR_NB, "OMX.TI.AMR.encode" },
+    { MEDIA_MIMETYPE_AUDIO_AMR_NB, "AMRNBEncoder" },
     { MEDIA_MIMETYPE_AUDIO_AMR_WB, "OMX.TI.WBAMR.encode" },
+    { MEDIA_MIMETYPE_AUDIO_AMR_WB, "AMRWBEncoder" },
     { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.TI.AAC.encode" },
     { MEDIA_MIMETYPE_AUDIO_AAC, "AACEncoder" },
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.TI.Video.encoder" },
@@ -355,6 +345,14 @@ uint32_t OMXCodec::getComponentQuirks(
     if (!strcmp(componentName, "OMX.PV.avcdec")) {
         quirks |= kWantsNALFragments;
     }
+
+    if (!strcmp(componentName, "OMX.Nvidia.amr.decoder") ||
+         !strcmp(componentName, "OMX.Nvidia.amrwb.decoder") ||
+         !strcmp(componentName, "OMX.Nvidia.aac.decoder") ||
+         !strcmp(componentName, "OMX.Nvidia.mp3.decoder")) {
+        quirks |= kDecoderLiesAboutNumberOfChannels;
+    }
+
     if (!strcmp(componentName, "OMX.TI.MP3.decode")) {
         quirks |= kNeedsFlushBeforeDisable;
         quirks |= kDecoderLiesAboutNumberOfChannels;
@@ -403,8 +401,7 @@ uint32_t OMXCodec::getComponentQuirks(
 
         quirks |= kRequiresAllocateBufferOnInputPorts;
         quirks |= kRequiresAllocateBufferOnOutputPorts;
-        if (!strncmp(componentName, "OMX.TI.Video.encoder", 20) ||
-            !strncmp(componentName, "OMX.TI.720P.Encoder", 19)) {
+        if (!strncmp(componentName, "OMX.TI.Video.encoder", 20)) {
             quirks |= kAvoidMemcopyInputRecordingFrames;
         }
     }
@@ -554,6 +551,7 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta, uint32_t flags) {
         uint32_t type;
         const void *data;
         size_t size;
+
         if (meta->findData(kKeyESDS, &type, &data, &size)) {
             ESDS esds((const char *)data, size);
             CHECK_EQ(esds.InitCheck(), OK);
@@ -683,27 +681,6 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta, uint32_t flags) {
         CHECK(meta->findInt32(kKeySampleRate, &sampleRate));
 
         setAACFormat(numChannels, sampleRate, bitRate);
-        // Configure TI OMX component to FrameMode for AAC-ADTS
-        if (!strcmp(mComponentName, "OMX.TI.AAC.decode")) {
-            OMX_INDEXTYPE index;
-
-            CODEC_LOGV("OMXCodec::configureCodec() TI AAC - Configure Component to FrameMode");
-
-            // Get Extension Index from Component
-            status_t err = mOMX->getExtensionIndex(mNode, "OMX.TI.index.config.AacDecFrameModeInfo", &index);
-            if (err != OK) {
-                CODEC_LOGV("OMXCodec::configureCodec() TI AAC - Problem getting ExtensionIndex - Use SteamMode");
-            }
-            else {
-                OMX_U16 framemode = 1;
-                // Set FrameMode for ADTS streams
-                err = mOMX->setConfig(mNode, index, &framemode, sizeof(framemode));
-                if (err != OK) {
-                    CODEC_LOGV("OMXCodec::configureCodec() TI AAC - Problem configuring FrameMode - Use SteamMode");
-                }
-            }
-        }
-
     }
 
     if (!strncasecmp(mMIME, "video/", 6)) {
@@ -1155,8 +1132,6 @@ status_t OMXCodec::getVideoProfileLevel(
     CODEC_LOGV("Default profile: %ld, level %ld",
             defaultProfileLevel.mProfile, defaultProfileLevel.mLevel);
 
-    return OK;
-
     // Are the default profile and level overwriten?
     int32_t profile, level;
     if (!meta->findInt32(kKeyVideoProfile, &profile)) {
@@ -1410,7 +1385,7 @@ status_t OMXCodec::setVideoOutputFormat(
 #if 1
         if (!strncmp(mComponentName, "OMX.qcom.7x30",13)) {
             OMX_U32 index;
-
+	    
             for(index = 0 ;; index++){
               format.nIndex = index;
 	      if(mOMX->getParameter(
@@ -2083,7 +2058,15 @@ void OMXCodec::onEvent(OMX_EVENTTYPE event, OMX_U32 data1, OMX_U32 data2) {
         case OMX_EventPortSettingsChanged:
         {
             if(mState == EXECUTING)
-              onPortSettingsChanged(data1);
+                CODEC_LOGV("OMX_EventPortSettingsChanged(port=%ld, data2=0x%08lx)",
+                       data1, data2);
+
+                if (data2 == 0 || data2 == OMX_IndexParamPortDefinition) {
+                    onPortSettingsChanged(data1);
+                } else if (data1 == kPortIndexOutput
+                        && data2 == OMX_IndexConfigCommonOutputCrop) {
+                    // todo: handle crop rect
+                }
             else
               LOGE("Ignore PortSettingsChanged event \n");
             break;
@@ -2197,7 +2180,9 @@ void OMXCodec::onCmdComplete(OMX_COMMANDTYPE cmd, OMX_U32 data) {
                 CHECK_EQ(portIndex, kPortIndexOutput);
 
                 sp<MetaData> oldOutputFormat = mOutputFormat;
-                initOutputFormat(mSource->getFormat());
+                if (strncmp(mComponentName, "OMX.Nvidia.h26",14)) {
+                    initOutputFormat(mSource->getFormat());
+                }
 
                 // Don't notify clients if the output port settings change
                 // wasn't of importance to them, i.e. it may be that just the
@@ -3847,8 +3832,15 @@ void OMXCodec::initOutputFormat(const sp<MetaData> &inputFormat) {
                 else {
                     LOGV("video_def->nStride = %d, video_def->nSliceHeight = %d", video_def->nStride,
                             video_def->nSliceHeight );
-                    mOutputFormat->setInt32(kKeyWidth, video_def->nStride);
-                    mOutputFormat->setInt32(kKeyHeight, video_def->nSliceHeight);
+                    if (video_def->nStride && video_def->nSliceHeight) {
+                        /* Make sure we actually got the values from the decoder */
+                        mOutputFormat->setInt32(kKeyWidth, video_def->nStride);
+                        mOutputFormat->setInt32(kKeyHeight, video_def->nSliceHeight);
+                    } else {
+                        /* We didn't. Use the old behavior */
+                        mOutputFormat->setInt32(kKeyWidth, video_def->nFrameWidth);
+                        mOutputFormat->setInt32(kKeyHeight, video_def->nFrameHeight);
+                    }
                 }
 #else
                 //Some hardware expects the old behavior
@@ -3952,4 +3944,3 @@ status_t QueryCodecs(
 }
 
 }  // namespace android
-
