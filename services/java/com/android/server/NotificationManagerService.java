@@ -1493,7 +1493,7 @@ public class NotificationManagerService extends INotificationManager.Stub
             }
         } else if (mBatteryCharging) {
             int color = mBatteryFull ? BATTERY_FULL_ARGB : BATTERY_MEDIUM_ARGB;
-            mBatteryLight.setColor(adjustForQuietHours(BATTERY_FULL_ARGB));
+            mBatteryLight.setColor(adjustForQuietHours(color));
         } else {
             mBatteryLight.turnOff();
         }
