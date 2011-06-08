@@ -1488,7 +1488,6 @@ public class NotificationManagerService extends INotificationManager.Stub
         if (SHOLES_DEVICE) {
             mBlendColor = 0;
         }
-
         // Battery low always shows, other states only show if charging.
         if (mBatteryLow) {
             if (mBatteryCharging) {
@@ -1498,7 +1497,7 @@ public class NotificationManagerService extends INotificationManager.Stub
                 mBatteryLight.setFlashing(BATTERY_LOW_ARGB, LightsService.LIGHT_FLASH_TIMED,
                         BATTERY_BLINK_ON, BATTERY_BLINK_OFF);
             }
-        } else if (mBatteryCharging) {
+        } else if (mBatteryCharging && "true".equals(SystemProperties.get("ro.BatteryLight"))) {  
             if (mBatteryFull) {
                 mBatteryLight.setColor(BATTERY_FULL_ARGB);
             } else {
@@ -1507,7 +1506,7 @@ public class NotificationManagerService extends INotificationManager.Stub
         } else {
             mBatteryLight.turnOff();
         }
-
+      
         // handle notification lights
         if (mLedNotification == null) {
             // get next notification, if any
