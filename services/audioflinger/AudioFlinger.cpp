@@ -668,60 +668,27 @@ status_t AudioFlinger::setParameters(int ioHandle, const String8& keyValuePairs)
         }
     }
 #endif
-
-// writable key=value
-String8 newKey = keyValuePairs;
-
 #ifdef HAVE_FM_RADIO
     AudioParameter param = AudioParameter(keyValuePairs);
     String8 key = String8(AudioParameter::keyRouting);
-    String8 FMkey = String8("routing");
     int device;
-    if (param.getInt(key, device) == NO_ERROR || param.getInt(FMkey, device) == NO_ERROR) {
-        if((device & AudioSystem::DEVICE_OUT_FM_ALL) && mFmOn == false) {
-             mFmOn = true;
-         } else if (mFmOn == true && !(device & AudioSystem::DEVICE_OUT_FM_ALL)) {
-             mFmOn = false;
+    if (param.getInt(key, device) == NO_ERROR) {
+        if((device & AudioSystem::DEVICE_OUT_FM_ALL) && mFmOn == false){
+            mFmOn = true;
+         } else if (mFmOn == true && !(device & AudioSystem::DEVICE_OUT_FM_ALL)){
+            mFmOn = false;
          }
-    #if (BOARD_FM_DEVICE == wl1271)
-         //Motorola specific
-         if (device == AudioSystem::DEVICE_OUT_WIRED_HEADPHONE) {
-             newKey = "FM_routing=DEVICE_OUT_WIRED_HEADPHONE";
-             LOGD("MOTO io %d, keys %s, orig key %s", ioHandle, newKey.string(), keyValuePairs.string());
-             mAudioHardware->setParameters(newKey);
-         } else if (device == AudioSystem::DEVICE_OUT_SPEAKER) {
-             newKey = "FM_routing=DEVICE_OUT_SPEAKER";
-             LOGD("MOTO io %d, keys %s, orig key %s", ioHandle, newKey.string(), keyValuePairs.string());
-             mAudioHardware->setParameters(newKey);
-         } else {
-             LOGD("MOTO UNKNOWN : io %d, keys %s device=%d", ioHandle, newKey.string(), device);
-         }
-    #endif
     }
 
     String8 fmOnKey = String8(AudioParameter::keyFmOn);
     String8 fmOffKey = String8(AudioParameter::keyFmOff);
-    String8 fmFMKey = String8("FM_launch");
-    if (param.getInt(fmOnKey, device) == NO_ERROR || param.getInt(fmFMKey, device) == NO_ERROR) {
-    #if (BOARD_FM_DEVICE == wl1271)
-        if (device & AudioSystem::DEVICE_OUT_FM_ALL) {
-            mFmOn = true;
-            newKey = "FM_launch=on";
-            LOGD("MOTO io %d, keys %s, orig key %s", ioHandle, newKey.string(), keyValuePairs.string());
-            mAudioHardware->setParameters(newKey);
-        } else {
-            mFmOn = false;
-            // seems not working on fast power off+power on, so we ignore that
-            //newKey = "FM_launch=off";
-            LOGD("MOTO IGNORE : io %d, keys %s device=%d", ioHandle, newKey.string(), device);
-        }
-    #else
+    if (param.getInt(fmOnKey, device) == NO_ERROR) {
         mFmOn = true;
-        // Call hardware to switch FM on
+        // Call hardware to switch FM on/off
         mAudioHardware->setParameters(keyValuePairs);
-    #endif
     } else if (param.getInt(fmOffKey, device) == NO_ERROR) {
         mFmOn = false;
+        // Call hardware to switch FM on/off
         mAudioHardware->setParameters(keyValuePairs);
     }
 #endif
