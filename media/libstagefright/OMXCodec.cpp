@@ -160,12 +160,14 @@ static sp<MediaSource> InstantiateSoftwareCodec(
 static const CodecInfo kDecoderInfo[] = {
     { MEDIA_MIMETYPE_IMAGE_JPEG, "OMX.TI.JPEG.decode" },
     { MEDIA_MIMETYPE_AUDIO_MPEG, "OMX.Nvidia.mp3.decoder" },
+    { MEDIA_MIMETYPE_AUDIO_MPEG, "OMX.TI.MP3.decode" },
     { MEDIA_MIMETYPE_AUDIO_MPEG, "MP3Decoder" },
     { MEDIA_MIMETYPE_AUDIO_AMR_NB, "AMRNBDecoder" },
     { MEDIA_MIMETYPE_AUDIO_AMR_WB, "OMX.TI.WBAMR.decode" },
     { MEDIA_MIMETYPE_AUDIO_AMR_WB, "AMRWBDecoder" },
     { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.TI.AAC.decode" },
     { MEDIA_MIMETYPE_AUDIO_AAC, "AACDecoder" },
+    { MEDIA_MIMETYPE_AUDIO_WMA, "OMX.TI.WMA.decode"},
     { MEDIA_MIMETYPE_AUDIO_G711_ALAW, "G711Decoder" },
     { MEDIA_MIMETYPE_AUDIO_G711_MLAW, "G711Decoder" },
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.TI.Video.Decoder" },
@@ -196,7 +198,6 @@ static const CodecInfo kEncoderInfo[] = {
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.TI.720P.Encoder" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "AVCEncoder" },
 };
-
 
 #undef OPTIONAL
 
@@ -362,6 +363,14 @@ uint32_t OMXCodec::getComponentQuirks(
         quirks |= kRequiresFlushCompleteEmulation;
         quirks |= kSupportsMultipleFramesPerInputBuffer;
     }
+    if (!strcmp(componentName, "OMX.TI.WMA.decode")) {
+        quirks |= kNeedsFlushBeforeDisable;
+        quirks |= kRequiresFlushCompleteEmulation;
+        quirks |= kDecoderLiesAboutNumberOfChannels;
+    }
+    if (!strcmp(componentName, "OMX.PV.aacdec")) {
+        quirks |= kNeedsFlushBeforeDisable;
+    }
     if (!strncmp(componentName, "OMX.qcom.video.encoder.", 23)) {
         quirks |= kRequiresLoadedToIdleAfterAllocation;
         quirks |= kRequiresAllocateBufferOnInputPorts;
@@ -390,6 +399,19 @@ uint32_t OMXCodec::getComponentQuirks(
         quirks |= kRequiresAllocateBufferOnOutputPorts;
         quirks |= kDefersOutputBufferAllocation;
         quirks |= kDoesNotRequireMemcpyOnOutputPort;
+    }
+    if (!strcmp(componentName, "OMX.TI.Video.Decoder") ||
+            !strcmp(componentName, "OMX.TI.720P.Decoder")) {
+        // TI Video Decoder and TI 720p Decoder must use buffers allocated
+        // by Overlay for output port. So, I cannot call OMX_AllocateBuffer
+        // on output port. I must use OMX_UseBuffer on input port to ensure
+        // 128 byte alignment.
+        quirks |= kRequiresAllocateBufferOnInputPorts;
+        quirks |= kInputBufferSizesAreBogus;
+
+        if(kPreferThumbnailMode) {
+                quirks |= OMXCodec::kRequiresAllocateBufferOnOutputPorts;
+        }
     }
 
     if (!strncmp(componentName, "OMX.TI.", 7)) {
@@ -641,11 +663,11 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta, uint32_t flags) {
             success = success && meta->findInt32(kKeyHeight, &height);
             CHECK(success);
             if (!strcmp(mComponentName, "OMX.TI.720P.Decoder")
-                && (profile == kAVCProfileBaseline && level <= 39)
+                && (profile == kAVCProfileBaseline && level <= 31)
             ) {
                 // Though this decoder can handle this profile/level,
                 // we prefer to use "OMX.TI.Video.Decoder" for
-                // Baseline Profile with level <=39 and sub 720p
+                // Baseline Profile with level <=31 and sub 720p
                 return ERROR_UNSUPPORTED;
             }
 #endif
@@ -1547,6 +1569,8 @@ void OMXCodec::setComponentRole(
             "video_decoder.mpeg4", "video_encoder.mpeg4" },
         { MEDIA_MIMETYPE_VIDEO_H263,
             "video_decoder.h263", "video_encoder.h263" },
+        { MEDIA_MIMETYPE_AUDIO_WMA,
+            "audio_decoder.wma", "audio_encoder.wma" },
     };
 
     static const size_t kNumMimeToRole =
