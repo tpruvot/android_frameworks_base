@@ -176,24 +176,29 @@ static const CodecInfo kDecoderInfo[] = {
     { MEDIA_MIMETYPE_AUDIO_AAC, "AACDecoder" },
 //    { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.PV.aacdec" },
     //{ MEDIA_MIMETYPE_AUDIO_WMA, "OMX.Nvidia.wma.decoder" },
+    { MEDIA_MIMETYPE_AUDIO_WMA, "OMX.TI.WMA.decode"},
     { MEDIA_MIMETYPE_AUDIO_G711_ALAW, "G711Decoder" },
     { MEDIA_MIMETYPE_AUDIO_G711_MLAW, "G711Decoder" },
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.Nvidia.mp4.decode" },
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.qcom.7x30.video.decoder.mpeg4" },
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.qcom.video.decoder.mpeg4" },
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.TI.Video.Decoder" },
+    { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.TI.720P.Decoder" },
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.SEC.MPEG4.Decoder" },
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "M4vH263Decoder" },
+    { MEDIA_MIMETYPE_VIDEO_H263, "OMX.TI.Video.Decoder" },
     { MEDIA_MIMETYPE_VIDEO_H263, "OMX.Nvidia.h263.decode" },
 //    { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.PV.mpeg4dec" },
     { MEDIA_MIMETYPE_VIDEO_H263, "OMX.qcom.7x30.video.decoder.h263" },
     { MEDIA_MIMETYPE_VIDEO_H263, "OMX.qcom.video.decoder.h263" },
     { MEDIA_MIMETYPE_VIDEO_H263, "OMX.SEC.H263.Decoder" },
+    { MEDIA_MIMETYPE_VIDEO_H263, "OMX.TI.Video.Decoder" },
     { MEDIA_MIMETYPE_VIDEO_H263, "M4vH263Decoder" },
 //    { MEDIA_MIMETYPE_VIDEO_H263, "OMX.PV.h263dec" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.Nvidia.h264.decode" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.qcom.7x30.video.decoder.avc" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.qcom.video.decoder.avc" },
+    { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.TI.720P.Decoder" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.TI.Video.Decoder" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.SEC.AVC.Decoder" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "AVCDecoder" },
@@ -215,6 +220,7 @@ static const CodecInfo kEncoderInfo[] = {
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.qcom.7x30.video.encoder.mpeg4" },
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.qcom.video.encoder.mpeg4" },
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.TI.Video.encoder" },
+    { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.TI.720P.Encoder" },
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.SEC.MPEG4.Encoder" },
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "M4vH263Encoder" },
 //    { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.PV.mpeg4enc" },
@@ -229,6 +235,7 @@ static const CodecInfo kEncoderInfo[] = {
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.qcom.7x30.video.encoder.avc" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.qcom.video.encoder.avc" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.TI.Video.encoder" },
+    { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.TI.720P.Encoder" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.SEC.AVC.Encoder" },
     { MEDIA_MIMETYPE_VIDEO_AVC, "AVCEncoder" },
 //    { MEDIA_MIMETYPE_VIDEO_AVC, "OMX.PV.avcenc" },
@@ -398,6 +405,11 @@ uint32_t OMXCodec::getComponentQuirks(
         quirks |= kRequiresFlushCompleteEmulation;
         quirks |= kSupportsMultipleFramesPerInputBuffer;
     }
+    if (!strcmp(componentName, "OMX.TI.WMA.decode")) {
+        quirks |= kNeedsFlushBeforeDisable;
+        quirks |= kRequiresFlushCompleteEmulation;
+        quirks |= kDecoderLiesAboutNumberOfChannels;
+    }
     if (!strncmp(componentName, "OMX.qcom.video.encoder.", 23)) {
         quirks |= kRequiresLoadedToIdleAfterAllocation;
         quirks |= kRequiresAllocateBufferOnInputPorts;
@@ -427,7 +439,19 @@ uint32_t OMXCodec::getComponentQuirks(
         quirks |= kDefersOutputBufferAllocation;
         quirks |= kDoesNotRequireMemcpyOnOutputPort;
     }
+    if (!strcmp(componentName, "OMX.TI.Video.Decoder") ||
+            !strcmp(componentName, "OMX.TI.720P.Decoder")) {
+        // TI Video Decoder and TI 720p Decoder must use buffers allocated
+        // by Overlay for output port. So, I cannot call OMX_AllocateBuffer
+        // on output port. I must use OMX_UseBuffer on input port to ensure
+        // 128 byte alignment.
+        quirks |= kRequiresAllocateBufferOnInputPorts;
+        quirks |= kInputBufferSizesAreBogus;
 
+        if(kPreferThumbnailMode) {
+                quirks |= OMXCodec::kRequiresAllocateBufferOnOutputPorts;
+        }
+    }
     if (!strncmp(componentName, "OMX.TI.", 7)) {
         // Apparently I must not use OMX_UseBuffer on either input or
         // output ports on any of the TI components or quote:
@@ -669,6 +693,14 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta, uint32_t flags) {
                 // and wreak havoc instead...
 
                 LOGE("Profile and/or level exceed the decoder's capabilities.");
+                return ERROR_UNSUPPORTED;
+            }
+            if (!strcmp(mComponentName, "OMX.TI.720P.Decoder")
+                && (profile == kAVCProfileBaseline && level <= 31)
+            ) {
+                // Though this decoder can handle this profile/level,
+                // we prefer to use "OMX.TI.Video.Decoder" for
+                // Baseline Profile with level <=31 and sub 720p
                 return ERROR_UNSUPPORTED;
             }
         }
@@ -1547,6 +1579,8 @@ void OMXCodec::setComponentRole(
             "video_decoder.mpeg4", "video_encoder.mpeg4" },
         { MEDIA_MIMETYPE_VIDEO_H263,
             "video_decoder.h263", "video_encoder.h263" },
+        { MEDIA_MIMETYPE_AUDIO_WMA,
+            "audio_decoder.wma", "audio_encoder.wma" },
     };
 
     static const size_t kNumMimeToRole =
@@ -2624,7 +2658,7 @@ void OMXCodec::drainInputBuffer(BufferInfo *info) {
         }
 
         size_t remainingBytes = info->mSize - offset;
-
+	if((srcBuffer->range_length()==815104)||(srcBuffer->range_length()==155648)) srcBuffer->set_range(srcBuffer->range_offset(),info->mSize); //hack to recording WVGA video.
         if (srcBuffer->range_length() > remainingBytes) {
             if (offset == 0) {
                 CODEC_LOGE(

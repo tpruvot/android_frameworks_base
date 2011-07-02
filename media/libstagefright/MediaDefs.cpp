@@ -36,6 +36,13 @@ const char *MEDIA_MIMETYPE_AUDIO_G711_ALAW = "audio/g711-alaw";
 const char *MEDIA_MIMETYPE_AUDIO_G711_MLAW = "audio/g711-mlaw";
 const char *MEDIA_MIMETYPE_AUDIO_RAW = "audio/raw";
 
+const char *MEDIA_MIMETYPE_CONTAINER_ASF = "video/asf";
+const char *MEDIA_MIMETYPE_VIDEO_WMV  = "video/wmv9";
+const char *MEDIA_MIMETYPE_AUDIO_WMA = "audio/wma";
+const char *MEDIA_MIMETYPE_AUDIO_WMAPRO = "audio/wmapro";
+const char *MEDIA_MIMETYPE_AUDIO_WMALSL = "audio/wmalsl";
+
+
 const char *MEDIA_MIMETYPE_CONTAINER_MPEG4 = "video/mpeg4";
 const char *MEDIA_MIMETYPE_CONTAINER_WAV = "audio/wav";
 const char *MEDIA_MIMETYPE_CONTAINER_OGG = "application/ogg";

@@ -362,7 +362,13 @@ class ServerThread extends Thread {
             } catch (Throwable e) {
                 Slog.e(TAG, "Failure starting Location Manager", e);
             }
-
+// Motorola Location Proxy
+            try {
+                Slog.i(TAG, "Location Proxy Service");
+            } catch (Throwable e) {
+                Slog.e(TAG, "Failure starting Location Proxy Service", e);
+            }
+//end
             try {
                 Slog.i(TAG, "Search Service");
                 ServiceManager.addService(Context.SEARCH_SERVICE,
