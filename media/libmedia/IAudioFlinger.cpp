@@ -71,10 +71,11 @@ enum {
     GET_EFFECT_DESCRIPTOR,
     CREATE_EFFECT,
     MOVE_EFFECTS,
-#ifdef OMAP_ENHANCEMENT
-    SET_FMRX_ACTIVE
-#else
-    SET_FM_VOLUME
+#ifdef HAVE_FM_RADIO
+# ifdef OMAP_ENHANCEMENT
+    SET_FMRX_ACTIVE,
+# endif
+    SET_FM_VOLUME,
 #endif
 };
 
