@@ -222,6 +222,10 @@ private:
 #else
     MediaBuffer *mLastVideoBuffer;
 #endif
+#ifdef OMAP_ENHANCEMENT
+    const char* mExtractorType;
+    sp<MediaExtractor> mExtractor;
+#endif
     MediaBuffer *mVideoBuffer;
 
     sp<NuHTTPDataSource> mConnectingDataSource;
@@ -311,10 +315,6 @@ private:
 
     AwesomePlayer(const AwesomePlayer &);
     AwesomePlayer &operator=(const AwesomePlayer &);
-#ifdef OMAP_ENHANCEMENT
-    const char* mExtractorType;
-    sp<MediaExtractor> mExtractor;
-#endif
 };
 
 }  // namespace android
