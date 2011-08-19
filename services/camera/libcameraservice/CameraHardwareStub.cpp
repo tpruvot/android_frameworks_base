@@ -393,6 +393,17 @@ static CameraInfo sCameraInfo[] = {
     }
 };
 
+#ifdef USE_CUSTOM_PARAMETERS
+status_t CameraHardwareStub::setCustomParameters(const CameraParameters& params)
+{
+    return setParameters(params);
+}
+
+CameraParameters CameraHardwareStub::getCustomParameters() const
+{
+    return getParameters();
+}
+#endif
 #ifdef USE_GETBUFFERINFO
 status_t CameraHardwareStub::getBufferInfo(sp<IMemory>& Frame, size_t *alignedSize) {
     /* No Support for this API in STUB Camera. Just return NULL */
