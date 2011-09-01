@@ -133,7 +133,7 @@ private:
 
 #ifdef OMAP_ENHANCEMENT
     enum {
-        HOLD_TO_RESUME      = 128,
+        HOLD_TO_RESUME      = 2048,
         MAX_RESOLUTION      = 414720, // 864x480(WVGA) - 720x576(D1-PAL)
     };
     enum {

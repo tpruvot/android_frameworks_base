@@ -66,6 +66,7 @@ namespace android {
     {"ftypqt", 6},
     {"ftypmmp4", 8},
     {"ftypmp41", 8},
+    {"ftypwmf",  7},
     {"ftypMSNV", 8}
     };
 /*Indicates the number of known types and it should be linked to variable knownFileTypes*/
@@ -534,11 +535,17 @@ status_t MPEG4Extractor::parseChunk(off_t *offset, int depth) {
             // The smallest valid chunk is 16 bytes long in this case.
             return ERROR_MALFORMED;
         }
-    } else if (chunk_size < 8) {
+#ifdef OMAP_ENHANCEMENT
+    } else if ((chunk_size < 8) && (chunk_size != 0)){
         // The smallest valid chunk is 8 bytes long.
         return ERROR_MALFORMED;
     }
-
+#else
+    } else if (chunk_size < 8){
+        // The smallest valid chunk is 8 bytes long.
+        return ERROR_MALFORMED;
+    }
+#endif
     char chunk[5];
     MakeFourCCString(chunk_type, chunk);
 
@@ -2330,7 +2337,6 @@ static bool BetterSniffMPEG4(
     return true;
 }
 #ifdef OMAP_ENHANCEMENT
-
 bool positionFileAtAtom (const sp<DataSource> &source, uint32_t &offsetToNextAtom, const char *patern, off_t fileSize, uint32_t &atomSize) {
     /*Fail safe counter*/
     uint32_t failSafe = 0;
@@ -2422,9 +2428,18 @@ bool SniffMPEG4(const sp<DataSource> &source, String8 *mimeType, float *confiden
         }
     }
 
+#ifdef OMAP_ENHANCEMENT
+    bool mdat_result = memcmp(header, "mdat", 4);
+
     /*Exit if the pattern wasn't found*/
+    if (memCompRetVal && mdat_result ) {
+#else
     if (memCompRetVal) {
+#endif
         /*Couldn't find the pattern*/
+#ifdef OMAP_ENHANCEMENT
+        LOGE("both mdat,ftyp not found");
+#endif
         return false;
     }
 
@@ -2438,7 +2453,6 @@ bool SniffMPEG4(const sp<DataSource> &source, String8 *mimeType, float *confiden
 
     /*The file type matched one in the known list, look for the track indicating a video handler*/
     {
-
         /*Stores the file size this is a signed value compared to the unsigned value used to store the atom's sizes*/
         off_t fileSize;
         /*Stores the computed offset to the new atom*/
