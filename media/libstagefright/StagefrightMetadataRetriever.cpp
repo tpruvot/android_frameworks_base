@@ -396,18 +396,6 @@ VideoFrame *StagefrightMetadataRetriever::getFrameAtTime(
                 &mClient, trackMeta, source, OMXCodec::kPreferSoftwareCodecs,
                 timeUs, option);
 
-#ifdef OMAP_ENHANCEMENT
-    /*In case the first attempt have failed try a second time*/
-    if (frame == NULL) {
-        LOGD("Software decoder failed to extract thumbnail, "
-             "trying hardware decoder with first frame in clip.");
-        /*Set the flag kSelectFirstSample in order to force decoding frame 0*/
-        trackMeta = mExtractor->getTrackMetaData(
-            i, MediaExtractor::kSelectFirstSample | MediaExtractor::kIncludeExtensiveMetaData);
-        /*Get the frame docoded*/
-        frame = extractVideoFrameWithCodecFlags(&mClient, trackMeta, source, 0, timeUs, option);
-    }
-#else
     if (frame == NULL) {
         LOGV("Software decoder failed to extract thumbnail, "
              "trying hardware decoder.");
@@ -415,7 +403,6 @@ VideoFrame *StagefrightMetadataRetriever::getFrameAtTime(
         frame = extractVideoFrameWithCodecFlags(&mClient, trackMeta, source, 0,
                         timeUs, option);
     }
-#endif
 
     return frame;
 }

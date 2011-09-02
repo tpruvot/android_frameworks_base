@@ -42,6 +42,8 @@ struct OMXCodec : public MediaSource,
         kPreferThumbnailMode               = 0x8,
         kPreferInterlacedOutputContent     = 0x10,
         MAX_RESOLUTION = 414720, // video resolution for TI Vid Dec
+        MAX_RESOLUTION_WIDTH = 864, // video width for TI Vid Dec
+        MAX_RESOLUTION_HEIGHT = 864, // video height for TI Vid Dec
 #endif
     };
     static sp<MediaSource> Create(

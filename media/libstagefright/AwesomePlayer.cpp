@@ -1098,9 +1098,6 @@ status_t AwesomePlayer::initRenderer_l() {
         int32_t outputBufferCnt = -1;
         outputBufferCnt = mVideoSource->getNumofOutputBuffers();
         LOGD("Codec Recommended outputBuffer count %d",outputBufferCnt);
-#elif defined(OMAP_ENHANCEMENT)
-	int32_t outputBufferCnt = -1;
-#endif
 
         sp<IOMXRenderer> native =
             mClient.interface()->createRenderer(
@@ -1108,13 +1105,7 @@ status_t AwesomePlayer::initRenderer_l() {
                     (OMX_COLOR_FORMATTYPE)format,
                     decodedWidth, decodedHeight,
                     mVideoWidth, mVideoHeight,
-#if defined(OMAP_ENHANCEMENT) && defined(TARGET_OMAP4)
                     rotationDegrees, mS3Dparams.active, outputBufferCnt);
-#elif defined(OMAP_ENHANCEMENT)
-                    rotationDegrees, isS3D, outputBufferCnt);
-#else
-                    rotationDegrees);
-#endif
 
         if (native == NULL) {
             return NO_INIT;
@@ -1122,6 +1113,38 @@ status_t AwesomePlayer::initRenderer_l() {
 
         mVideoRenderer = new AwesomeRemoteRenderer(native);
 
+#elif defined(OMAP_ENHANCEMENT)
+        int32_t outputBufferCnt = -1;
+
+        sp<IOMXRenderer> native =
+            mClient.interface()->createRenderer(
+                    mISurface, component,
+                    (OMX_COLOR_FORMATTYPE)format,
+                    decodedWidth, decodedHeight,
+                    mVideoWidth, mVideoHeight,
+                    rotationDegrees, isS3D, outputBufferCnt);
+
+        if (native == NULL) {
+            return NO_INIT;
+        }
+
+        mVideoRenderer = new AwesomeRemoteRenderer(native);
+
+#else
+        sp<IOMXRenderer> native =
+            mClient.interface()->createRenderer(
+                    mISurface, component,
+                    (OMX_COLOR_FORMATTYPE)format,
+                    decodedWidth, decodedHeight,
+                    mVideoWidth, mVideoHeight,
+                    rotationDegrees);
+
+        if (native == NULL) {
+            return NO_INIT;
+        }
+
+        mVideoRenderer = new AwesomeRemoteRenderer(native);
+#endif
 #ifdef OMAP_ENHANCEMENT
             if (!strncmp("OMX.TI", component, 6)) {
 #if defined(TARGET_OMAP4)

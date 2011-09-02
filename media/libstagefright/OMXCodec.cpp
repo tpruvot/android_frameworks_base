@@ -736,30 +736,12 @@ void OMXCodec::findMatchingCodecs(
     }
 
 #ifdef OMAP_ENHANCEMENT
-#ifdef TARGET_OMAP4
     char value[PROPERTY_VALUE_MAX];
     property_get("debug.video.preferswcodec", value, "0");
     if (atoi(value))
     {
         flags |= kPreferSoftwareCodecs;
     }
-    else
-    {
-        /* For thumbnail mode, SW codec is preferred but in case of
-        * HD clips, the SW codec fails and retry with Ducati codec
-        * is also not done. Hence resetting the flags to use Ducati
-        * codec for MPEG4/H263/H264 */
-        if ((flags & kPreferThumbnailMode) &&
-            (!strcasecmp(mime, MEDIA_MIMETYPE_VIDEO_MPEG4) ||
-             !strcasecmp(mime, MEDIA_MIMETYPE_VIDEO_H263) ||
-             !strcasecmp(mime, MEDIA_MIMETYPE_VIDEO_VP6) ||
-             !strcasecmp(mime, MEDIA_MIMETYPE_VIDEO_VP7) ||
-             !strcasecmp(mime, MEDIA_MIMETYPE_VIDEO_AVC)))
-        {
-            flags &= ~kPreferSoftwareCodecs;
-        }
-    }
-#endif
 #endif
 
     if (flags & kPreferSoftwareCodecs) {
@@ -1067,7 +1049,9 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta, uint32_t flags) {
             CHECK(success);
             if (!strcmp(mComponentName, "OMX.TI.720P.Decoder")
                 && (profile == kAVCProfileBaseline && level <= 39)
-                && (width*height < MAX_RESOLUTION)) {
+                && (width*height <= MAX_RESOLUTION)
+                && (width <= MAX_RESOLUTION_WIDTH && height <= MAX_RESOLUTION_HEIGHT ))
+            {
                 // Though this decoder can handle this profile/level,
                 // we prefer to use "OMX.TI.Video.Decoder" for
                 // Baseline Profile with level <=39 and sub 720p
@@ -3378,6 +3362,7 @@ void OMXCodec::onEvent(OMX_EVENTTYPE event, OMX_U32 data1, OMX_U32 data2) {
 
         case OMX_EventPortSettingsChanged:
         {
+#ifndef OMAP_ENHANCEMENT
             if(mState == EXECUTING)
                 CODEC_LOGV("OMX_EventPortSettingsChanged(port=%ld, data2=0x%08lx)",
                        data1, data2);
@@ -3390,6 +3375,9 @@ void OMXCodec::onEvent(OMX_EVENTTYPE event, OMX_U32 data1, OMX_U32 data2) {
                 }
             else
               LOGE("Ignore PortSettingsChanged event \n");
+#else
+            onPortSettingsChanged(data1);
+#endif
             break;
         }
 
@@ -4510,11 +4498,6 @@ void OMXCodec::setImageOutputFormat(
     CHECK_EQ(err, OK);
 #endif
 
-#ifdef TARGET_OMAP4
-    //Dont allocate buffers. Use the one provided.
-    mQuirks &= ~kRequiresAllocateBufferOnOutputPorts;
-#endif
-
     OMX_PARAM_PORTDEFINITIONTYPE def;
     InitOMXParams(&def);
     def.nPortIndex = kPortIndexOutput;
@@ -4810,6 +4793,15 @@ void OMXCodec::setBuffers(Vector< sp<IMemory> > mBufferAddresses, bool portRecon
         /*output port is not enabled for ducati codecs, delayed till we get buffers here */
         enablePortAsync(kPortIndexOutput);
         allocateBuffersOnPort(kPortIndexOutput);
+
+        //Make sure output port is reached to ENABLED state and thus mstate to EXECUTING
+        retrycount = 0;
+        while(mPortStatus[kPortIndexOutput] == ENABLING){
+            usleep(2000); // 2 mS
+            LOGD("(%d) Output port is ENABLING.. Waiting for port to be enabled.. %d",retrycount,mPortStatus[kPortIndexOutput] );
+            retrycount++;
+            CHECK(retrycount < 100);
+        }
     }
 #endif
 }

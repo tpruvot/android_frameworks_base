@@ -2366,7 +2366,7 @@ bool positionFileAtAtom (const sp<DataSource> &source, uint32_t &offsetToNextAto
         offsetToNextAtom += atomNameAndSize.atomSize.size;
 
         /*Check the size is within the file size. Currently this is limited to a file of 2GB*/
-        if (fileSize > 0 && offsetToNextAtom > (unsigned)fileSize) {
+        if (fileSize > 0 && offsetToNextAtom >= (unsigned)fileSize) {
             /*Bad offset*/
             return false;
         }
@@ -2390,11 +2390,11 @@ bool positionFileAtAtom (const sp<DataSource> &source, uint32_t &offsetToNextAto
         atomNameAndSize.atomSize.sizeArray[1] ^= atomNameAndSize.atomSize.sizeArray[2];
 
         LOGD("Atom found: %c%c%c%c with size = %x\n", atomNameAndSize.atomName[0], atomNameAndSize.atomName[1], atomNameAndSize.atomName[2], atomNameAndSize.atomName[3], atomNameAndSize.atomSize.size);
-    } while ((memCompRetVal = memcmp(atomNameAndSize.atomName, patern, 4))  && atomNameAndSize.atomSize.size && atomNameAndSize.atomSize.size > 8 && failSafe < 10);
+    } while ((memCompRetVal = memcmp(atomNameAndSize.atomName, patern, 4))  && atomNameAndSize.atomSize.size && atomNameAndSize.atomSize.size >= 8 && failSafe < 10 && (offsetToNextAtom+atomNameAndSize.atomSize.size) < (unsigned)fileSize);
 
 
     /*Check if the atom was found or that the iterations ended due to an error*/
-    if (memCompRetVal) {
+    if ((memCompRetVal) && ((offsetToNextAtom+atomNameAndSize.atomSize.size) < (unsigned)fileSize)) {
         /*Didn't find it return with no success*/
         return false;
     }
@@ -2529,10 +2529,14 @@ bool SniffMPEG4(const sp<DataSource> &source, String8 *mimeType, float *confiden
 
             /*Adjust the offset to look for the next trak atom*/
             offsetToSeek = trakOffset + trakSize;
-        } while (memCompRetVal = memcmp(handler, "vide", 4) && failCounter < 10);
+        } while (memCompRetVal = memcmp(handler, "vide", 4) && failCounter < 10 && (offsetToSeek < fileSize));
 
-        /*If the vide handler wasn't found exit*/
-        if (memCompRetVal) {
+       /*For some clips which have only audio track, the above loop goes till the end of the file,
+       * without finding video handler, this is not an issue. And there is no string match for audio track,
+       * becuase such clips are found to be having NULL string for handler component name.
+       * Here the count 10 restricts us to allow the audio only clips having maximum of 10 tracks, which may be acceptable.
+       */
+        if ((memCompRetVal) && (offsetToSeek < fileSize)) {
             return true;
         }
 
