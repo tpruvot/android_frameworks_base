@@ -57,7 +57,7 @@ namespace android {
     {"ftyp3gs6", 8},
     {"ftyp3ge6", 8},
     {"ftyp3gg6", 8},
-    {"ftypisom", 8},
+    {"ftypiso", 7},
     {"ftypM4V ", 8},
     {"ftypM4A ", 8},
     {"ftypf4v ", 8},
@@ -67,7 +67,10 @@ namespace android {
     {"ftypmmp4", 8},
     {"ftypmp41", 8},
     {"ftypwmf",  7},
-    {"ftypMSNV", 8}
+    {"ftypMSNV", 8},
+    {"ftyp3g2", 7},
+    {"ftypskm2",8},
+    {"ftypavc1",8}
     };
 /*Indicates the number of known types and it should be linked to variable knownFileTypes*/
 #define NUMBER_OF_KNOWN_FILE_TYPES (sizeof(knownFileTypes)/sizeof(struct Mpeg4FileType))
