@@ -2297,7 +2297,7 @@ status_t OMXCodec::setupAVCEncoderParameters(const sp<MetaData>& meta) {
     err = getVideoProfileLevel(meta, defaultProfileLevel, profileLevel);
     if (!(mQuirks & kCanNotSetVideoParameters) && err != OK) return err;
 #if defined(OMAP_ENHANCEMENT) && defined(TARGET_OMAP4)
-    h264type.eProfile = OMX_VIDEO_AVCProfileMain;
+    h264type.eProfile = OMX_VIDEO_AVCProfileHigh;
     h264type.eLevel = OMX_VIDEO_AVCLevel4;
     LOGV("h264type.eProfile=%d, h264type.eLevel=%d", h264type.eProfile, h264type.eLevel);
 #else

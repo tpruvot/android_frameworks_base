@@ -2071,6 +2071,12 @@ status_t MPEG4Source::read(
             }
 
             CHECK(mBuffer != NULL);
+#ifdef OMAP_ENHANCEMENT
+            if(mSampleTable->mTimeToSampleCtts) {
+                dts += mSampleTable->mTimeToSampleCtts[mCurrentSampleIndex];
+            }
+#endif
+
             mBuffer->set_range(0, size);
             mBuffer->meta_data()->clear();
             mBuffer->meta_data()->setInt64(

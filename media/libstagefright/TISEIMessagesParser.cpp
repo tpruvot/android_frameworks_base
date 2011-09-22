@@ -433,6 +433,7 @@ int16_t sei_message(mp4StreamType *psBits, /*int32_t *ff_byte, */ int32_t *last_
 
 namespace android {
 
+static int got_packing = 0;
 /* ======================================================================== */
 /*  Function : sei_rbsp()                                                   */
 /*  Purpose  : parse SEI messages NAL unit (ref: subclause 7.3.2.3)         */
@@ -444,6 +445,7 @@ int16_t sei_rbsp(uint8_t *buffer, int32_t length , S3D_params &mS3Dparams)
     uint32_t temp;
     int32_t NALSize = 0;
 
+    got_packing = 0;
     mp4StreamType psBits;
     psBits.data  = buffer;
     psBits.numBytes = length;
@@ -465,7 +467,10 @@ int16_t sei_rbsp(uint8_t *buffer, int32_t length , S3D_params &mS3Dparams)
   ----------------------------------------------------------------------------*/
     do
     {
-        status = sei_message(&psBits, &last_payload_type_byte, &last_payload_size_byte, mS3Dparams);
+        status = 0;
+        if (!got_packing) {
+            status = sei_message(&psBits, &last_payload_type_byte, &last_payload_size_byte, mS3Dparams);
+        }
         ShowBits(&psBits, 8, &temp);
         NALSize += PAYLOAD_HEADER_SIZE + last_payload_size_byte;
     }while(temp != 0x80 && NALSize < (length-1) ); // more_rbsp_data();  We do account for termination bit 0x80
@@ -545,6 +550,7 @@ void set_frame_packing_arrangement_type(uint32_t frame_packing_arrangement_type,
             break;
         }
     }
+    got_packing = 1;
 }
 
 }// namespace android
