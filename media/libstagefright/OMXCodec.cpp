@@ -2889,8 +2889,10 @@ status_t OMXCodec::allocateBuffersOnPort(OMX_U32 portIndex) {
     if ((!strcmp(mComponentName, "OMX.TI.Video.Decoder") ||
          !strcmp(mComponentName, "OMX.TI.DUCATI1.VIDEO.DECODER") ||
          !strcmp(mComponentName, "OMX.TI.720P.Decoder")) &&
-        (portIndex == kPortIndexOutput) &&
-        (mExtBufferAddresses.size() == def.nBufferCountActual)
+        (portIndex == kPortIndexOutput)
+#if !defined(TARGET_OMAP3)
+        && (mExtBufferAddresses.size() == def.nBufferCountActual)
+#endif
 #if defined(TARGET_OMAP4)
         && !(mQuirks & OMXCodec::kThumbnailMode)
 #endif

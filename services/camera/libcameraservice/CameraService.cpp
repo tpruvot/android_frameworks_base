@@ -706,6 +706,10 @@ status_t CameraService::Client::setOverlay() {
     ///Query the current preview pixel format from Camera HAL to create the overlay
     ///in that particular format
     const char *prevFormat = params.getPreviewFormat();
+#if defined(TARGET_OMAP3)
+    LOGD("Camera service Selected OVERLAY_FORMAT_CbYCrY_422_I");
+    overlayFormat = OVERLAY_FORMAT_CbYCrY_422_I;
+#else
     if(strcmp(prevFormat, CameraParameters::PIXEL_FORMAT_YUV422I)==0)
     {
         LOGD("Camera service Selected OVERLAY_FORMAT_CbYCrY_422_I");
@@ -725,6 +729,7 @@ status_t CameraService::Client::setOverlay() {
     {
         overlayFormat = OVERLAY_FORMAT_DEFAULT;
     }
+#endif
 
     if(params.get("s3d-supported")!= NULL && CameraParameters::TRUE != NULL)
         isS3d = strcmp(params.get("s3d-supported"), CameraParameters::TRUE) == 0;
