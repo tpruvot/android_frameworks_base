@@ -27,7 +27,7 @@ enum camcorder_quality {
     CAMCORDER_QUALITY_LOW  = 0,
     CAMCORDER_QUALITY_HIGH = 1,
     CAMCORDER_QUALITY_HD = 2,
-    CAMCORDER_QUALITY_43 = 3
+    CAMCORDER_QUALITY_WIDE = 3
 };
 
 enum video_decoder {
