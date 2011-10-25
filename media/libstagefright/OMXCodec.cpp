@@ -3032,16 +3032,16 @@ status_t OMXCodec::allocateBuffersOnPort(OMX_U32 portIndex) {
             }
         } else {
 #if defined(OMAP_ENHANCEMENT) && defined(TARGET_OMAP4)
-                if((!strcmp(mComponentName,"OMX.TI.DUCATI1.VIDEO.H264E")
-                                        || !strcmp(mComponentName, "OMX.TI.DUCATI1.VIDEO.MPEG4E"))
-                                && (portIndex == kPortIndexInput)
-                                && !(mQuirks & kRequiresAllocateBufferOnInputPorts) ){
-                        sp<IMemory> tempmem = mem;
-                        tempmem.clear();
-                        err = mOMX->useBuffer(mNode, portIndex, tempmem, &buffer, mem->size());
-                } else {
-                        err = mOMX->useBuffer(mNode, portIndex, mem, &buffer, mem->size());
-                }
+            if((!strcmp(mComponentName,"OMX.TI.DUCATI1.VIDEO.H264E")
+                                    || !strcmp(mComponentName, "OMX.TI.DUCATI1.VIDEO.MPEG4E"))
+                            && (portIndex == kPortIndexInput)
+                            && !(mQuirks & kRequiresAllocateBufferOnInputPorts) ){
+                    sp<IMemory> tempmem = mem;
+                    tempmem.clear();
+                    err = mOMX->useBuffer(mNode, portIndex, tempmem, &buffer, mem->size());
+            } else {
+                    err = mOMX->useBuffer(mNode, portIndex, mem, &buffer, mem->size());
+            }
 #elif defined(USE_GETBUFFERINFO)
             if(pFrameHeap != NULL && mIsEncoder && (mQuirks & kAvoidMemcopyInputRecordingFrames)) {
                 ssize_t temp_offset = i * alignedSize;
@@ -3054,7 +3054,8 @@ status_t OMXCodec::allocateBuffersOnPort(OMX_U32 portIndex) {
                     temp_size, alignedSize, pFrame->pointer(), pFrameHeap->getSize());
                 err = mOMX->useBuffer(mNode, portIndex, pFrame, &buffer);
             } else
-#else
+#endif
+#if !defined(TARGET_OMAP4)
             {
                 err = mOMX->useBuffer(mNode, portIndex, mem, &buffer);
             }
