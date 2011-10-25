@@ -600,6 +600,12 @@ uint32_t OMXCodec::getComponentQuirks(const char *componentName, bool isEncoder)
         quirks |= kNeedsFlushBeforeDisable;
         quirks |= kDecoderNeedsPortReconfiguration;
     }
+#else
+    if (!strcmp(componentName, "OMX.TI.WMA.decode")) {
+        quirks |= kNeedsFlushBeforeDisable;
+        quirks |= kRequiresFlushCompleteEmulation;
+        quirks |= kDecoderLiesAboutNumberOfChannels;
+    }
 #endif
     if (!strncmp(componentName, "OMX.qcom.video.encoder.", 23)) {
         quirks |= kRequiresLoadedToIdleAfterAllocation;
@@ -1669,12 +1675,8 @@ void OMXCodec::setVideoInputFormat(
         compressionFormat = OMX_VIDEO_CodingMPEG4;
     } else if (!strcasecmp(MEDIA_MIMETYPE_VIDEO_H263, mime)) {
         compressionFormat = OMX_VIDEO_CodingH263;
-#ifdef OMAP_ENHANCEMENT
-    }
-    else if (!strcasecmp(MEDIA_MIMETYPE_VIDEO_WMV, mime))
-    {
+    } else if (!strcasecmp(MEDIA_MIMETYPE_VIDEO_WMV, mime)) {
         compressionFormat = OMX_VIDEO_CodingWMV;
-#endif
     } else {
         LOGE("Not a supported video mime type: %s", mime);
         CHECK(!"Should not be here. Not a supported video mime type.");
