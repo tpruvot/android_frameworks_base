@@ -64,9 +64,8 @@ public class CmBatteryMiniIcon extends ImageView {
     // recalculation of BATTERY_MINI_ICON_MARGIN_RIGHT_DIP to pixels
     private int mMarginRightPx;
 
-    // battery style preferences
-    private static final int BATTERY_STYLE_PERCENT   = 1;
-    private int mStatusBarBattery;
+    // weather to show this battery widget or not
+    private boolean mShowCmBattery = false;
 
     // used for animation and still values when not charging/fully charged
     private int mCurrentFrame = 0;
@@ -93,7 +92,7 @@ public class CmBatteryMiniIcon extends ImageView {
         void observe() {
             ContentResolver resolver = mContext.getContentResolver();
             resolver.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.STATUS_BAR_BATTERY), false, this);
+                    Settings.System.getUriFor(Settings.System.STATUS_BAR_CM_BATTERY), false, this);
         }
 
         @Override
@@ -219,7 +218,7 @@ public class CmBatteryMiniIcon extends ImageView {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        if (!mAttached || mStatusBarBattery != BATTERY_STYLE_PERCENT)
+        if (!mAttached || !mShowCmBattery)
             return;
 
         canvas.drawBitmap(mMiniIconCache[mCurrentFrame], mMatrix, mPaint);
@@ -271,15 +270,13 @@ public class CmBatteryMiniIcon extends ImageView {
     private void updateSettings() {
         ContentResolver resolver = mContext.getContentResolver();
 
-        int statusBarBattery = (Settings.System.getInt(resolver,
-                Settings.System.STATUS_BAR_BATTERY, 2));
-        mStatusBarBattery = Integer.valueOf(statusBarBattery);
+        mShowCmBattery = (Settings.System
+                .getInt(resolver, Settings.System.STATUS_BAR_CM_BATTERY, 0) == 1);
 
-        if (mStatusBarBattery == BATTERY_STYLE_PERCENT) {
+        if (mShowCmBattery)
             setVisibility(View.VISIBLE);
-        } else {
+        else
             setVisibility(View.GONE);
-        }
     }
 
     // should be toggled to private (or inlined at constructor), once StatusBarService.updateResources properly handles theme change

@@ -99,6 +99,22 @@ static void htcCameraSwitch(int cameraId)
 }
 #endif
 
+#ifdef OMAP3_FW3A_LIBCAMERA
+static void setOmapISPReserve(int state)
+{
+    char buffer[16];
+    int fd;
+
+    if (access("/sys/devices/platform/omap3isp/isp_reserve", W_OK) == 0) {
+        snprintf(buffer, sizeof(buffer), "%d", state);
+
+        fd = open("/sys/devices/platform/omap3isp/isp_reserve", O_WRONLY);
+        write(fd, buffer, strlen(buffer));
+        close(fd);
+    }
+}
+#endif
+
 // ----------------------------------------------------------------------------
 
 // This is ugly and only safe if we never re-create the CameraService, but
@@ -208,12 +224,25 @@ sp<ICamera> CameraService::connect(
 #if defined(BOARD_USE_FROYO_LIBCAMERA) || defined(BOARD_HAVE_HTC_FFC)
     htcCameraSwitch(cameraId);
 #endif
-
     sp<CameraHardwareInterface> hardware = HAL_openCameraHardware(cameraId);
     if (hardware == NULL) {
         LOGE("Fail to open camera hardware (id=%d)", cameraId);
         return NULL;
     }
+
+#if defined(OMAP3_FW3A_LIBCAMERA) && defined(OMAP3_SECONDARY_CAMERA)
+    {
+        CameraParameters params(hardware->getParameters());
+        params.set("video-input", cameraId);
+        /* FFC doesn't export its own parameter list... :( */
+        if (cameraId) {
+            params.set("picture-size-values", "1600x1200,1280x960,1280x720,640x480,512x384,320x240"); 
+            params.set("focus-mode-values", "fixed");
+        }
+        hardware->setParameters(params);
+    }
+#endif
+
 
 #if defined(BOARD_USE_REVERSE_FFC)
     if (cameraId == 1) {
@@ -432,6 +461,9 @@ CameraService::Client::Client(const sp<CameraService>& cameraService,
 #ifdef OMAP_ENHANCEMENT
 	mS3DOverlay = false;
 #endif
+#ifdef OMAP3_FW3A_LIBCAMERA
+        setOmapISPReserve(1);
+#endif
 
         // Callback is disabled by default
         mPreviewCallbackFlag = FRAME_CALLBACK_FLAG_NOOP;
@@ -582,6 +614,9 @@ void CameraService::Client::disconnect() {
     mHardware->cancelPicture();
     // Release the hardware resources.
     mHardware->release();
+#ifdef OMAP3_FW3A_LIBCAMERA
+    setOmapISPReserve(0);
+#endif
     // Release the held overlay resources.
     if (mUseOverlay) {
 #if defined(USE_OVERLAY_FORMAT_YCbCr_420_SP) || defined(USE_OVERLAY_FORMAT_YCrCb_420_SP)
@@ -1718,5 +1753,31 @@ extern "C" sp<CameraHardwareInterface> HAL_openCameraHardware(int cameraId)
     return openCameraHardware(cameraId);
 }
 #endif
+#ifdef OMAP3_FW3A_LIBCAMERA
+static const CameraInfo sCameraInfo[] = {
+    {
+        CAMERA_FACING_BACK,
+        90,  /* orientation */
+    },
+#ifdef OMAP3_SECONDARY_CAMERA
+    {
+        CAMERA_FACING_FRONT,
+        270, /* orientation */
+    }
+#endif
+};
+static int getNumberOfCameras() {
+    return sizeof(sCameraInfo) / sizeof(sCameraInfo[0]);
+}
 
+extern "C" int HAL_getNumberOfCameras()
+{
+    return getNumberOfCameras();
+}
+
+extern "C" void HAL_getCameraInfo(int cameraId, struct CameraInfo* cameraInfo)
+{
+    memcpy(cameraInfo, &sCameraInfo[cameraId], sizeof(CameraInfo));
+}
+#endif
 }; // namespace android

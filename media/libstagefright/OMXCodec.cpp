@@ -125,7 +125,11 @@ static int Calculate_TotalRefFrames(int nWidth, int nHeight) {
 #define OUTPUT_BUFFER_COUNT 2
 #define INPUT_BUFFER_COUNT 2
 #elif defined(TARGET_OMAP3)
+#if defined(OVERLAY_NUM_REQBUFFERS)
+#define OUTPUT_BUFFER_COUNT OVERLAY_NUM_REQBUFFERS
+#else
 #define OUTPUT_BUFFER_COUNT 4
+#endif
 #endif
 
 #endif
@@ -256,6 +260,7 @@ static const CodecInfo kDecoderInfo[] = {
 //Maintain only s/w encoders till ducati encoders are integrated to SF
 static const CodecInfo kEncoderInfo[] = {
     { MEDIA_MIMETYPE_AUDIO_AMR_NB, "AMRNBEncoder" },
+    { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.ITTIAM.AAC.encode" },
     { MEDIA_MIMETYPE_AUDIO_AAC, "AACEncoder" },
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.TI.DUCATI1.VIDEO.MPEG4E" },
     { MEDIA_MIMETYPE_VIDEO_H263, "OMX.TI.DUCATI1.VIDEO.MPEG4E" },
@@ -1066,22 +1071,27 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta, uint32_t flags) {
     }
 
     if (!strcasecmp(MEDIA_MIMETYPE_VIDEO_WMV, mMIME)) {
-        //Set the profile (RCV or VC1)
-        meta->findData(kKeyHdr, &type, &data, &size);
+        bool success = meta->findData(kKeyHdr, &type, &data, &size);
         const uint8_t *ptr = (const uint8_t *)data;
+        CHECK(success);
 
-        OMX_U32 width = (((OMX_U32)ptr[18] << 24) | ((OMX_U32)ptr[17] << 16) | ((OMX_U32)ptr[16] << 8) | (OMX_U32)ptr[15]);
-        OMX_U32 height  = (((OMX_U32)ptr[22] << 24) | ((OMX_U32)ptr[21] << 16) | ((OMX_U32)ptr[20] << 8) | (OMX_U32)ptr[19]);
+        OMX_U32 width = (((OMX_U32)ptr[18] << 24) | ((OMX_U32)ptr[17] << 16)
+                           | ((OMX_U32)ptr[16] << 8) | (OMX_U32)ptr[15]);
+        OMX_U32 height = (((OMX_U32)ptr[22] << 24) | ((OMX_U32)ptr[21] << 16)
+                           | ((OMX_U32)ptr[20] << 8) | (OMX_U32)ptr[19]);
 
         CODEC_LOGV("Height and width = %u %u\n", height, width);
 
-        //This logic is used by omap3 codec, is use less in omap4 at this time, but we may want to use it after, when the
-        // OpenMAX IL gets the update.
-        //MAX_RESOLUTION is use to take the desition between TI and Ittiam WMV codec
-        if((!strcmp(mComponentName, "OMX.TI.720P.Decoder")) &&
-            (!strcmp(mComponentName, "OMX.TI.Video.Decoder")) &&
+        // MAX_RESOLUTION is used to take the decision between TI and Ittiam WMV codec.
+        if (!strcmp(mComponentName, "OMX.TI.Video.Decoder") &&
             (width*height > MAX_RESOLUTION)) {
-            OMX_U32 NewCompression = MAKEFOURCC_WMC((OMX_U8)ptr[27], (OMX_U8)ptr[28], (OMX_U8)ptr[29], (OMX_U8)ptr[30]);
+
+            // need OMX.TI.720P.Decoder
+            return ERROR_UNSUPPORTED;
+        }
+        if(!strcmp(mComponentName, "OMX.TI.720P.Decoder")) {
+            OMX_U32 NewCompression = MAKEFOURCC_WMC((OMX_U8)ptr[27], (OMX_U8)ptr[28],
+                                                    (OMX_U8)ptr[29], (OMX_U8)ptr[30]);
             OMX_U32 StreamType;
             OMX_PARAM_WMVFILETYPE WMVFileType;
             InitOMXParams(&WMVFileType);
@@ -1089,24 +1099,25 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta, uint32_t flags) {
             if (NewCompression == FOURCC_WMV3) {
                 CODEC_LOGV("VIDDEC_WMV_RCVSTREAM\n");
                 StreamType = VIDDEC_WMV_RCVSTREAM;
-            }
-            else if(NewCompression == FOURCC_WVC1) {
+            } else if (NewCompression == FOURCC_WVC1) {
                 CODEC_LOGV("VIDDEC_WMV_ELEMSTREAM\n");
                 StreamType = VIDDEC_WMV_ELEMSTREAM;
-            }
-            else {
-                CODEC_LOGV("ERROR...  PROFILE NOT KNOWN ASSUMED TO BE VIDDEC_WMV_RCVSTREAM\n");
+            } else {
+                CODEC_LOGI("ERROR...  PROFILE NOT KNOWN ASSUMED TO BE VIDDEC_WMV_RCVSTREAM\n");
                 StreamType = VIDDEC_WMV_RCVSTREAM;
             }
             WMVFileType.nWmvFileType = StreamType;
 
-            status_t err = mOMX->setParameter(mNode, (OMX_INDEXTYPE)VideoDecodeCustomParamWMVFileType, &WMVFileType, sizeof(WMVFileType));
+            status_t err = mOMX->setParameter(mNode,
+                                              (OMX_INDEXTYPE)VideoDecodeCustomParamWMVFileType,
+                                              &WMVFileType, sizeof(WMVFileType));
             if (err != OMX_ErrorNone) {
                 return err;
             }
         }
     }
 #endif
+
 #if !(defined(OMAP_ENHANCEMENT) && defined (TARGET_OMAP4))
     }
 #endif
@@ -2889,10 +2900,8 @@ status_t OMXCodec::allocateBuffersOnPort(OMX_U32 portIndex) {
     if ((!strcmp(mComponentName, "OMX.TI.Video.Decoder") ||
          !strcmp(mComponentName, "OMX.TI.DUCATI1.VIDEO.DECODER") ||
          !strcmp(mComponentName, "OMX.TI.720P.Decoder")) &&
-        (portIndex == kPortIndexOutput)
-#if !defined(TARGET_OMAP3)
-        && (mExtBufferAddresses.size() == def.nBufferCountActual)
-#endif
+        (portIndex == kPortIndexOutput) &&
+        (mExtBufferAddresses.size() == def.nBufferCountActual)
 #if defined(TARGET_OMAP4)
         && !(mQuirks & OMXCodec::kThumbnailMode)
 #endif

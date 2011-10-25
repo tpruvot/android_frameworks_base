@@ -85,10 +85,6 @@ public class StatusBarPolicy {
 
     private static int AM_PM_STYLE = AM_PM_STYLE_GONE;
 
-    private static final int BATTERY_STYLE_NORMAL    = 0;
-    private static final int BATTERY_STYLE_PERCENT   = 1;
-    private static final int BATTERY_STYLE_GONE      = 2;
-
     private static final int INET_CONDITION_THRESHOLD = 50;
 
     private final Context mContext;
@@ -606,7 +602,8 @@ public class StatusBarPolicy {
         }
     };
 
-    private int mStatusBarBattery;
+    private boolean mShowCmBattery;
+    private boolean mCmBatteryStatus;
     // need another var that superceding mPhoneSignalHidden
     private boolean mShowCmSignal;
 
@@ -620,7 +617,7 @@ public class StatusBarPolicy {
         void observe() {
             ContentResolver resolver = mContext.getContentResolver();
             resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.STATUS_BAR_BATTERY), false, this);
+                    Settings.System.STATUS_BAR_CM_BATTERY), false, this);
 
             resolver.registerContentObserver(Settings.System
                     .getUriFor(Settings.System.STATUS_BAR_CM_SIGNAL_TEXT), false, this);
@@ -808,13 +805,10 @@ public class StatusBarPolicy {
     private final void updateBattery(Intent intent) {
         final int id = intent.getIntExtra("icon-small", 0);
         int level = intent.getIntExtra("level", 0);
-        mService.setIcon("battery", id, level);
-        if(mStatusBarBattery == BATTERY_STYLE_NORMAL) {
-                mService.setIconVisibility("battery", true);
-        } else if (mStatusBarBattery == BATTERY_STYLE_PERCENT) {
-                mService.setIconVisibility("battery", false);
-        } else if (mStatusBarBattery == BATTERY_STYLE_GONE) {
-                mService.setIconVisibility("battery", false);
+        if(!mShowCmBattery || mCmBatteryStatus != mShowCmBattery) {
+                mService.setIcon("battery", id, level);
+                mService.setIconVisibility("battery", !mShowCmBattery);
+                mCmBatteryStatus = mShowCmBattery;
         }
 
         boolean plugged = intent.getIntExtra("plugged", 0) != 0;
@@ -1651,15 +1645,10 @@ public class StatusBarPolicy {
     private void updateSettings(){
         ContentResolver resolver = mContext.getContentResolver();
 
-        int statusBarBattery = Settings.System.getInt(resolver,
-                Settings.System.STATUS_BAR_BATTERY, 0);
-        mStatusBarBattery = Integer.valueOf(statusBarBattery);
-
-        if (mStatusBarBattery == BATTERY_STYLE_NORMAL) {
-                mService.setIconVisibility("battery", true);
-        } else if (mStatusBarBattery == BATTERY_STYLE_PERCENT || mStatusBarBattery == BATTERY_STYLE_GONE) {
-                mService.setIconVisibility("battery", false);
-        }
+        mShowCmBattery = (Settings.System.getInt(resolver,
+                Settings.System.STATUS_BAR_CM_BATTERY, 0) == 1);
+        mCmBatteryStatus = !mShowCmBattery;
+        mService.setIconVisibility("battery", !mShowCmBattery);
 
         //0 will hide the cmsignaltext and show the signal bars
         mShowCmSignal = Settings.System.getInt(mContext.getContentResolver(),
