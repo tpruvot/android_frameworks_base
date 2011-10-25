@@ -17,7 +17,6 @@
 # This makefile supplies the rules for building a library of JNI code for
 # use by our example platform shared library.
 
-ifeq ($(OMAP_ENHANCEMENT),true)
 LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
@@ -58,4 +57,4 @@ LOCAL_CFLAGS +=
 LOCAL_PRELINK_MODULE := false
 
 include $(BUILD_SHARED_LIBRARY)
-endif
+
