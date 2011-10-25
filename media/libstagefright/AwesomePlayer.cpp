@@ -1056,9 +1056,7 @@ status_t AwesomePlayer::initAudioDecoder() {
 #ifdef USE_TI720P_DECODER
         const char *componentName;
 
-        if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_AAC) &&
-            (!strcmp(mComponentName, "OMX.TI.720P.Decoder") ||
-             !strcmp(mComponentName, "OMX.TI.Video.Decoder")) ) {
+        if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_AAC)) {
 
             componentName = "OMX.TI.AAC.decode";
 
