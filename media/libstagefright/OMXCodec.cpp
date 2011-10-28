@@ -405,7 +405,7 @@ static const CodecInfo kEncoderInfo[] = {
 #endif
 
 #ifndef OMAP_ENHANCEMENT
-// the new omap struct is defined in .h
+// the new omap one is defined in .h
 struct OMXCodecObserver : public BnOMXObserver {
     OMXCodecObserver() {
     }
@@ -905,7 +905,7 @@ sp<MediaSource> OMXCodec::Create(
         if (err == OK) {
             LOGV("Successfully allocated OMX node '%s'", componentName);
 
-#if defined(TARGET_OMAP4) || defined(OMAP_COMPAT)
+#if defined(OMAP_ENHANCEMENT) || defined(OMAP_COMPAT)
             sp<OMXCodec> codec = new OMXCodec(
                     omx, node, getComponentQuirks(componentName,createEncoder,flags),
                     createEncoder, mime, componentName,
