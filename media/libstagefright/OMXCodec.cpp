@@ -3721,7 +3721,7 @@ void OMXCodec::onStateChange(OMX_STATETYPE newState) {
 
         case OMX_StateLoaded:
         {
-#if defined(OMAP_ENHANCEMENT) || defined(OMAP_COMPAT)
+#if defined(OMAP_ENHANCEMENT)
             if(LOADED == mState)
             {
                 break;
