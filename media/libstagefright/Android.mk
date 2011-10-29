@@ -7,7 +7,7 @@ LOCAL_CFLAGS += -DTARGET_OMAP4 -DARM_4K_PAGE_SIZE=4096
 endif
 
 # Enable this flag to debug Stagefright
-# LOCAL_CFLAGS += -DDEBUG_OMX
+LOCAL_CFLAGS += -DDEBUG_OMX
 
 LOCAL_SRC_FILES:=                         \
         AMRExtractor.cpp                  \

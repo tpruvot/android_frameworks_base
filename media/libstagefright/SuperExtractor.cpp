@@ -15,7 +15,7 @@
  */
 
 
-//#define LOG_NDEBUG 0
+#define LOG_NDEBUG 0
 #define LOG_TAG "SuperExtractor"
 #include <utils/Log.h>
 #include "include/SuperExtractor.h"
