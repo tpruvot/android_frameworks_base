@@ -296,6 +296,7 @@ static const CodecInfo kDecoderInfo[] = {
     { MEDIA_MIMETYPE_VIDEO_WMV, "OMX.TI.720P.Decoder" },
     { MEDIA_MIMETYPE_AUDIO_WMA, "OMX.TI.WMA.decode"},
     { MEDIA_MIMETYPE_AUDIO_WMA, "OMX.ITTIAM.WMA.decode"},
+    { MEDIA_MIMETYPE_AUDIO_WMA, "OMX.Nvidia.reader"},
 };
 
 static const CodecInfo kEncoderInfo[] = {
