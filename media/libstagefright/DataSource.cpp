@@ -17,6 +17,7 @@
 #include "include/AMRExtractor.h"
 #include "include/MP3Extractor.h"
 #include "include/MPEG4Extractor.h"
+#include "include/SuperExtractor.h"
 #include "include/WAVExtractor.h"
 #include "include/OggExtractor.h"
 #include "include/MPEG2TSExtractor.h"
@@ -108,6 +109,7 @@ void DataSource::RegisterDefaultSniffers() {
     RegisterSniffer(SniffAMR);
     RegisterSniffer(SniffMPEG2TS);
     RegisterSniffer(SniffMP3);
+    RegisterSniffer(SniffSuper);
 #ifdef OMAP_ENHANCEMENT
     if(isASFParserAvailable()){
         RegisterSniffer(SniffASF);

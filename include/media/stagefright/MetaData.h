@@ -110,6 +110,8 @@ enum {
 
     kKeyValidSamples      = 'valD',  // int32_t
 
+    kKeyHeader            = 'Head',  // for ASF/WMA
+
     kKeyIsUnreadable      = 'unre',  // bool (int32_t)
 
 #if defined (OMAP_ENHANCEMENT) && defined (TARGET_OMAP4)
@@ -126,7 +128,8 @@ enum {
 enum {
     kTypeESDS        = 'esds',
     kTypeAVCC        = 'avcc',
-    kKeyHdr          = 'hdrd',  // raw data
+    kTypeHeader      = 'Head',
+    kKeyHdr          = 'hdrd',  // raw data ?? or "Data" ?
 };
 
 class MetaData : public RefBase {
