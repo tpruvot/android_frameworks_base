@@ -34,6 +34,8 @@
 #include <media/stagefright/MetaData.h>
 #include <media/stagefright/Utils.h>
 
+#define OMX_COMPNAME "OMX.Nvidia.reader"
+
 static uint8_t NVFS_MKV_EBML[4] = { 0x1A, 0x45, 0xDF, 0xA3 };
 
 #define NOTSET_U8 ((OMX_U8)0xDE)
@@ -354,17 +356,18 @@ SuperExtractor :: SuperExtractor (const sp<DataSource> &source)
         Extractor(NULL)
 {
 
-    char * component = "OMX.Nvidia.reader";
+    const char * component = OMX_COMPNAME;
     OMX_ERRORTYPE eError;
     OMX_INDEXTYPE eIndex;
     status_t err = OK;
     NVX_CONFIG_DISABLEBUFFCONFIG oDisableFLag;
     NVX_PARAM_FILENAME oFilename;
     OMX_CALLBACKTYPE pCallbacks;
+    IOMX::node_id node = 0;
 
     // Set OpenMAX version
     vOMX.s.nVersionMajor = 1;
-    vOMX.s.nVersionMinor = 1;
+    vOMX.s.nVersionMinor = 0;
     vOMX.s.nRevision = 0;
     vOMX.s.nStep = 0;
 
@@ -380,10 +383,9 @@ SuperExtractor :: SuperExtractor (const sp<DataSource> &source)
     CHECK_EQ(Extractor->mClient.connect(), OK);
     Extractor->sOMX = Extractor->mClient.interface();
 
-    SF_CHK_ERR( Extractor->sOMX->allocateNode(
-                                 component,
-                                 observer1,
-                                 &(Extractor->node)));
+    SF_CHK_ERR(Extractor->sOMX->allocateNode(component, observer1, &node));
+    Extractor->node = node;
+    LOGV("node=%d", node);
 
     SF_CHK_ERR(Extractor->sOMX->getExtensionIndex(
                                 Extractor->node,
@@ -1049,11 +1051,12 @@ void SuperSource::InitSource(size_t &index, SuperExtractorData **AudExtractor)
         int i =0;
         NVX_PARAM_STREAMTYPE oStreamType;
         OMX_INDEXTYPE eParam;
+        IOMX::node_id node = 0;
         INIT_PARAM(oStreamType);
-        char * component = "OMX.Nvidia.reader";
+        const char * component = OMX_COMPNAME;
         // Set OpenMAX version
         vOMX.s.nVersionMajor = 1;
-        vOMX.s.nVersionMinor = 1;
+        vOMX.s.nVersionMinor = 0;
         vOMX.s.nRevision = 0;
         vOMX.s.nStep = 0;
         m_hExtractor = new SuperExtractorData;
@@ -1064,9 +1067,9 @@ void SuperSource::InitSource(size_t &index, SuperExtractorData **AudExtractor)
         m_hExtractor->node = 0;
         CHECK_EQ(m_hExtractor->mClient.connect(), OK);
         m_hExtractor->sOMX = m_hExtractor->mClient.interface();
-        SF_CHK_ERR(m_hExtractor->sOMX->allocateNode(
-                                       component,observer1,
-                                       &(m_hExtractor->node)));
+        SF_CHK_ERR(m_hExtractor->sOMX->allocateNode(component, observer1, &node));
+        LOGV("node=%d", node);
+        m_hExtractor->node = node;
         m_hExtractor->TrackCount = mTrackCount;
         mVidHd.nBuffer = NULL;
         mAudHd.nBuffer = NULL;
