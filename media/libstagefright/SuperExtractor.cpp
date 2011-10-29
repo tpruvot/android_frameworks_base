@@ -34,7 +34,7 @@
 #include <media/stagefright/MetaData.h>
 #include <media/stagefright/Utils.h>
 
-#define OMX_COMPNAME "OMX.Nvidia.reader"
+#define OMX_COMPNAME "OMX.TI.WMA.decode"
 
 static uint8_t NVFS_MKV_EBML[4] = { 0x1A, 0x45, 0xDF, 0xA3 };
 
