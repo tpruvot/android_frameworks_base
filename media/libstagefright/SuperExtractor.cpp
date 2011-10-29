@@ -375,17 +375,20 @@ SuperExtractor :: SuperExtractor (const sp<DataSource> &source)
     memset(Extractor,0,sizeof(SuperExtractorData));
 
     Extractor->msgCallback = on_message;
-    LOGV(" In super extractor");
+    LOGV("In super extractor");
     sp<OMXParserObserver> observer1 = new OMXParserObserver();
     Extractor->hobserver = (void*)&observer1;
     observer1->setCallback(Extractor);
     Extractor->node = 0;
+
+    LOGD(" mClient.connect");
     CHECK_EQ(Extractor->mClient.connect(), OK);
     Extractor->sOMX = Extractor->mClient.interface();
 
+    LOGD(" sOMX->allocateNode");
     SF_CHK_ERR(Extractor->sOMX->allocateNode(component, observer1, &node));
+    LOGD("node=%x", node);
     Extractor->node = node;
-    LOGV("node=%d", node);
 
     SF_CHK_ERR(Extractor->sOMX->getExtensionIndex(
                                 Extractor->node,
@@ -1068,7 +1071,7 @@ void SuperSource::InitSource(size_t &index, SuperExtractorData **AudExtractor)
         CHECK_EQ(m_hExtractor->mClient.connect(), OK);
         m_hExtractor->sOMX = m_hExtractor->mClient.interface();
         SF_CHK_ERR(m_hExtractor->sOMX->allocateNode(component, observer1, &node));
-        LOGV("node=%d", node);
+        LOGV("node=%x", node);
         m_hExtractor->node = node;
         m_hExtractor->TrackCount = mTrackCount;
         mVidHd.nBuffer = NULL;
@@ -1983,7 +1986,7 @@ bool SniffSuper (
 {
     uint32_t readsize = 64;
     uint8_t header[readsize];
-    LOGV ("entered sniff super ");
+    LOGV("entered SniffSuper");
     size_t readcount = source->readAt(0, header, sizeof(header));
     if (readcount < (size_t)sizeof(header)) {
         return false;
