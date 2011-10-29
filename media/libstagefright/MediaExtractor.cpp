@@ -21,6 +21,7 @@
 #include "include/AMRExtractor.h"
 #include "include/MP3Extractor.h"
 #include "include/MPEG4Extractor.h"
+#include "include/SuperExtractor.h"
 #include "include/WAVExtractor.h"
 #include "include/OggExtractor.h"
 #include "include/MPEG2TSExtractor.h"
@@ -72,6 +73,9 @@ sp<MediaExtractor> MediaExtractor::Create(
         return new MPEG4Extractor(source);
     } else if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_MPEG)) {
         return new MP3Extractor(source, meta);
+    } else if (!strcasecmp (mime, MEDIA_MIMETYPE_CONTAINER_AVI)
+            || !strcasecmp (mime, MEDIA_MIMETYPE_CONTAINER_ASF)) {
+        return new SuperExtractor (source);
     } else if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_AMR_NB)
             || !strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_AMR_WB)) {
         return new AMRExtractor(source);

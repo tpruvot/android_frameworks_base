@@ -943,6 +943,12 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta, uint32_t flags) {
         const void *data;
         size_t size;
 
+    // Super Extractor
+    if (meta->findData(kKeyHeader, &type, &data, &size)) {
+        LOGV ("Kkey header found .. SEND HEADER.");
+        addCodecSpecificData(data, size);
+    }
+
 #if defined(OMAP_ENHANCEMENT) && defined(TARGET_OMAP4)
     status_t err;
 
