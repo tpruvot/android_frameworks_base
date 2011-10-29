@@ -84,6 +84,7 @@ void OMXMaster::addPlugin(OMXPluginBase *plugin) {
 
             continue;
         }
+        LOGD("add plugin component named '%s'.", name8.string());
 
         mPluginByComponentName.add(name8, plugin);
     }
@@ -119,6 +120,7 @@ OMX_ERRORTYPE OMXMaster::makeComponentInstance(
     ssize_t index = mPluginByComponentName.indexOfKey(String8(name));
 
     if (index < 0) {
+        LOGW("makeComponentInstance: ErrorInvalidComponentName");
         return OMX_ErrorInvalidComponentName;
     }
 
