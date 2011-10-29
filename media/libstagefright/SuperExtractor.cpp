@@ -1991,11 +1991,11 @@ bool SniffSuper (
     if ((!memcmp(header, "RIFF", 4)))
     {
         if ((!memcmp(header+8, "AVI ", 4)) ||
-            (!memcmp(header +8, "AVIX", 4)))
+            (!memcmp(header+8, "AVIX", 4)))
         {
             *mimeType = MEDIA_MIMETYPE_CONTAINER_AVI;
             *confidence = 1.0;
-            LOGV ("avi is identified /////");
+            LOGI("Sniff: avi is identified");
             return true;
         }
     }
@@ -2003,7 +2003,7 @@ bool SniffSuper (
     {
         *mimeType = MEDIA_MIMETYPE_CONTAINER_ASF;
         *confidence = 1.0;
-        LOGV ("asf is identified /////");
+        LOGI("Sniff: asf is identified");
         return true;
     }
     return false;
