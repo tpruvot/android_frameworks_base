@@ -1851,7 +1851,7 @@ status_t MPEG4Writer::Track::threadEntry() {
     uint32_t previousSampleSize = 0;  // Size of the previous sample
     int64_t previousPausedDurationUs = 0;
     int64_t timestampUs;
-#if defined(OMAP_ENHANCEMENT) && defined(TARGET_OMAP3)
+#if (defined(OMAP_ENHANCEMENT) && defined(TARGET_OMAP3)) || defined(OMAP_COMPAT)
     uint8_t *copy_spspps;
     int32_t copy_spspps_size = 0;
 #endif
