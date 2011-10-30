@@ -603,12 +603,6 @@ uint32_t OMXCodec::getComponentQuirks(const char *componentName, bool isEncoder)
         quirks |= kNeedsFlushBeforeDisable;
         quirks |= kDecoderNeedsPortReconfiguration;
     }
-#else
-    if (!strcmp(componentName, "OMX.TI.WMA.decode")) {
-        quirks |= kNeedsFlushBeforeDisable;
-        quirks |= kRequiresFlushCompleteEmulation;
-        quirks |= kDecoderLiesAboutNumberOfChannels;
-    }
 #endif
     if (!strncmp(componentName, "OMX.qcom.video.encoder.", 23)) {
         quirks |= kRequiresLoadedToIdleAfterAllocation;
