@@ -2229,7 +2229,7 @@
     <string name="extmedia_format_button_format">Format</string>
 
     <!-- Title of notification shown when ADB is actively connected to the phone. -->
-    <string name="adb_active_notification_title">Android Debugging enabled</string>
+    <string name="adb_active_notification_title">Android debugging enabled</string>
     <!-- Message of notification shown when ADB is actively connected to the phone. -->
     <string name="adb_active_notification_message">Select to disable Android debugging.</string>
 
