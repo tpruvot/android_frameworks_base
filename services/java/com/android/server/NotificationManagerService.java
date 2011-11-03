@@ -459,10 +459,11 @@ public class NotificationManagerService extends INotificationManager.Stub
                 boolean adbUsbEnabled = (UsbManager.USB_FUNCTION_ENABLED.equals(
                                          extras.getString(UsbManager.USB_FUNCTION_ADB)));
 
-                boolean adbEnabled = Settings.Secure.getInt(resolver, Settings.Secure.ADB_ENABLED, 0);
-
+                boolean adbEnabled = Settings.Secure.getInt(resolver,
+                                     Settings.Secure.ADB_ENABLED, 0) > 0;
                 boolean adbOverNetwork = Settings.Secure.getInt(resolver,
                                          Settings.Secure.ADB_PORT, 0) > 0;
+
                 updateAdbNotification(adbUsbEnabled && mUsbConnected, adbEnabled && adbOverNetwork);
 
             } else if (action.equals(Intent.ACTION_PACKAGE_REMOVED)
@@ -1782,7 +1783,7 @@ public class NotificationManagerService extends INotificationManager.Stub
                     int titleId = (usbEnabled) ?
                         com.android.internal.R.string.adb_active_notification_title :
                         com.android.internal.R.string.adb_net_enabled_notification_title;
-                    int messageId =
+                    int messageId = (usbEnabled) ?
                         com.android.internal.R.string.adb_active_notification_message :
                         com.android.internal.R.string.adb_net_enabled_notification_message;
 
