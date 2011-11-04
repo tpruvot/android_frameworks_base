@@ -176,8 +176,8 @@ public class NotificationManagerService extends INotificationManager.Stub
 
     // for adb connected notifications
     private boolean mUsbConnected = false;
-    private boolean mAdbNotificationShown = false;
     private boolean mAdbNotificationIsUsb = false;
+    private int mAdbNotificationId = 0;
     private Notification mAdbNotification;
 
     private final ArrayList<NotificationRecord> mNotificationList =
@@ -1760,6 +1760,7 @@ public class NotificationManagerService extends INotificationManager.Stub
     // security feature that we don't want people customizing the platform
     // to accidentally lose.
     private void updateAdbNotification(boolean usbEnabled, boolean networkEnabled) {
+
         if ("0".equals(SystemProperties.get("persist.adb.notify")) ||
                         Settings.Secure.getInt(mContext.getContentResolver(),
                         Settings.Secure.ADB_NOTIFY, 1) == 0) {
@@ -1769,25 +1770,27 @@ public class NotificationManagerService extends INotificationManager.Stub
 
         if (usbEnabled || networkEnabled ) {
 
-            boolean needUpdate = !mAdbNotificationShown ||
-                (usbEnabled && !mAdbNotificationIsUsb) ||
-                (!usbEnabled && mAdbNotificationIsUsb);
+            boolean needUpdate = (mAdbNotificationId == 0) ||
+                (networkEnabled && mAdbNotificationIsUsb) ||
+                (!networkEnabled && !mAdbNotificationIsUsb);
 
             if (needUpdate) {
+
+                cancelAdbNotification();
 
                 NotificationManager notificationManager = (NotificationManager) mContext
                         .getSystemService(Context.NOTIFICATION_SERVICE);
                 if (notificationManager != null) {
                     Resources r = mContext.getResources();
 
-                    int titleId = (usbEnabled) ?
-                        com.android.internal.R.string.adb_active_notification_title :
-                        com.android.internal.R.string.adb_net_enabled_notification_title;
-                    int messageId = (usbEnabled) ?
-                        com.android.internal.R.string.adb_active_notification_message :
-                        com.android.internal.R.string.adb_net_enabled_notification_message;
+                    int titleId = (networkEnabled) ?
+                        com.android.internal.R.string.adb_net_enabled_notification_title :
+                        com.android.internal.R.string.adb_active_notification_title;
+                    int messageId = (networkEnabled) ?
+                        com.android.internal.R.string.adb_net_enabled_notification_message :
+                        com.android.internal.R.string.adb_active_notification_message;
 
-                    CharSequence title = r.getText(titleId);
+                    CharSequence title   = r.getText(titleId);
                     CharSequence message = r.getText(messageId);
 
                     if (mAdbNotification == null) {
@@ -1805,6 +1808,7 @@ public class NotificationManagerService extends INotificationManager.Stub
                             Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
                             Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+
                     // Note: we are hard-coding the component because this is
                     // an important security UI that we don't want anyone
                     // intercepting.
@@ -1815,20 +1819,28 @@ public class NotificationManagerService extends INotificationManager.Stub
 
                     mAdbNotification.setLatestEventInfo(mContext, title, message, pi);
 
-                    mAdbNotificationShown = true;
-                    mAdbNotificationIsUsb = usbEnabled;
+                    mAdbNotificationId = titleId;
+                    mAdbNotificationIsUsb = !networkEnabled;
 
-                    notificationManager.notify(titleId, mAdbNotification);
+                    notificationManager.notify(mAdbNotificationId, mAdbNotification);
                 }
             }
 
-        } else if (mAdbNotificationShown) {
+        } else if (mAdbNotificationId != 0) {
+            cancelAdbNotification();
+        }
+    }
+
+    private void cancelAdbNotification() {
+
+       if (mAdbNotificationId != 0) {
+
             NotificationManager notificationManager = (NotificationManager) mContext
                     .getSystemService(Context.NOTIFICATION_SERVICE);
+
             if (notificationManager != null) {
-                mAdbNotificationShown = false;
-                notificationManager.cancel(
-                        com.android.internal.R.string.adb_active_notification_title);
+                notificationManager.cancel(mAdbNotificationId);
+                mAdbNotificationId = 0;
             }
         }
     }
