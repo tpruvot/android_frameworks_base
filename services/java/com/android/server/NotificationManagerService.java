@@ -626,7 +626,8 @@ public class NotificationManagerService extends INotificationManager.Stub
                     Settings.Secure.ADB_PORT, 0) > 0;
 
             /* notify setting is checked inside updateAdbNotification() */
-            updateAdbNotification(adbEnabled && mUsbConnected, adbEnabled && adbOverNetwork);
+            updateAdbNotification(adbEnabled && mUsbConnected && !adbOverNetwork,
+                                  adbEnabled && adbOverNetwork);
         }
     }
 
@@ -1768,7 +1769,7 @@ public class NotificationManagerService extends INotificationManager.Stub
             networkEnabled = false;
         }
 
-        if (usbEnabled || networkEnabled ) {
+        if (usbEnabled || networkEnabled) {
 
             boolean needUpdate = (mAdbNotificationId == 0) ||
                 (networkEnabled && mAdbNotificationIsUsb) ||
@@ -1826,7 +1827,7 @@ public class NotificationManagerService extends INotificationManager.Stub
                 }
             }
 
-        } else if (mAdbNotificationId != 0) {
+        } else {
             cancelAdbNotification();
         }
     }
