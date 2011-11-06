@@ -2044,7 +2044,8 @@ public class WifiStateTracker extends NetworkStateTracker {
         if (mWifiState.get() != WIFI_STATE_ENABLED || isDriverStopped()) {
             return -1;
         }
-        return WifiNative.getRssiApproxCommand();
+        Log.v(TAG, "getRssi()");
+        return WifiNative.getRssiCommand();
     }
 
     /**
@@ -2056,6 +2057,7 @@ public class WifiStateTracker extends NetworkStateTracker {
         if (mWifiState.get() != WIFI_STATE_ENABLED || isDriverStopped()) {
             return -1;
         }
+        Log.v(TAG, "getRssiApprox()");
         return WifiNative.getRssiApproxCommand();
     }
 
