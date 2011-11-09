@@ -68,7 +68,7 @@ static int doCommand(const char *cmd, char *replybuf, int replybuflen)
         else
             replybuf[reply_len] = '\0';
 
-        LOGV(LOG_TAG " doCommand: <--[%s]], reply len=%d/%d", replybuf, reply_len, strlen(replybuf));
+        LOGV(LOG_TAG " doCommand: <--[%s]], reply len=%d", replybuf, reply_len);
         return 0;
     }
 }
