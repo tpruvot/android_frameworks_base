@@ -15,7 +15,7 @@
  */
 
 #define LOG_TAG "wifi"
-#define LOG_NDEBUG 1
+//#define LOG_NDEBUG 0
 
 #include "jni.h"
 #include <utils/misc.h>
@@ -69,7 +69,6 @@ static int doCommand(const char *cmd, char *replybuf, int replybuflen)
             replybuf[reply_len] = '\0';
 
         LOGV(LOG_TAG " doCommand: <--[%s]], reply len=%d/%d", replybuf, reply_len, strlen(replybuf));
-
         return 0;
     }
 }
