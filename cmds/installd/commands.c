@@ -16,6 +16,26 @@
 
 #include "installd.h"
 
+static int led_old = 1;
+
+int led_act(int value) {
+    int ret=0;
+
+    /* set button backlight off during dexinv */
+    FILE *led = fopen("/proc/backlight/brightness", "r");
+    if (led) {
+       fscanf(led, "%d", &ret);
+       fclose(led);
+    }
+    led = fopen("/proc/backlight/brightness", "w");
+    if (led) {
+       fprintf(led, "%d", value);
+       fflush(led);
+       fclose(led);
+    }
+    return ret;
+}
+
 int install(const char *pkgname, int encrypted_fs_flag, uid_t uid, gid_t gid)
 {
     char pkgdir[PKG_PATH_MAX];
@@ -555,6 +575,9 @@ static int wait_dexopt(pid_t pid, const char* apk_path)
         return 1;
     }
 
+    // reset led
+    led_act(led_old);
+
     if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
         LOGD("DexInv: --- END '%s' (success) ---\n", apk_path);
         return 0;
@@ -624,6 +647,12 @@ int dexopt(const char *apk_path, uid_t uid, int is_public)
     }
 
     LOGD("DexInv: --- BEGIN '%s' ---\n", apk_path);
+
+    // set led for activity status
+    if (led_old == 1)
+       led_old = led_act(0);
+    else
+       led_act(0);
 
     pid_t pid;
     pid = fork();
