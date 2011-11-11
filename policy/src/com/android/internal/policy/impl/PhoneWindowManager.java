@@ -2789,8 +2789,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
 
     public boolean allowKeyRepeat() {
+
+        //Jordan: we dont have problems with volume keys (hard to press)
+        //        allow the keyRepeat for the Headset hook
+        //        (temporary fix for the 7.1.0 release, need a new config flag)
+
+        return true;
+
         // disable key repeat when screen is off
-        return mScreenOn;
+        //return mScreenOn;
     }
 
     /*
