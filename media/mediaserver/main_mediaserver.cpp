@@ -60,7 +60,7 @@ int main(int argc, char** argv)
     MediaPlayerService::instantiate();
     waitBeforeAdding( String16("media.camera") );
     CameraService::instantiate();
-    waitBeforeAdding( String16("media.audio_policy") );
+    //waitBeforeAdding( String16("media.audio_policy") );
     AudioPolicyService::instantiate();
     ProcessState::self()->startThreadPool();
     IPCThreadState::self()->joinThreadPool();
