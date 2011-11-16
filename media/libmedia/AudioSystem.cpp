@@ -750,5 +750,40 @@ void AudioSystem::AudioPolicyServiceClient::binderDied(const wp<IBinder>& who) {
     LOGW("AudioPolicyService server died!");
 }
 
+#ifdef USES_AUDIO_LEGACY
+// use emulated popcount optimization
+// http://www.df.lth.se/~john_e/gems/gem002d.html
+extern "C" uint32_t _ZN7android11AudioSystem8popCountEj(uint32_t u)
+{
+    u = ((u&0x55555555) + ((u>>1)&0x55555555));
+    u = ((u&0x33333333) + ((u>>2)&0x33333333));
+    u = ((u&0x0f0f0f0f) + ((u>>4)&0x0f0f0f0f));
+    u = ((u&0x00ff00ff) + ((u>>8)&0x00ff00ff));
+    u = ( u&0x0000ffff) + (u>>16);
+    return u;
+}
+
+extern "C" bool _ZN7android11AudioSystem12isA2dpDeviceENS0_13audio_devicesE(uint32_t device)
+{
+    if ((_ZN7android11AudioSystem8popCountEj(device) == 1 ) &&
+        (device & (0x80 | 0x100 | 0x200))) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+extern "C" bool _ZN7android11AudioSystem13isInputDeviceENS0_13audio_devicesE(uint32_t device)
+{
+    if ((_ZN7android11AudioSystem8popCountEj(device) == 1 ) &&
+        (device & ~0x81ff0000 == 0)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+#endif // AUDIO_LEGACY
+
 }; // namespace android
 

@@ -4879,12 +4879,15 @@ int AudioFlinger::openOutput(uint32_t *pDevices,
         AudioStreamOut *output = new AudioStreamOut(outHwDev, outStream);
         int id = nextUniqueId();
 
+#ifndef USES_AUDIO_LEGACY
         if ((flags & AUDIO_POLICY_OUTPUT_FLAG_DIRECT) ||
             (format != AUDIO_FORMAT_PCM_16_BIT) ||
             (channels != AUDIO_CHANNEL_OUT_STEREO)) {
             thread = new DirectOutputThread(this, output, id, *pDevices);
             LOGV("openOutput() created direct output: ID %d thread %p", id, thread);
-        } else {
+        } else 
+#endif  
+        {
             thread = new MixerThread(this, output, id, *pDevices);
             LOGV("openOutput() created mixer output: ID %d thread %p", id, thread);
         }
