@@ -30,4 +30,8 @@ LOCAL_STATIC_LIBRARIES := \
 
 LOCAL_MODULE:= libaudioflinger
 
+ifeq ($(BOARD_USES_AUDIO_LEGACY),true)
+    LOCAL_CFLAGS += -DUSES_AUDIO_LEGACY
+endif
+
 include $(BUILD_SHARED_LIBRARY)
