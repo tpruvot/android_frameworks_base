@@ -196,6 +196,7 @@ static void enable_disable(ogles_context_t* c, GLenum cap, int enabled)
         c->rasterizer.procs.enableDisable(c, GL_TEXTURE_2D, enabled);
         break;
 #endif
+
     case GL_MULTISAMPLE:
     case GL_SAMPLE_ALPHA_TO_COVERAGE:
     case GL_SAMPLE_ALPHA_TO_ONE:
