@@ -16,10 +16,10 @@
 
 #define LOG_TAG "PointerController"
 
-//#define LOG_NDEBUG 0
+#define LOG_NDEBUG 0
 
 // Log debug messages about pointer updates
-#define DEBUG_POINTER_UPDATES 0
+#define DEBUG_POINTER_UPDATES 1
 
 #include "PointerController.h"
 
