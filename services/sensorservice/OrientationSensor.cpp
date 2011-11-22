@@ -58,6 +58,9 @@ bool OrientationSensor::process(sensors_event_t* outEvent,
             outEvent->type = SENSOR_TYPE_ORIENTATION;
             return true;
         }
+        else {
+LOGW("mSensorFusion.hasEstimate = false !");
+        }
     }
     return false;
 }
