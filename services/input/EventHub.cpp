@@ -259,6 +259,12 @@ status_t EventHub::getAbsoluteAxisInfo(int32_t deviceId, int axis,
                 outAxisInfo->fuzz = info.fuzz;
                 outAxisInfo->resolution = info.resolution;
             }
+LOGI("absolute controller %d for device %s fd %d:",
+                     axis, device->identifier.name.string(), device->fd);
+
+LOGI("valid=%d min/max=%d/%d flat=%d fuzz=%d res=%d",
+     outAxisInfo->valid, info.minimum, info.maximum, info.flat, info.fuzz, info.resolution);
+
             return OK;
         }
     }
@@ -909,7 +915,7 @@ status_t EventHub::openDeviceLocked(const char *devicePath) {
     int32_t deviceId = mNextDeviceId++;
     Device* device = new Device(fd, deviceId, String8(devicePath), identifier);
 
-#if 0
+#if 1
     LOGI("add device %d: %s\n", deviceId, devicePath);
     LOGI("  bus:       %04x\n"
          "  vendor     %04x\n"
