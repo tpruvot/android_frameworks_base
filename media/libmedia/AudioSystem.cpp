@@ -783,6 +783,21 @@ extern "C" bool _ZN7android11AudioSystem13isInputDeviceENS0_13audio_devicesE(uin
     }
 }
 
+#ifdef USE_KINETO_COMPATIBILITY
+extern "C" uint32_t _ZN7android11AudioSystem24setDeviceConnectionStateE15audio_devices_t24audio_policy_dev_state_tPKc(uint32_t device, uint32_t state, const char *device_address) ;
+
+extern "C" uint32_t _ZN7android11AudioSystem24setDeviceConnectionStateENS0_13audio_devicesENS0_23device_connection_stateEPKc(uint32_t device, uint32_t state, const char *device_address)
+{
+    return _ZN7android11AudioSystem24setDeviceConnectionStateE15audio_devices_t24audio_policy_dev_state_tPKc( device, state, device_address ) ;
+}
+
+extern "C" uint32_t _ZN7android11AudioSystem9getOutputE19audio_stream_type_tjjj27audio_policy_output_flags_t(  uint32_t stream, uint32_t samplingRate, uint32_t format, uint32_t channels ,  uint32_t flags ) ;
+
+extern "C" uint32_t _ZN7android11AudioSystem9getOutputENS0_11stream_typeEjjjNS0_12output_flagsE( uint32_t stream, uint32_t samplingRate, uint32_t format, uint32_t channels ,  uint32_t flags ) {
+	return _ZN7android11AudioSystem9getOutputE19audio_stream_type_tjjj27audio_policy_output_flags_t( stream, samplingRate, format, channels, flags ) ;
+}
+#endif
+
 #endif // AUDIO_LEGACY
 
 }; // namespace android
