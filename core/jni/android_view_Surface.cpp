@@ -315,6 +315,7 @@ static inline SkBitmap::Config convertPixelFormat(PixelFormat format)
     switch (format) {
     case PIXEL_FORMAT_RGBX_8888:    return SkBitmap::kARGB_8888_Config;
     case PIXEL_FORMAT_RGBA_8888:    return SkBitmap::kARGB_8888_Config;
+    case PIXEL_FORMAT_BGRA_8888:    return SkBitmap::kARGB_8888_Config;
     case PIXEL_FORMAT_RGBA_4444:    return SkBitmap::kARGB_4444_Config;
     case PIXEL_FORMAT_RGB_565:      return SkBitmap::kRGB_565_Config;
     case PIXEL_FORMAT_A_8:          return SkBitmap::kA8_Config;

@@ -97,8 +97,12 @@ status_t GraphicBufferAllocator::alloc(uint32_t w, uint32_t h, PixelFormat forma
         w = h = 1;
 
     // we have a h/w allocator and h/w buffer is requested
-    status_t err; 
-    
+    status_t err;
+
+    if (usage & GRALLOC_USAGE_EXTERNAL_DISP) {
+        usage -= GRALLOC_USAGE_EXTERNAL_DISP;
+    }
+
     err = mAllocDev->alloc(mAllocDev, w, h, format, usage, handle, stride);
 
     LOGW_IF(err, "alloc(%u, %u, %d, %08x, ...) failed %d (%s)",
