@@ -112,13 +112,14 @@ static status_t selectConfigForPixelFormat(
     EGLConfig* const configs = new EGLConfig[numConfigs];
     eglChooseConfig(dpy, attrs, configs, numConfigs, &n);
     for (int i=0 ; i<n ; i++) {
-        EGLint nativeVisualId = 0;
+/*        EGLint nativeVisualId = 0;
         eglGetConfigAttrib(dpy, configs[i], EGL_NATIVE_VISUAL_ID, &nativeVisualId);
         if (nativeVisualId>0 && format == nativeVisualId) {
             *outConfig = configs[i];
             delete [] configs;
             return NO_ERROR;
         }
+*/
     }
     delete [] configs;
     return NAME_NOT_FOUND;
