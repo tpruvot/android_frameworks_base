@@ -100,6 +100,8 @@ uint32_t DisplayHardware::getMaxViewportDims() const {
             mMaxViewportDims[0] : mMaxViewportDims[1];
 }
 
+static EGLConfig last_config;
+
 static status_t selectConfigForPixelFormat(
         EGLDisplay dpy,
         EGLint const* attrs,
@@ -111,8 +113,13 @@ static status_t selectConfigForPixelFormat(
     eglGetConfigs(dpy, NULL, 0, &numConfigs);
     EGLConfig* const configs = new EGLConfig[numConfigs];
     eglChooseConfig(dpy, attrs, configs, numConfigs, &n);
+
+    memset(&last_config, 0, sizeof(last_config));
+    EGLint r,g,b,a,s,t;
+
     for (int i=0 ; i<n ; i++) {
-/*        EGLint nativeVisualId = 0;
+/*
+        EGLint nativeVisualId = 0;
         eglGetConfigAttrib(dpy, configs[i], EGL_NATIVE_VISUAL_ID, &nativeVisualId);
         if (nativeVisualId>0 && format == nativeVisualId) {
             *outConfig = configs[i];
@@ -120,6 +127,37 @@ static status_t selectConfigForPixelFormat(
             return NO_ERROR;
         }
 */
+        // Display available egl configs
+        eglGetConfigAttrib(dpy, configs[i], EGL_RED_SIZE,   &r);
+        eglGetConfigAttrib(dpy, configs[i], EGL_GREEN_SIZE, &g);
+        eglGetConfigAttrib(dpy, configs[i], EGL_BLUE_SIZE,  &b);
+        eglGetConfigAttrib(dpy, configs[i], EGL_ALPHA_SIZE, &a);
+        eglGetConfigAttrib(dpy, configs[i], EGL_SURFACE_TYPE, &s);
+        eglGetConfigAttrib(dpy, configs[i], EGL_TRANSPARENT_TYPE, &t);
+
+        if (r==0) continue;
+
+        LOGI("Config %d: RGBA_%d%d%d%d Surface %x Transp %x ", i, r,g,b,a, s,t);
+    }
+
+    for (int i=0 ; i<n ; i++) {
+
+        eglGetConfigAttrib(dpy, configs[i], EGL_RED_SIZE,   &r);
+        eglGetConfigAttrib(dpy, configs[i], EGL_GREEN_SIZE, &g);
+        eglGetConfigAttrib(dpy, configs[i], EGL_BLUE_SIZE,  &b);
+        eglGetConfigAttrib(dpy, configs[i], EGL_ALPHA_SIZE, &a);
+
+        if (r==0) continue;
+
+        //return first 32bpp config
+        if (8 == a && 8 == r && 8 == g && 8 == b) {
+            memcpy(&last_config, &configs[i], sizeof(last_config));
+            outConfig = &last_config;
+            LOGI("Using config %d", i);
+            delete [] configs;
+            return NO_ERROR;
+        }
+
     }
     delete [] configs;
     return NAME_NOT_FOUND;
