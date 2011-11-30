@@ -16,28 +16,28 @@
 
 #define LOG_TAG "InputDispatcher"
 
-#define LOG_NDEBUG 1
+//#define LOG_NDEBUG 0
 
 // Log detailed debug messages about each inbound event notification to the dispatcher.
-#define DEBUG_INBOUND_EVENT_DETAILS 1
+#define DEBUG_INBOUND_EVENT_DETAILS 0
 
 // Log detailed debug messages about each outbound event processed by the dispatcher.
 #define DEBUG_OUTBOUND_EVENT_DETAILS 0
 
 // Log debug messages about batching.
-#define DEBUG_BATCHING 1
+#define DEBUG_BATCHING 0
 
 // Log debug messages about the dispatch cycle.
 #define DEBUG_DISPATCH_CYCLE 0
 
 // Log debug messages about registrations.
-#define DEBUG_REGISTRATION 1
+#define DEBUG_REGISTRATION 0
 
 // Log debug messages about performance statistics.
 #define DEBUG_PERFORMANCE_STATISTICS 0
 
 // Log debug messages about input event injection.
-#define DEBUG_INJECTION 1
+#define DEBUG_INJECTION 0
 
 // Log debug messages about input event throttling.
 #define DEBUG_THROTTLING 0

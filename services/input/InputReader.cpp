@@ -16,25 +16,25 @@
 
 #define LOG_TAG "InputReader"
 
-#define LOG_NDEBUG 1
+//#define LOG_NDEBUG 0
 
 // Log debug messages for each raw event received from the EventHub.
-#define DEBUG_RAW_EVENTS 1
+#define DEBUG_RAW_EVENTS 0
 
 // Log debug messages about touch screen filtering hacks.
-#define DEBUG_HACKS 1
+#define DEBUG_HACKS 0
 
 // Log debug messages about virtual key processing.
-#define DEBUG_VIRTUAL_KEYS 1
+#define DEBUG_VIRTUAL_KEYS 0
 
 // Log debug messages about pointers.
-#define DEBUG_POINTERS 1
+#define DEBUG_POINTERS 0
 
 // Log debug messages about pointer assignment calculations.
-#define DEBUG_POINTER_ASSIGNMENT 1
+#define DEBUG_POINTER_ASSIGNMENT 0
 
 // Log debug messages about gesture detection.
-#define DEBUG_GESTURES 1
+#define DEBUG_GESTURES 0
 
 #include "InputReader.h"
 
