@@ -230,7 +230,7 @@ struct ANativeWindowBuffer;
 #endif
 
 #ifndef EGL_ANDROID_swap_rectangle
-#define EGL_ANDROID_swap_rectangle 1
+//#define EGL_ANDROID_swap_rectangle 1
 #ifdef EGL_EGLEXT_PROTOTYPES
 EGLAPI EGLBoolean EGLAPIENTRY eglSetSwapRectangleANDROID (EGLDisplay dpy, EGLSurface draw, EGLint left, EGLint top, EGLint width, EGLint height);
 #endif /* EGL_EGLEXT_PROTOTYPES */
