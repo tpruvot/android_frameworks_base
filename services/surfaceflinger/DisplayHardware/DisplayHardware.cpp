@@ -21,6 +21,8 @@
 
 #include <cutils/properties.h>
 
+#define LOG_NDEBUG 0
+
 #include <utils/RefBase.h>
 #include <utils/Log.h>
 
@@ -100,8 +102,6 @@ uint32_t DisplayHardware::getMaxViewportDims() const {
             mMaxViewportDims[0] : mMaxViewportDims[1];
 }
 
-static EGLConfig last_config;
-
 static status_t selectConfigForPixelFormat(
         EGLDisplay dpy,
         EGLint const* attrs,
@@ -114,51 +114,60 @@ static status_t selectConfigForPixelFormat(
     EGLConfig* const configs = new EGLConfig[numConfigs];
     eglChooseConfig(dpy, attrs, configs, numConfigs, &n);
 
-    memset(&last_config, 0, sizeof(last_config));
-    EGLint r,g,b,a,s,t;
+    EGLint t,r,g,b,a,d,v,rd,ndx=0;
+
+    LOGI("Wanted surface format = %x", format);
+    int alpha = 8, green = 8;
+    switch (format) {
+        case HAL_PIXEL_FORMAT_RGBA_8888:
+        case HAL_PIXEL_FORMAT_RGBX_8888:
+        case HAL_PIXEL_FORMAT_BGRA_8888:
+            break;
+        case HAL_PIXEL_FORMAT_RGBA_5551:
+            alpha = 1;
+            green = 5;
+            break;
+        case HAL_PIXEL_FORMAT_RGBA_4444:
+            alpha = 4;
+            green = 4;
+            break;
+        case HAL_PIXEL_FORMAT_RGB_565:
+            green = 6;
+            alpha = 0;
+            break;
+    }
 
     for (int i=0 ; i<n ; i++) {
-/*
+
         EGLint nativeVisualId = 0;
         eglGetConfigAttrib(dpy, configs[i], EGL_NATIVE_VISUAL_ID, &nativeVisualId);
-        if (nativeVisualId>0 && format == nativeVisualId) {
+        eglGetConfigAttrib(dpy, configs[i], EGL_SURFACE_TYPE, &t);
+        eglGetConfigAttrib(dpy, configs[i], EGL_ALPHA_SIZE, &a);
+        eglGetConfigAttrib(dpy, configs[i], EGL_GREEN_SIZE, &g);
+
+        if (a == alpha && g == green) {
             *outConfig = configs[i];
             delete [] configs;
             return NO_ERROR;
         }
-*/
-        // Display available egl configs
+
+        // Display ignored egl configs
         eglGetConfigAttrib(dpy, configs[i], EGL_RED_SIZE,   &r);
-        eglGetConfigAttrib(dpy, configs[i], EGL_GREEN_SIZE, &g);
         eglGetConfigAttrib(dpy, configs[i], EGL_BLUE_SIZE,  &b);
-        eglGetConfigAttrib(dpy, configs[i], EGL_ALPHA_SIZE, &a);
-        eglGetConfigAttrib(dpy, configs[i], EGL_SURFACE_TYPE, &s);
-        eglGetConfigAttrib(dpy, configs[i], EGL_TRANSPARENT_TYPE, &t);
+        eglGetConfigAttrib(dpy, configs[i], EGL_DEPTH_SIZE, &d); //0 0x10 0x18
+
+        //EGL_LEVEL all are 0
+        //EGL_SURFACE_TYPE all 0x7 (1+2+4)
+        //eglGetConfigAttrib(dpy, configs[i], EGL_TRANSPARENT_TYPE, &t); // all are same
+
+        eglGetConfigAttrib(dpy, configs[i], EGL_NATIVE_VISUAL_ID, &v); // 0(various) 1(8888) 2(8880) 4(565)
+        eglGetConfigAttrib(dpy, configs[i], EGL_NATIVE_RENDERABLE, &rd);
 
         if (r==0) continue;
 
-        LOGI("Config %d: RGBA_%d%d%d%d Surface %x Transp %x ", i, r,g,b,a, s,t);
+        LOGI("Ignore config %d: RGBA_%d%d%d%d Depth %x Native ID=%x(%x)", i, r,g,b,a, d,v,rd);
     }
 
-    for (int i=0 ; i<n ; i++) {
-
-        eglGetConfigAttrib(dpy, configs[i], EGL_RED_SIZE,   &r);
-        eglGetConfigAttrib(dpy, configs[i], EGL_GREEN_SIZE, &g);
-        eglGetConfigAttrib(dpy, configs[i], EGL_BLUE_SIZE,  &b);
-        eglGetConfigAttrib(dpy, configs[i], EGL_ALPHA_SIZE, &a);
-
-        if (r==0) continue;
-
-        //return first 32bpp config
-        if (8 == a && 8 == r && 8 == g && 8 == b) {
-            memcpy(&last_config, &configs[i], sizeof(last_config));
-            outConfig = &last_config;
-            LOGI("Using config %d", i);
-            delete [] configs;
-            return NO_ERROR;
-        }
-
-    }
     delete [] configs;
     return NAME_NOT_FOUND;
 }
