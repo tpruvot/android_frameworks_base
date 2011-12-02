@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#define LOG_NDEBUG 0
+
 #include <ui/FramebufferNativeWindow.h>
 #include <ui/PixelFormat.h>
 #include <ui/EGLUtils.h>

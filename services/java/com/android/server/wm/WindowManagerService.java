@@ -157,7 +157,7 @@ public class WindowManagerService extends IWindowManager.Stub
     static final boolean DEBUG_VISIBILITY = false;
     static final boolean DEBUG_WINDOW_MOVEMENT = false;
     static final boolean DEBUG_TOKEN_MOVEMENT = false;
-    static final boolean DEBUG_ORIENTATION = false;
+    static final boolean DEBUG_ORIENTATION = true;
     static final boolean DEBUG_APP_ORIENTATION = false;
     static final boolean DEBUG_CONFIGURATION = false;
     static final boolean DEBUG_APP_TRANSITIONS = false;
@@ -5131,6 +5131,10 @@ public class WindowManagerService extends IWindowManager.Stub
      * current rotation.
      */
     public void freezeRotation(int rotation) {
+
+        Slog.e(TAG, "freezeRotation: asked mRotation=" + mRotation);
+        return;
+/*
         if (!checkCallingPermission(android.Manifest.permission.SET_ORIENTATION,
                 "freezeRotation()")) {
             throw new SecurityException("Requires SET_ORIENTATION permission");
@@ -5145,6 +5149,7 @@ public class WindowManagerService extends IWindowManager.Stub
         mPolicy.setUserRotationMode(WindowManagerPolicy.USER_ROTATION_LOCKED,
                 rotation == -1 ? mRotation : rotation);
         updateRotationUnchecked(false);
+*/
     }
 
     /**
@@ -5152,6 +5157,8 @@ public class WindowManagerService extends IWindowManager.Stub
      * Persists across reboots.
      */
     public void thawRotation() {
+Slog.e(TAG, "thawRotation: asked... ok... mRotation=" + mRotation);
+
         if (!checkCallingPermission(android.Manifest.permission.SET_ORIENTATION,
                 "thawRotation()")) {
             throw new SecurityException("Requires SET_ORIENTATION permission");
@@ -5159,7 +5166,7 @@ public class WindowManagerService extends IWindowManager.Stub
 
         if (DEBUG_ORIENTATION) Slog.v(TAG, "thawRotation: mRotation=" + mRotation);
 
-        mPolicy.setUserRotationMode(WindowManagerPolicy.USER_ROTATION_FREE, 777); // rot not used
+        mPolicy.setUserRotationMode(WindowManagerPolicy.USER_ROTATION_FREE, 0); // rot not used
         updateRotationUnchecked(false);
     }
 

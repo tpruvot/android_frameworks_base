@@ -22,6 +22,8 @@
 #include <dlfcn.h>
 #include <limits.h>
 
+#define LOG_NDEBUG 0
+
 #include <cutils/log.h>
 #include <cutils/properties.h>
 

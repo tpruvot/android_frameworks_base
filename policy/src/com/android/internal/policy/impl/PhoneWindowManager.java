@@ -151,11 +151,12 @@ import java.util.ArrayList;
 public class PhoneWindowManager implements WindowManagerPolicy {
     static final String TAG = "WindowManager";
     static final boolean DEBUG = false;
-    static final boolean localLOGV = false;
+    static final boolean localLOGV = true;
     static final boolean DEBUG_LAYOUT = false;
     static final boolean DEBUG_FALLBACK = false;
+
     static final boolean SHOW_STARTING_ANIMATIONS = true;
-    static final boolean SHOW_PROCESSES_ON_ALT_MENU = false;
+    static final boolean SHOW_PROCESSES_ON_ALT_MENU = true;
 
     static final int LONG_PRESS_POWER_NOTHING = 0;
     static final int LONG_PRESS_POWER_GLOBAL_ACTIONS = 1;
@@ -441,7 +442,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             resolver.registerContentObserver(Settings.Secure.getUriFor(
                     Settings.Secure.INCALL_POWER_BUTTON_BEHAVIOR), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.ACCELEROMETER_ROTATION), false, this);
+                    Settings.System.ACCELEROMETER_ROTATION), true, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.USER_ROTATION), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
@@ -473,6 +474,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         @Override
         public void onProposedRotationChanged(int rotation) {
             if (localLOGV) Log.v(TAG, "onProposedRotationChanged, rotation=" + rotation);
+            
             updateRotation(false);
         }
     }
@@ -868,9 +870,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             mUserRotationMode = (accelerometerDefault == 0)
                 ? WindowManagerPolicy.USER_ROTATION_LOCKED
                 : WindowManagerPolicy.USER_ROTATION_FREE;
+if (localLOGV) Slog.w(TAG, "mUserRotationMode = "+ mUserRotationMode);
             mUserRotation = Settings.System.getInt(resolver,
                     Settings.System.USER_ROTATION,
                     Surface.ROTATION_0);
+if (localLOGV) Slog.w(TAG,"mUserRotation = "+ mUserRotation);
 
             if (mAccelerometerDefault != accelerometerDefault) {
                 mAccelerometerDefault = accelerometerDefault;
@@ -1041,10 +1045,13 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         } catch (RemoteException e) {
             // Ignore
         }
+if (localLOGV) Log.w(TAG, "mLidOpen = " + mLidOpen);
     }
     
     private int determineHiddenState(int mode, int hiddenValue, int visibleValue) {
         if (mLidOpen != LID_ABSENT) {
+if (localLOGV) Log.w(TAG, "mLidOpen != LID_ABSENT");
+
             switch (mode) {
                 case 1:
                     return mLidOpen == LID_OPEN ? visibleValue : hiddenValue;
@@ -1063,19 +1070,31 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         if (config.keyboard == Configuration.KEYBOARD_NOKEYS) {
             config.hardKeyboardHidden = Configuration.HARDKEYBOARDHIDDEN_YES;
         } else {
-            config.hardKeyboardHidden = determineHiddenState(mLidKeyboardAccessibility,
-                    Configuration.HARDKEYBOARDHIDDEN_YES, Configuration.HARDKEYBOARDHIDDEN_NO);
+
+            if (localLOGV) Slog.w(TAG, "HARD KEYBOARD SET PRESENT !!!! IGNORING !");
+            config.hardKeyboardHidden = Configuration.HARDKEYBOARDHIDDEN_YES;
+
+            //config.hardKeyboardHidden = determineHiddenState(mLidKeyboardAccessibility,
+            //        Configuration.HARDKEYBOARDHIDDEN_YES, Configuration.HARDKEYBOARDHIDDEN_NO);
         }
 
         if (config.navigation == Configuration.NAVIGATION_NONAV) {
             config.navigationHidden = Configuration.NAVIGATIONHIDDEN_YES;
         } else {
-            config.navigationHidden = determineHiddenState(mLidNavigationAccessibility,
-                    Configuration.NAVIGATIONHIDDEN_YES, Configuration.NAVIGATIONHIDDEN_NO);
+
+            if (localLOGV) Slog.w(TAG, "NAVIGATION SET PRESENT !!!! IGNORING !");
+            config.navigationHidden = Configuration.NAVIGATIONHIDDEN_YES;
+
+            //config.navigationHidden = determineHiddenState(mLidNavigationAccessibility,
+            //        Configuration.NAVIGATIONHIDDEN_YES, Configuration.NAVIGATIONHIDDEN_NO);
         }
 
         if (mHasSoftInput || config.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO) {
-            config.keyboardHidden = Configuration.KEYBOARDHIDDEN_NO;
+
+            if (localLOGV) Slog.w(TAG, "Keyboard visible... IGNORING !");
+            config.keyboardHidden = Configuration.KEYBOARDHIDDEN_YES;
+
+            //config.keyboardHidden = Configuration.KEYBOARDHIDDEN_NO;
         } else {
             config.keyboardHidden = Configuration.KEYBOARDHIDDEN_YES;
         }
@@ -3109,10 +3128,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
     @Override
     public int rotationForOrientationLw(int orientation, int lastRotation) {
-        if (false) {
+        if (true) {
             Slog.v(TAG, "rotationForOrientationLw(orient="
                         + orientation + ", last=" + lastRotation
-                        + "); user=" + mUserRotation + " "
+                        + "); user=Surface." + mUserRotation + " "
                         + ((mUserRotationMode == WindowManagerPolicy.USER_ROTATION_LOCKED)
                             ? "USER_ROTATION_LOCKED" : "")
                         );
@@ -3122,6 +3141,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             int sensorRotation = mOrientationListener.getProposedRotation(); // may be -1
             if (sensorRotation < 0) {
                 sensorRotation = lastRotation;
+                Slog.v(TAG, "rotationForOrientationLw: sensorRotation = "+ sensorRotation);
             }
 
             int preferredRotation = -1;
@@ -3129,10 +3149,12 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 // Ignore sensor when plugged into HDMI.
                 preferredRotation = mHdmiRotation;
             } else if (mLidOpen == LID_OPEN && mLidOpenRotation >= 0) {
+                Slog.v(TAG, "Ignore sensor when lid switch is open and rotation is forced mLidOpenRotation="+ mLidOpenRotation);
                 // Ignore sensor when lid switch is open and rotation is forced.
                 preferredRotation = mLidOpenRotation;
             } else if (mDockMode == Intent.EXTRA_DOCK_STATE_CAR
                     && (mCarDockEnablesAccelerometer || mCarDockRotation >= 0)) {
+                Slog.v(TAG, "Ignore sensor when in car dock unless explicitly enabled. mCarDockRotation="+ mCarDockRotation);
                 // Ignore sensor when in car dock unless explicitly enabled.
                 // This case can override the behavior of NOSENSOR, and can also
                 // enable 180 degree rotation while docked.
@@ -3140,6 +3162,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                         ? sensorRotation : mCarDockRotation;
             } else if (mDockMode == Intent.EXTRA_DOCK_STATE_DESK
                     && (mDeskDockEnablesAccelerometer || mDeskDockRotation >= 0)) {
+                Slog.v(TAG, "Ignore sensor when in desk dock unless explicitly enabled. mDeskDockEnablesAccelerometer="+ mDeskDockEnablesAccelerometer);
                 // Ignore sensor when in desk dock unless explicitly enabled.
                 // This case can override the behavior of NOSENSOR, and can also
                 // enable 180 degree rotation while docked.
@@ -3164,12 +3187,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 if (sensorRotation != Surface.ROTATION_180
                         || mAllowAllRotations == 1
                         || orientation == ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR) {
+                    Slog.v(TAG, "preferredRotation = sensorRotation "+ sensorRotation);
                     preferredRotation = sensorRotation;
                 } else {
+                    Slog.v(TAG, "preferredRotation = lastRotation " + lastRotation);
                     preferredRotation = lastRotation;
                 }
             } else if (mUserRotationMode == WindowManagerPolicy.USER_ROTATION_LOCKED) {
                 // Apply rotation lock.
+                Slog.v(TAG, "preferredRotation = mUserRotation " + mUserRotation);
                 preferredRotation = mUserRotation;
             }
 
@@ -3219,6 +3245,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     // For USER, UNSPECIFIED, NOSENSOR, SENSOR and FULL_SENSOR,
                     // just return the preferred orientation we already calculated.
                     if (preferredRotation >= 0) {
+                        Slog.w(TAG, "return preferredRotation...");
                         return preferredRotation;
                     }
                     return Surface.ROTATION_0;

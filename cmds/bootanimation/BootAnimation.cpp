@@ -221,9 +221,9 @@ status_t BootAnimation::readyToRun() {
 
     // initialize opengl and egl
     const EGLint attribs[] = {
-            EGL_RED_SIZE,   8,
-            EGL_GREEN_SIZE, 8,
-            EGL_BLUE_SIZE,  8,
+            EGL_RED_SIZE,   5,
+            EGL_GREEN_SIZE, 6,
+            EGL_BLUE_SIZE,  5,
             EGL_DEPTH_SIZE, 0,
             EGL_NONE
     };

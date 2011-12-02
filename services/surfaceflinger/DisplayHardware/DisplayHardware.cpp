@@ -245,6 +245,8 @@ void DisplayHardware::init(uint32_t dpy)
         mFlags |= PARTIAL_UPDATES;
     }
     
+    mFlags |= CACHED_BUFFERS;
+
     if (eglGetConfigAttrib(display, config, EGL_CONFIG_CAVEAT, &dummy) == EGL_TRUE) {
         if (dummy == EGL_SLOW_CONFIG)
             mFlags |= SLOW_CONFIG;

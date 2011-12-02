@@ -56,7 +56,7 @@ import java.util.ArrayList;
 public class InputManager implements Watchdog.Monitor {
     static final String TAG = "InputManager";
     
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     private final Callbacks mCallbacks;
     private final Context mContext;
