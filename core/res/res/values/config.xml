@@ -745,4 +745,10 @@
     <!-- Base "touch slop" value used by ViewConfiguration as a
          movement threshold where scrolling should begin. -->
     <dimen name="config_viewConfigurationTouchSlop">8dp</dimen>
+
+    <!-- Contains a list of vendor specific services to start via ServiceManager.
+         Format for each item is: <path_to_service_jar_file>:<service_class_name> -->
+    <string-array name="config_vendorServices">
+    </string-array>
+
 </resources>
