@@ -39,7 +39,7 @@ namespace android {
 /**
  * Turn on for using the Cache
  */
-#define USE_TEXT_LAYOUT_CACHE 0
+#define USE_TEXT_LAYOUT_CACHE 1
 
 enum {
     kBidi_LTR = 0,
