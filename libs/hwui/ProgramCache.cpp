@@ -394,7 +394,7 @@ Program* ProgramCache::generateProgram(const ProgramDescription& description, pr
 
 String8 ProgramCache::generateVertexShader(const ProgramDescription& description) {
 
-#ifdef BOARD_GL_OES_EGL_IMG_EXTERNAL_HACK
+#ifdef MISSING_EGL_EXTERNAL_IMAGE
     if (description.hasExternalTexture) {
         LOGW("SHADER USE EXTERNAL TEXTURE OES");
     }
@@ -473,7 +473,7 @@ String8 ProgramCache::generateVertexShader(const ProgramDescription& description
 
 String8 ProgramCache::generateFragmentShader(const ProgramDescription& description) {
     String8 shader;
-#ifdef BOARD_GL_OES_EGL_IMG_EXTERNAL_HACK
+#ifdef MISSING_EGL_EXTERNAL_IMAGE
     if (description.hasExternalTexture) {
         LOGW("SHADER USE EXTERNAL TEXTURE OES");
     }
