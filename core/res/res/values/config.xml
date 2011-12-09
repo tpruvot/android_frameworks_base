@@ -719,7 +719,7 @@
     <integer name="config_networkPolicyDefaultWarning">2048</integer>
 
     <!-- Use legacy USB device manager. -->
-    <bool name="config_usesLegacyUsbDeviceManager">false</bool>
+    <bool name="config_usesLegacyUsbDeviceManager">true</bool>
 
     <!-- Contains a list of vendor specific services to start via ServiceManager.
          Format for each item is: <path_to_service_jar_file>:<service_class_name> -->
