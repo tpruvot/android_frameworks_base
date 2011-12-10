@@ -1029,13 +1029,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
     
     void readLidState() {
-        mLidOpen = LID_ABSENT;
-/*
         try {
             int sw = mWindowManager.getSwitchState(SW_LID);
-            if (sw > 0) {
+            if (sw == 0) {
                 mLidOpen = LID_OPEN;
-            } else if (sw == 0) {
+            } else if (sw == 1) {
                 mLidOpen = LID_CLOSED;
             } else {
                 mLidOpen = LID_ABSENT;
@@ -1043,7 +1041,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         } catch (RemoteException e) {
             // Ignore
         }
-*/
     }
     
     private int determineHiddenState(int mode, int hiddenValue, int visibleValue) {
