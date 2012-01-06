@@ -746,12 +746,14 @@
          movement threshold where scrolling should begin. -->
     <dimen name="config_viewConfigurationTouchSlop">8dp</dimen>
 
-    <!-- CM CHANGES START HERE -->
+    <!-- DEFY CHANGES START HERE -->
 
     <!-- Contains a list of vendor specific services to start via ServiceManager.
          Format for each item is: <path_to_service_jar_file>:<service_class_name> -->
     <string-array name="config_vendorServices">
     </string-array>
+
+    <!-- CM CHANGES START HERE -->
 
     <!-- LUN file to be used by legacy USB manager.
          The existence of this file will be used to determine in the
