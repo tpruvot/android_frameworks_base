@@ -3736,6 +3736,12 @@ public final class Settings {
          * @hide
          */
         public static final String ASSISTED_GPS_ENABLED = "assisted_gps_enabled";
+        
+         /**
+         * External BT GPS device
+         * @hide
+         */
+        public static final String EXTERNAL_GPS_BT_DEVICE = "0";
 
         /**
          * The Logging ID (a unique 64-bit value) as a hex string.
@@ -5103,4 +5109,5 @@ public final class Settings {
     public static String getGTalkDeviceId(long androidId) {
         return "android-" + Long.toHexString(androidId);
     }
+    
 }
