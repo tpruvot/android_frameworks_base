@@ -90,7 +90,6 @@ public class RingSelector extends ViewGroup {
      */
     private int mOrientation;
     private int mSelectedRingId;
-    private int mHighlightBackgroundResId;
     private Ring mLeftRing;
     private Ring mRightRing;
     private Ring mMiddleRing;
@@ -208,8 +207,6 @@ public class RingSelector extends ViewGroup {
         private int alignCenterX;
         private int alignCenterY;
 
-        private int backgroundId;
-
         /**
          * Constructor
          *
@@ -224,8 +221,6 @@ public class RingSelector extends ViewGroup {
             ring.setScaleType(ScaleType.CENTER);
             ring.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
                     LayoutParams.WRAP_CONTENT));
-
-            backgroundId = ringId;
 
             // Create target
             target = new ImageView(parent.getContext());
@@ -257,15 +252,7 @@ public class RingSelector extends ViewGroup {
         }
 
         void setRingBackgroundResource(int ringId) {
-            backgroundId = ringId;
             ring.setBackgroundResource(ringId);
-        }
-
-        void setHighlighted(int highlightId) {
-            if (highlightId == 0) {
-                highlightId = backgroundId;
-            }
-            ring.setBackgroundResource(highlightId);
         }
 
         void hide() {
@@ -717,8 +704,6 @@ public class RingSelector extends ViewGroup {
         mSecRingBottomOffset = (int) (mDensity * mDensityScaleFactor * mSecRingBottomOffsetDIP);
         mSecRingCenterOffset = (int) (mDensity * mDensityScaleFactor * mSecRingCenterOffsetDIP);
 
-        mHighlightBackgroundResId = R.drawable.jog_ring_ring_pressed_red;
-
         mSecRings = new SecRing[] {
                 new SecRing(this, R.drawable.jog_ring_secback_normal),
                 new SecRing(this, R.drawable.jog_ring_secback_normal),
@@ -997,7 +982,7 @@ public class RingSelector extends ViewGroup {
             super.setVisibility(View.INVISIBLE);
             if ((mMiddlePrimary && isLeft) || (!mMiddlePrimary && !isRight && !isLeft)) {
                 if (mPrevTriggered) {
-                    mCurrentRing.setHighlighted(0);
+                    mCurrentRing.setRingBackgroundResource(R.drawable.jog_ring_ring_green);
                 }
                 mSecRings[mSelectedRingId].deactivate();
             }
@@ -1054,18 +1039,11 @@ public class RingSelector extends ViewGroup {
             }
         }
         if (ringsTouched && !mPrevTriggered) {
-            mCurrentRing.setHighlighted(mHighlightBackgroundResId);
+            mCurrentRing.setRingBackgroundResource(R.drawable.jog_ring_ring_pressed_red);
             mPrevTriggered = true;
         } else if (!ringsTouched && mPrevTriggered) {
-            mCurrentRing.setHighlighted(0);
+            mCurrentRing.setRingBackgroundResource(R.drawable.jog_ring_ring_green);
             mPrevTriggered = false;
-        }
-    }
-
-    public void setHighlightBackgroundResource(int backgroundId) {
-        mHighlightBackgroundResId = backgroundId;
-        if (mPrevTriggered) {
-            mCurrentRing.setHighlighted(backgroundId);
         }
     }
 
