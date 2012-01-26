@@ -20,8 +20,6 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.os.CountDownTimer;
 import android.os.SystemClock;
-import android.os.SystemProperties;
-import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +31,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import com.android.internal.R;
 import com.android.internal.telephony.IccCard;
-import com.android.internal.telephony.TelephonyProperties;
 import com.android.internal.widget.LinearLayoutWithDefaultTouchRecepient;
 import com.android.internal.widget.LockPatternUtils;
 import com.android.internal.widget.LockPatternView;
@@ -104,12 +101,6 @@ class PatternUnlockScreen extends LinearLayoutWithDefaultTouchRecepient
 
     private ViewGroup mFooterNormal;
     private ViewGroup mFooterForgotPattern;
-
-    private int mCarrierLabelType = (Settings.System.getInt(mContext.getContentResolver(),
-            Settings.System.CARRIER_LABEL_TYPE, LockScreen.CARRIER_TYPE_DEFAULT));
-
-    private String mCarrierLabelCustom = (Settings.System.getString(mContext.getContentResolver(),
-            Settings.System.CARRIER_LABEL_CUSTOM_STRING));
 
     /**
      * Keeps track of the last time we poked the wake lock during dispatching
@@ -268,9 +259,10 @@ class PatternUnlockScreen extends LinearLayoutWithDefaultTouchRecepient
         mCarrier.setTextColor(0xffffffff);
 
         // until we get an update...
-        String plmn = (String) mUpdateMonitor.getTelephonyPlmn();
-        String spn = (String) mUpdateMonitor.getTelephonySpn();
-        onRefreshCarrierInfo(plmn, spn);
+        mCarrier.setText(
+                LockScreen.getCarrierString(
+                        mUpdateMonitor.getTelephonyPlmn(),
+                        mUpdateMonitor.getTelephonySpn()));
     }
 
     private void refreshEmergencyButtonText() {
@@ -408,14 +400,7 @@ class PatternUnlockScreen extends LinearLayoutWithDefaultTouchRecepient
 
     /** {@inheritDoc} */
     public void onRefreshCarrierInfo(CharSequence plmn, CharSequence spn) {
-        String realPlmn = SystemProperties.get(TelephonyProperties.PROPERTY_OPERATOR_ALPHA);
-
-        if (plmn == null || plmn.equals(realPlmn)) {
-            mCarrier.setText(LockScreen.getCarrierString(
-                    plmn, spn, mCarrierLabelType, mCarrierLabelCustom));
-        } else {
-            mCarrier.setText(LockScreen.getCarrierString(plmn, spn));
-        }
+        mCarrier.setText(LockScreen.getCarrierString(plmn, spn));
     }
 
     /** {@inheritDoc} */
