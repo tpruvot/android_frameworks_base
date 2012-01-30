@@ -4560,7 +4560,7 @@ public final class ActivityThread {
         });
     }
 
-    public static final ActivityThread systemMain() {
+    public static ActivityThread systemMain() {
         HardwareRenderer.disable(true);
         ActivityThread thread = new ActivityThread();
         thread.attach(true);
@@ -4600,6 +4600,8 @@ public final class ActivityThread {
 
         ActivityThread thread = new ActivityThread();
         thread.attach(false);
+
+        AsyncTask.init();
 
         if (false) {
             Looper.myLooper().setMessageLogging(new
