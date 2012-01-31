@@ -149,13 +149,6 @@ uint32_t EventHub::getDeviceBusType(int32_t deviceId) const
     return device->bustype;
 }
 
-bool EventHub::getDeviceBluetooth(int32_t deviceId) const
-{
-    AutoMutex _l(mLock);
-    device_t* device = getDeviceLocked(deviceId);
-    return device->bluetooth;
-}
-
 uint32_t EventHub::getDeviceClasses(int32_t deviceId) const
 {
     AutoMutex _l(mLock);

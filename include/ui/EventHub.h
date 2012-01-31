@@ -160,8 +160,6 @@ public:
 
     virtual uint32_t getDeviceBusType(int32_t deviceId) const = 0;
 
-    virtual bool getDeviceBluetooth(int32_t deviceId) const = 0;
-
     virtual status_t getAbsoluteAxisInfo(int32_t deviceId, int axis,
             RawAbsoluteAxisInfo* outAxisInfo) const = 0;
 
@@ -209,8 +207,6 @@ public:
     virtual String8 getDeviceName(int32_t deviceId) const;
 
     virtual uint32_t getDeviceBusType(int32_t deviceId) const;
-
-    virtual bool getDeviceBluetooth(int32_t deviceId) const;
 
     virtual status_t getAbsoluteAxisInfo(int32_t deviceId, int axis,
             RawAbsoluteAxisInfo* outAxisInfo) const;

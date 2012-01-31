@@ -490,10 +490,6 @@ private:
         return 0;
     }
 
-    virtual bool getDeviceBluetooth(int32_t deviceId) const {
-        return false;
-    }
-
     virtual status_t getAbsoluteAxisInfo(int32_t deviceId, int axis,
             RawAbsoluteAxisInfo* outAxisInfo) const {
         Device* device = getDevice(deviceId);
