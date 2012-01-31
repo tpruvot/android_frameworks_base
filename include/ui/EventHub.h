@@ -158,9 +158,9 @@ public:
 
     virtual String8 getDeviceName(int32_t deviceId) const = 0;
 
-    virtual bool getDeviceBluetooth(int32_t deviceId) const = 0;
+    virtual uint32_t getDeviceBusType(int32_t deviceId) const = 0;
 
-    virtual bool getDeviceUSB(int32_t deviceId) const = 0;
+    virtual bool getDeviceBluetooth(int32_t deviceId) const = 0;
 
     virtual status_t getAbsoluteAxisInfo(int32_t deviceId, int axis,
             RawAbsoluteAxisInfo* outAxisInfo) const = 0;
@@ -208,9 +208,9 @@ public:
 
     virtual String8 getDeviceName(int32_t deviceId) const;
 
-    virtual bool getDeviceBluetooth(int32_t deviceId) const;
+    virtual uint32_t getDeviceBusType(int32_t deviceId) const;
 
-    virtual bool getDeviceUSB(int32_t deviceId) const;
+    virtual bool getDeviceBluetooth(int32_t deviceId) const;
 
     virtual status_t getAbsoluteAxisInfo(int32_t deviceId, int axis,
             RawAbsoluteAxisInfo* outAxisInfo) const;
@@ -253,11 +253,12 @@ private:
         KeyLayoutMap*   layoutMap;
         String8         keylayoutFilename;
         int             fd;
+        uint32_t        bustype;
         bool            bluetooth;
         bool            usb;
         device_t*       next;
-        
-        device_t(int32_t _id, const char* _path, const char* name, bool _bluetooth, bool _usb);
+
+        device_t(int32_t _id, const char* _path, const char* name, uint32_t bustype);
         ~device_t();
     };
 

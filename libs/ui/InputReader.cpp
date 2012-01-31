@@ -334,8 +334,8 @@ InputDevice* InputReader::createDevice(int32_t deviceId, const String8& name, ui
     }
 
     if (keyboardSources != 0) {
-        device->addMapper(new KeyboardInputMapper(device,
-                associatedDisplayId, keyboardSources, keyboardType, mEventHub->getDeviceBluetooth(deviceId), mEventHub->getDeviceUSB(deviceId)));
+        device->addMapper(new KeyboardInputMapper(device, associatedDisplayId, keyboardSources,
+                                  keyboardType, mEventHub->getDeviceBusType(deviceId)));
     }
 
     // Trackball-like devices.
@@ -876,10 +876,12 @@ int32_t SwitchInputMapper::getSwitchState(uint32_t sourceMask, int32_t switchCod
 // --- KeyboardInputMapper ---
 
 KeyboardInputMapper::KeyboardInputMapper(InputDevice* device, int32_t associatedDisplayId,
-        uint32_t sources, int32_t keyboardType, bool bluetooth, bool usb) :
+        uint32_t sources, int32_t keyboardType, uint32_t bustype) :
         InputMapper(device), mAssociatedDisplayId(associatedDisplayId), mSources(sources),
-        mKeyboardType(keyboardType), mBluetooth(bluetooth), mUSB(usb) {
+        mKeyboardType(keyboardType), mBusType(bustype) {
     initializeLocked();
+    mBluetooth = (mBusType == BUS_BLUETOOTH);
+    mUSB = (mBusType == BUS_USB);
 }
 
 KeyboardInputMapper::~KeyboardInputMapper() {
