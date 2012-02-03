@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2007 The Android Open Source Project
- * Copyright (c) 2009, Code Aurora Forum. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +26,13 @@
 #include <utils/threads.h>
 
 #include <ui/PixelFormat.h>
-#include <ui/IOverlay.h>
 
-//#include <hardware/overlay.h>
-#include <ui/overlay_hardware.h>
+typedef void (*overlay_set_fd_hook)(void *data,
+        int fd);
+typedef void (*overlay_set_crop_hook)(void *data,
+        uint32_t x, uint32_t y, uint32_t w, uint32_t h);
+typedef void (*overlay_queue_buffer_hook)(void *data,
+        void* buffer);
 
 namespace android {
 
@@ -39,59 +41,31 @@ class IMemoryHeap;
 
 // ----------------------------------------------------------------------------
 
-class OverlayRef : public LightRefBase<OverlayRef>
-{
-public:
-    OverlayRef(overlay_handle_t, const sp<IOverlay>&,
-            uint32_t w, uint32_t h, int32_t f, uint32_t ws, uint32_t hs);
-
-    static sp<OverlayRef> readFromParcel(const Parcel& data);
-    static status_t writeToParcel(Parcel* reply, const sp<OverlayRef>& o);    
-
-private:
-    friend class LightRefBase<OverlayRef>;
-    friend class Overlay;
-
-    OverlayRef();
-    virtual ~OverlayRef();
-
-    overlay_handle_t mOverlayHandle;
-    sp<IOverlay> mOverlayChannel;
-    uint32_t mWidth;
-    uint32_t mHeight;
-    int32_t  mFormat;
-    int32_t  mWidthStride;
-    int32_t  mHeightStride;
-    bool mOwnHandle;
-};
-
-// ----------------------------------------------------------------------------
-
 class Overlay : public virtual RefBase
 {
 public:
-    Overlay(const sp<OverlayRef>& overlayRef);
+    Overlay(overlay_set_fd_hook set_fd,
+            overlay_set_crop_hook set_crop,
+            overlay_queue_buffer_hook queue_buffer,
+            void* data);
 
     /* destroys this overlay */
     void destroy();
     
     /* get the HAL handle for this overlay */
-    overlay_handle_t getHandleRef() const;
+    void* getHandleRef() const;
 
     /* blocks until an overlay buffer is available and return that buffer. */
-    status_t dequeueBuffer(overlay_buffer_t* buffer);
+    status_t dequeueBuffer(void** buffer);
 
     /* release the overlay buffer and post it */
-    status_t queueBuffer(overlay_buffer_t buffer);
+    status_t queueBuffer(void* buffer);
 
     /* change the width and height of the overlay */
     status_t resizeInput(uint32_t width, uint32_t height);
 
     status_t setCrop(uint32_t x, uint32_t y, uint32_t w, uint32_t h) ;
 
-#ifdef OMAP_ENHANCEMENT
-    status_t set_s3d_params(int32_t s3d_mode, uint32_t s3d_fmt, uint32_t s3d_order, uint32_t s3d_subsampling);
-#endif
     status_t getCrop(uint32_t* x, uint32_t* y, uint32_t* w, uint32_t* h) ;
 
     /* set the buffer attributes */
@@ -99,7 +73,7 @@ public:
     status_t setFd(int fd);
 
     /* returns the address of a given buffer if supported, NULL otherwise. */
-    void* getBufferAddress(overlay_buffer_t buffer);
+    void* getBufferAddress(void* buffer);
 
     /* get physical informations about the overlay */
     uint32_t getWidth() const;
@@ -113,8 +87,12 @@ public:
 private:
     virtual ~Overlay();
 
-    sp<OverlayRef> mOverlayRef;
-    overlay_data_device_t *mOverlayData;
+    // C style hook
+    overlay_set_fd_hook set_fd_hook;
+    overlay_set_crop_hook set_crop_hook;
+    overlay_queue_buffer_hook queue_buffer_hook;
+    void* hook_data;
+
     status_t mStatus;
 };
 
