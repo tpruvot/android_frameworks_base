@@ -173,6 +173,7 @@ class DockObserver extends UEventObserver {
 
                             if (whichSound != null) {
                                 final String soundPath = Settings.System.getString(cr, whichSound);
+                                Slog.i(TAG, "Will play dock sound " + soundPath);
                                 if (soundPath != null) {
                                     final Uri soundUri = Uri.parse("file://" + soundPath);
                                     if (soundUri != null) {
@@ -186,12 +187,14 @@ class DockObserver extends UEventObserver {
                             }
                         }
 
-                        if (Settings.System.getInt(cr, Settings.System.DOCK_ADB_NET_ENABLED, 0) == 1)
+                        if (Settings.System.getInt(cr, Settings.System.DOCK_ADB_NET_ENABLED, 1) == 1)
                         {
                             boolean adbEnabled = (Settings.Secure.getInt(cr,
                                                          Settings.Secure.ADB_ENABLED, 0) != 0);
 
                             // both ADB and Dock setting must be active to allow the adb network switch
+                            adbEnabled = adbEnabled & (Settings.System.getInt(cr,
+                                                         Settings.System.DOCK_ADB_NET_ENABLED, 0) != 0);
 
                             Slog.i(TAG, "DockChange: adb enabled="+adbEnabled);
                             if (adbEnabled) {
