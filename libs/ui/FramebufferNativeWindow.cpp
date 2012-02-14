@@ -102,6 +102,9 @@ FramebufferNativeWindow::FramebufferNativeWindow()
         mNumFreeBuffers = NUM_FRAME_BUFFERS;
         mBufferHead = mNumBuffers-1;
 
+        LOGV("alloc fbDev for %d buffers of %dx%d format=0x%x(%d)\n", mNumBuffers,
+                fbDev->width, fbDev->height, fbDev->format, fbDev->format);
+
         for (i = 0; i < mNumBuffers; i++)
         {
                 buffers[i] = new NativeBuffer(
@@ -370,7 +373,11 @@ extern "C" int32_t _ZNK7android7Overlay14getBufferCountEv(void)
 
 extern "C" void* _ZN7android7Overlay16getBufferAddressEPv(void* buffer)
 {
-    return 0;
+    void* ret=NULL;
+    LOGD("getBufferAddressEPv: buffer=%p", buffer);
+    GraphicBuffer* b = new GraphicBuffer((ANativeWindowBuffer*) buffer, keepOwnership=true);
+    ret = (void*) b->handle;
+    return ret;
 }
 
 extern "C" void _ZN7android7Overlay7destroyEv(void)
