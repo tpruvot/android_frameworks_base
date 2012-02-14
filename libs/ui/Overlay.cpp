@@ -25,6 +25,7 @@
 #include <binder/MemoryHeapBase.h>
 
 #include <ui/Overlay.h>
+#include <ui/FramebufferNativeWindow.h> //NUM_FRAME_BUFFERS
 
 namespace android {
 
@@ -46,7 +47,6 @@ Overlay::~Overlay() {
 
 status_t Overlay::dequeueBuffer(void** buffer)
 {
-    //return mStatus;
     LOGD("Overlay::dequeueBuffer: %d", mStatus);
     return NO_ERROR;
 }
@@ -55,7 +55,7 @@ status_t Overlay::queueBuffer(void* buffer)
 {
     if (queue_buffer_hook)
         queue_buffer_hook(hook_data, buffer);
-    LOGD("Overlay::queueBuffer: %d", mStatus);
+    LOGD("Overlay::queueBuffer: %d (hook=%d)", mStatus, (int) (queue_buffer_hook != NULL));
     return mStatus;
 }
 
@@ -74,6 +74,7 @@ status_t Overlay::setCrop(uint32_t x, uint32_t y, uint32_t w, uint32_t h)
 {
     if (set_crop_hook)
         set_crop_hook(hook_data, x, y, w, h);
+    LOGD("Overlay::setCrop: %d (hook=%d)", mStatus, (int) (set_crop_hook != NULL));
     return mStatus;
 }
 

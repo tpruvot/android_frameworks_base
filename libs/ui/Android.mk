@@ -53,10 +53,10 @@ LOCAL_SRC_FILES:= \
 	Rect.cpp \
 	Region.cpp
 
-ifneq ($(BOARD_QCOM_BASED_CAMERA_HAL),true)
+#ifneq ($(BOARD_QCOM_BASED_CAMERA_HAL),true)
         LOCAL_CFLAGS += -DUSE_OVERLAY_CPP
         LOCAL_SRC_FILES += Overlay.cpp
-endif
+#endif
 
 LOCAL_SHARED_LIBRARIES := \
 	libcutils \
