@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
+#define LOG_NDEBUG 0
 #define LOG_TAG "Overlay"
+
+#include <cutils/log.h>
 
 #include <binder/IMemory.h>
 #include <binder/Parcel.h>
@@ -43,13 +46,16 @@ Overlay::~Overlay() {
 
 status_t Overlay::dequeueBuffer(void** buffer)
 {
-    return mStatus;
+    //return mStatus;
+    LOGD("Overlay::dequeueBuffer: %d", mStatus);
+    return NO_ERROR;
 }
 
 status_t Overlay::queueBuffer(void* buffer)
 {
     if (queue_buffer_hook)
         queue_buffer_hook(hook_data, buffer);
+    LOGD("Overlay::queueBuffer: %d", mStatus);
     return mStatus;
 }
 
@@ -60,6 +66,7 @@ status_t Overlay::resizeInput(uint32_t width, uint32_t height)
 
 status_t Overlay::setParameter(int param, int value)
 {
+    LOGD("Overlay::setParameter: %d", mStatus);
     return mStatus;
 }
 
@@ -84,18 +91,21 @@ status_t Overlay::setFd(int fd)
 
 int32_t Overlay::getBufferCount() const
 {
-    return 0;
+    LOGD("Overlay::getBufferCount: %d", NUM_FRAME_BUFFERS);
+    return NUM_FRAME_BUFFERS;
 }
 
 void* Overlay::getBufferAddress(void* buffer)
 {
+    LOGD("Overlay::getBufferAddress: %d", 0);
     return 0;
 }
 
-void Overlay::destroy() {  
+void Overlay::destroy() {
 }
 
 status_t Overlay::getStatus() const {
+    LOGD("Overlay::getStatus: %d", mStatus);
     return mStatus;
 }
 

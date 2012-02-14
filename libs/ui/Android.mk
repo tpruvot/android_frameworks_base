@@ -42,7 +42,6 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES:= \
 	$(commonSources) \
-	Overlay.cpp \
 	EGLUtils.cpp \
 	FramebufferNativeWindow.cpp \
 	GraphicBuffer.cpp \
@@ -53,6 +52,11 @@ LOCAL_SRC_FILES:= \
 	PixelFormat.cpp \
 	Rect.cpp \
 	Region.cpp
+
+ifneq ($(BOARD_QCOM_BASED_CAMERA_HAL),true)
+        LOCAL_CFLAGS += -DUSE_OVERLAY_CPP
+        LOCAL_SRC_FILES += Overlay.cpp
+endif
 
 LOCAL_SHARED_LIBRARIES := \
 	libcutils \

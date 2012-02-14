@@ -15,6 +15,7 @@
 ** limitations under the License.
 */
 
+#define LOG_NDEBUG 0
 #define LOG_TAG "FramebufferNativeWindow"
 
 #include <stdlib.h>
@@ -351,13 +352,29 @@ EGLNativeWindowType android_createDisplaySurface(void)
     return (EGLNativeWindowType)w;
 }
 
-extern "C" status_t _ZN7android7Overlay13dequeueBufferEPPv(void* buffer)
+#ifndef USE_OVERLAY_CPP
+extern "C" status_t _ZN7android7Overlay13dequeueBufferEPPv(void** buffer)
 {
     return NO_ERROR;
+}
+
+extern "C" status_t _ZN7android7Overlay11queueBufferEPv(void* buffer)
+{
+    return NO_ERROR;
+}
+
+extern "C" int32_t _ZNK7android7Overlay14getBufferCountEv(void)
+{
+    return NUM_FRAME_BUFFERS;
+}
+
+extern "C" void* _ZN7android7Overlay16getBufferAddressEPv(void* buffer)
+{
+    return 0;
 }
 
 extern "C" void _ZN7android7Overlay7destroyEv(void)
 {
     return;
 }
-
+#endif
