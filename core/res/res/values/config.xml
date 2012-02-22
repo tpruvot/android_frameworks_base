@@ -779,6 +779,13 @@
 
     <!-- CM CHANGES START HERE -->
 
+    <!-- Values greater or equal to 0 will enable electronbeam screen-on
+         animation with the specified delay (in milliseconds), -1 will disable the animation -->
+    <integer name="config_screenOnAnimation">-1</integer>
+
+    <!-- True will enable the electron beam screen-off animation. -->
+    <bool name="config_screenOffAnimation">true</bool>
+
     <!-- LUN file to be used by legacy USB manager.
          The existence of this file will be used to determine in the
          legacy USB manager should be started. -->
