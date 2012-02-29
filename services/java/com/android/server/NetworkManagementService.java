@@ -1052,8 +1052,10 @@ public class NetworkManagementService extends INetworkManagementService.Stub
                 android.Manifest.permission.CHANGE_WIFI_STATE, "NetworkManagementService");
         try {
             mConnector.doCommand("softap stopap");
-            if (SystemProperties.getBoolean("wifi.hotspot.ti", false))
-                mConnector.doCommand("softap stop tiap0");
+            if (SystemProperties.getBoolean("wifi.hotspot.ti", false)) {
+                String softApIface = SystemProperties.get("wifi.ap.interface", "tiap0");
+                mConnector.doCommand("softap stop " + softApIface);
+            }
             else
                 mConnector.doCommand("softap stop " + wlanIface);
             wifiFirmwareReload(wlanIface, "STA");
