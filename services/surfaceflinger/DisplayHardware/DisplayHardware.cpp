@@ -133,6 +133,8 @@ static status_t selectConfigForPixelFormat(
             green = 6;
             alpha = 0;
             break;
+        default:
+            LOGE("%s:%d unhandled pixel format !", __FUNCTION__, __LINE__);
     }
 
     for (int i=0 ; i<n ; i++) {

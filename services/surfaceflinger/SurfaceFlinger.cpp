@@ -1357,7 +1357,7 @@ sp<Layer> SurfaceFlinger::createNormalSurface(
     sp<Layer> layer = new Layer(this, display, client);
     status_t err = layer->setBuffers(w, h, format, flags);
     if (LIKELY(err != NO_ERROR)) {
-        LOGE("createNormalSurfaceLocked() failed (%s)", strerror(-err));
+        LOGE("%s(w=%d, h=%d, f=%d) failed (%s)", __FUNCTION__, w, h, format, strerror(-err));
         layer.clear();
     }
     return layer;

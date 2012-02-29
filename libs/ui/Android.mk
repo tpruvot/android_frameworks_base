@@ -53,10 +53,10 @@ LOCAL_SRC_FILES:= \
 	Rect.cpp \
 	Region.cpp
 
-#ifneq ($(BOARD_QCOM_BASED_CAMERA_HAL),true)
-        LOCAL_CFLAGS += -DUSE_OVERLAY_CPP
-        LOCAL_SRC_FILES += Overlay.cpp
-#endif
+ifeq ($(BOARD_LIBUI_USE_OVERLAY_CPP),true)
+#        LOCAL_CFLAGS += -DUSE_OVERLAY_CPP
+#        LOCAL_SRC_FILES += Overlay.cpp
+endif
 
 LOCAL_SHARED_LIBRARIES := \
 	libcutils \

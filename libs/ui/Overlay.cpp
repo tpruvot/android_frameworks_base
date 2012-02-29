@@ -32,12 +32,14 @@ namespace android {
 Overlay::Overlay(overlay_set_fd_hook set_fd,
         overlay_set_crop_hook set_crop,
         overlay_queue_buffer_hook queue_buffer,
+        overlay_dequeue_buffer_hook dequeue_buffer,
         void *data)
     : mStatus(NO_INIT)
 {
     set_fd_hook = set_fd;
     set_crop_hook = set_crop;
     queue_buffer_hook = queue_buffer;
+    dequeue_buffer_hook = dequeue_buffer;
     hook_data = data;
     mStatus = NO_ERROR;
 }
@@ -47,8 +49,10 @@ Overlay::~Overlay() {
 
 status_t Overlay::dequeueBuffer(void** buffer)
 {
+    if (dequeue_buffer_hook)
+        dequeue_buffer_hook(hook_data, buffer);
     LOGD("Overlay::dequeueBuffer: %d", mStatus);
-    return NO_ERROR;
+    return mStatus;
 }
 
 status_t Overlay::queueBuffer(void* buffer)
@@ -92,8 +96,9 @@ status_t Overlay::setFd(int fd)
 
 int32_t Overlay::getBufferCount() const
 {
-    LOGD("Overlay::getBufferCount: %d", NUM_FRAME_BUFFERS);
-    return NUM_FRAME_BUFFERS;
+    #define NB_BUFFS 4  //NUM_FRAME_BUFFERS
+    LOGD("Overlay::getBufferCount: %d", NB_BUFFS);
+    return NB_BUFFS;
 }
 
 void* Overlay::getBufferAddress(void* buffer)

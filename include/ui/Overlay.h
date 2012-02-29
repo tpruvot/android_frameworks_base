@@ -33,6 +33,8 @@ typedef void (*overlay_set_crop_hook)(void *data,
         uint32_t x, uint32_t y, uint32_t w, uint32_t h);
 typedef void (*overlay_queue_buffer_hook)(void *data,
         void* buffer);
+typedef void (*overlay_dequeue_buffer_hook)(void *data,
+        void** buffer);
 
 namespace android {
 
@@ -47,6 +49,7 @@ public:
     Overlay(overlay_set_fd_hook set_fd,
             overlay_set_crop_hook set_crop,
             overlay_queue_buffer_hook queue_buffer,
+            overlay_dequeue_buffer_hook dequeue_buffer,
             void* data);
 
     /* destroys this overlay */
@@ -91,6 +94,7 @@ private:
     overlay_set_fd_hook set_fd_hook;
     overlay_set_crop_hook set_crop_hook;
     overlay_queue_buffer_hook queue_buffer_hook;
+    overlay_dequeue_buffer_hook dequeue_buffer_hook;
     void* hook_data;
 
     status_t mStatus;

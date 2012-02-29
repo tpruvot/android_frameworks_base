@@ -60,7 +60,7 @@ public:
         ANativeWindowBuffer::usage  = u;
     }
 private:
-    friend class LightRefBase<NativeBuffer>;    
+    friend class LightRefBase<NativeBuffer>;
     ~NativeBuffer() { }; // this class cannot be overloaded
 };
 
@@ -102,8 +102,8 @@ FramebufferNativeWindow::FramebufferNativeWindow()
         mNumFreeBuffers = NUM_FRAME_BUFFERS;
         mBufferHead = mNumBuffers-1;
 
-        LOGV("alloc fbDev for %d buffers of %dx%d format=0x%x(%d)\n", mNumBuffers,
-                fbDev->width, fbDev->height, fbDev->format, fbDev->format);
+        LOGV("alloc fbDev for %d buffers of %dx%d format=0xd)\n", mNumBuffers,
+                fbDev->width, fbDev->height, fbDev->format);
 
         for (i = 0; i < mNumBuffers; i++)
         {
@@ -368,16 +368,22 @@ extern "C" status_t _ZN7android7Overlay11queueBufferEPv(void* buffer)
 
 extern "C" int32_t _ZNK7android7Overlay14getBufferCountEv(void)
 {
-    return NUM_FRAME_BUFFERS;
+    return 0;//NUM_FRAME_BUFFERS;
 }
 
 extern "C" void* _ZN7android7Overlay16getBufferAddressEPv(void* buffer)
 {
+/*
     void* ret=NULL;
     LOGD("getBufferAddressEPv: buffer=%p", buffer);
-    GraphicBuffer* b = new GraphicBuffer((ANativeWindowBuffer*) buffer, keepOwnership=true);
-    ret = (void*) b->handle;
-    return ret;
+    //bool keepOwnership=true;
+    //GraphicBuffer* b = new GraphicBuffer((ANativeWindowBuffer*) buffer, keepOwnership);
+    //ret = (void*) b->handle;
+    NativeBuffer* buf = new NativeBuffer(640, 480, 5, 0x1033);
+    return (void*) buf->handle;
+    //return ret;
+*/
+    return NULL;
 }
 
 extern "C" void _ZN7android7Overlay7destroyEv(void)

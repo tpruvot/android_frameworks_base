@@ -954,6 +954,9 @@ __eglMustCastToProperFunctionPointerType eglGetProcAddress(const char *procname)
 
 EGLBoolean eglSwapBuffers(EGLDisplay dpy, EGLSurface draw)
 {
+    if (!dpy) {
+        LOGW("%s() dpy is null !", __FUNCTION__);
+    }
     EGLBoolean Debug_eglSwapBuffers(EGLDisplay dpy, EGLSurface draw);
     if (gEGLDebugLevel > 0)
         Debug_eglSwapBuffers(dpy, draw);
