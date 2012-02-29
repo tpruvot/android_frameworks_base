@@ -1588,6 +1588,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 
     /**
      * Controls the over-scroll effect.
+     * @hide
      */
     protected int mOverScrollEffect;
 
@@ -8946,6 +8947,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback, Accessibility
 
     /**
      * Returns the over-scroll effect for this view.
+     * @hide
      */
     public int getOverscrollEffect(){
         return mOverScrollEffect;
