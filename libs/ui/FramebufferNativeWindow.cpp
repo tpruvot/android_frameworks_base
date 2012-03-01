@@ -102,7 +102,7 @@ FramebufferNativeWindow::FramebufferNativeWindow()
         mNumFreeBuffers = NUM_FRAME_BUFFERS;
         mBufferHead = mNumBuffers-1;
 
-        LOGV("alloc fbDev for %d buffers of %dx%d format=0xd)\n", mNumBuffers,
+        LOGV("alloc fbDev for %d buffers of %dx%d format=0x%x)\n", mNumBuffers,
                 fbDev->width, fbDev->height, fbDev->format);
 
         for (i = 0; i < mNumBuffers; i++)
