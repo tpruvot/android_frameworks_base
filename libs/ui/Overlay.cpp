@@ -75,10 +75,9 @@ Overlay::Overlay(uint32_t width, uint32_t height, OverlayFormats format, overlay
     this->numFreeBuffers = 0;
 
     const int reqd_mem = width * height * getBppFromOverlayFormat(format) >> 3;
-    //const int BUFFER_SIZE = (reqd_mem + PAGE_SIZE - 1) & (~(PAGE_SIZE - 1));
     const int BUFFER_SIZE = reqd_mem + (reqd_mem % PAGE_SIZE);
     if (reqd_mem % PAGE_SIZE) {
-        // required on tegra2 (atrix)
+        // required on tegra2, else only one half of buffers are mapped (atrix)
         LOGV("%s: buffer size adjusted to be multiple of %d : %d.", __FUNCTION__, PAGE_SIZE, BUFFER_SIZE);
     }
 
@@ -232,7 +231,9 @@ void Overlay::destroy() {
         if (mBuffers[i].ptr != NULL && munmap(mBuffers[i].ptr, mBuffers[i].length) < 0) {
             LOGW("%s: unmap of buffer %d failed", __FUNCTION__, i);
         }
-        if (fd > 0) fd = mBuffers[i].fd;
+        if (mBuffers[i].fd > 0) {
+            fd = mBuffers[i].fd;
+        }
     }
     if (fd > 0) {
         close(fd);
