@@ -16,7 +16,7 @@
 
 #define LOG_TAG "SurfaceTexture"
 //#define LOG_NDEBUG 0
-#undef MISSING_GRALLOC_BUFFERS
+//#undef MISSING_GRALLOC_BUFFERS
 
 #define GL_GLEXT_PROTOTYPES
 #define EGL_EGLEXT_PROTOTYPES
