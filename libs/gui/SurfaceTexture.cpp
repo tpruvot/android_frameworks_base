@@ -781,7 +781,7 @@ status_t SurfaceTexture::setScalingMode(int mode) {
 }
 
 status_t SurfaceTexture::updateTexImage() {
-    ST_LOGV("updateTexImage");
+    //ST_LOGV("updateTexImage");
     Mutex::Autolock lock(mMutex);
 
     if (mAbandoned) {
@@ -888,14 +888,18 @@ bool SurfaceTexture::isExternalFormat(uint32_t format)
     // Legacy/deprecated YUV formats
     case HAL_PIXEL_FORMAT_YCbCr_422_SP:
     case HAL_PIXEL_FORMAT_YCrCb_420_SP:
-    case HAL_PIXEL_FORMAT_YCbCr_422_I:
+//    case HAL_PIXEL_FORMAT_YCbCr_422_I:
+        LOGV("%s: format=%u true", __FUNCTION__, format);
         return true;
     }
 
     // Any OEM format needs to be considered
-    if (format>=0x100 && format<=0x1FF)
+    if (format>=0x100 && format<=0x1FF) {
+        LOGV("%s: format=%u true", __FUNCTION__, format);
         return true;
+    }
 
+    LOGV("%s: format=%u false", __FUNCTION__, format);
     return false;
 }
 
@@ -909,7 +913,7 @@ void SurfaceTexture::getTransformMatrix(float mtx[16]) {
 }
 
 void SurfaceTexture::computeCurrentTransformMatrix() {
-    ST_LOGV("computeCurrentTransformMatrix");
+    ST_LOGV("%s: mCurrentTransform=0x%x", __FUNCTION__, mCurrentTransform);
 
     float xform[16];
     for (int i = 0; i < 16; i++) {
@@ -1153,6 +1157,7 @@ int SurfaceTexture::query(int what, int* outValue)
 }
 
 void SurfaceTexture::abandon() {
+    LOGD("abandon()");
     Mutex::Autolock lock(mMutex);
     mQueue.clear();
     mAbandoned = true;
