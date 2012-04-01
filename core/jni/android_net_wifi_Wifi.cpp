@@ -15,7 +15,7 @@
  */
 
 #define LOG_TAG "wifi"
-//#define LOG_NDEBUG 0
+#define LOG_NDEBUG 0
 
 #include "jni.h"
 #include <ScopedUtfChars.h>
@@ -40,6 +40,7 @@ static int doCommand(const char *cmd, char *replybuf, int replybuflen)
 {
     size_t reply_len = replybuflen - 1;
 
+    LOGV("CMD [%s]:", cmd);
     if (::wifi_command(cmd, replybuf, &reply_len) != 0)
         return -1;
     else {
@@ -48,6 +49,7 @@ static int doCommand(const char *cmd, char *replybuf, int replybuflen)
             replybuf[reply_len-1] = '\0';
         else
             replybuf[reply_len] = '\0';
+        LOGV(" OK [%s]", replybuf);
         return 0;
     }
 }
