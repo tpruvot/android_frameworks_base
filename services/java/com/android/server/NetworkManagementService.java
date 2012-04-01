@@ -573,7 +573,7 @@ public class NetworkManagementService extends INetworkManagementService.Stub
             rsp = mConnector.doCommand(cmd.toString());
         } catch (NativeDaemonConnectorException e) {
             throw new IllegalStateException(
-                    "Unable to communicate with native dameon to add routes - "
+                    "Unable to communicate with native daemon to change routes - "
                     + e);
         }
 

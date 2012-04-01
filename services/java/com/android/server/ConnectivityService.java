@@ -1330,7 +1330,7 @@ private NetworkStateTracker makeWimaxStateTracker() {
                     } catch (Exception e) {
                         // never crash - catch them all
                         if (DBG) loge("Exception trying to remove a route: " + e);
-                        return false;
+                        // return false;
                     }
                 } else {
                     if (VDBG) log("not removing " + r + " as it's still in use");
@@ -1342,7 +1342,7 @@ private NetworkStateTracker makeWimaxStateTracker() {
                 } catch (Exception e) {
                     // never crash - catch them all
                     if (DBG) loge("Exception trying to remove a route: " + e);
-                    return false;
+                    // return false;
                 }
             }
         }
