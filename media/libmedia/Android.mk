@@ -4,6 +4,7 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES:= \
     AudioParameter.cpp
+
 LOCAL_MODULE:= libmedia_helper
 LOCAL_MODULE_TAGS := optional
 
