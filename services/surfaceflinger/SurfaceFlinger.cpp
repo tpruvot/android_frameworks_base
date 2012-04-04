@@ -103,7 +103,8 @@ SurfaceFlinger::SurfaceFlinger()
         mLastTransactionTime(0),
         mBootFinished(false),
         mConsoleSignals(0),
-        mSecureFrameBuffer(0)
+        mSecureFrameBuffer(0),
+        mUseDithering(false)
 {
     init();
 }
@@ -123,6 +124,10 @@ void SurfaceFlinger::init()
 
     property_get("debug.sf.ddms", value, "0");
     mDebugDDMS = atoi(value);
+
+    property_get("persist.sys.use_dithering", value, "0");
+    mUseDithering = atoi(value) == 1;
+
     if (mDebugDDMS) {
         DdmConnection::start(getServiceName());
     }
@@ -130,6 +135,7 @@ void SurfaceFlinger::init()
     LOGI_IF(mDebugRegion,       "showupdates enabled");
     LOGI_IF(mDebugBackground,   "showbackground enabled");
     LOGI_IF(mDebugDDMS,         "DDMS debugging enabled");
+    LOGI_IF(mUseDithering,      "use dithering");
 }
 
 SurfaceFlinger::~SurfaceFlinger()
