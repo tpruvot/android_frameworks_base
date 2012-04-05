@@ -895,6 +895,10 @@
          the button and keyboard backlights. -->
     <bool name="config_autoBrightnessButtonKeyboard">true</bool>
 
+    <!-- Flag indicating whether the button and keyboard backlights need the light
+         sensor always enabled. -->
+    <bool name="config_alwaysEnableLightSensor">false</bool>
+
     <!-- Path to the library that contains a device specific key handler -->
     <string name="config_deviceKeyHandlerLib" translatable="false"></string>
 
