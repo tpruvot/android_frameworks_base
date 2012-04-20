@@ -305,6 +305,14 @@ public class PhoneProxy extends Handler implements Phone {
         mActivePhone.unregisterForSuppServiceNotification(h);
     }
 
+    public void registerForSuppServiceCompleted(Handler h, int what, Object obj) {
+        mActivePhone.registerForSuppServiceCompleted(h, what, obj);
+    }
+
+    public void unregisterForSuppServiceCompleted(Handler h) {
+        mActivePhone.unregisterForSuppServiceCompleted(h);
+    }
+
     public void registerForSuppServiceFailed(Handler h, int what, Object obj) {
         mActivePhone.registerForSuppServiceFailed(h, what, obj);
     }
@@ -343,6 +351,14 @@ public class PhoneProxy extends Handler implements Phone {
 
     public void unregisterForSubscriptionInfoReady(Handler h) {
         mActivePhone.unregisterForSubscriptionInfoReady(h);
+    }
+
+    public void registerForRilError(Handler h, int what, Object obj) {
+        mActivePhone.registerForRilError(h, what, obj);
+    }
+
+    public void unregisterForRilError(Handler h) {
+        mActivePhone.unregisterForRilError(h);
     }
 
     public void registerForEcmTimerReset(Handler h, int what, Object obj) {
@@ -856,5 +872,25 @@ public class PhoneProxy extends Handler implements Phone {
 
     public boolean isCspPlmnEnabled() {
         return mActivePhone.isCspPlmnEnabled();
+    }
+
+    public CommandsInterface getCommandsInterface() {
+        return mCommandsInterface;
+    }
+
+    public boolean changeBarringPassword(String facility, String oldPwd, String newPwd, Message result) {
+        return mActivePhone.changeBarringPassword(facility, oldPwd, newPwd, result);
+    }
+
+    public boolean queryFacilityLock(String facility, String password, int serviceClass, Message result) {
+        return mActivePhone.queryFacilityLock(facility, password, serviceClass, result);
+    }
+
+    public boolean setFacilityLock(String facility, boolean lockState, String password, int serviceClass, Message response) {
+        return mActivePhone.setFacilityLock(facility, lockState, password, serviceClass, response);
+    }
+
+    public void getIncomingCallerIdDisplay(Message onComplete) {
+        mActivePhone.getIncomingCallerIdDisplay(onComplete);
     }
 }
