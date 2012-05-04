@@ -116,7 +116,7 @@ static int32_t createProcessUniqueId() {
 }
 
 SurfaceTexture::SurfaceTexture(GLuint tex, bool allowSynchronousMode,
-        GLenum texTarget, bool useFenceSync, const sp<BufferQueue> &bufferQueue) :
+        GLenum texTarget, bool useFenceSync) :
     mDefaultWidth(1),
     mDefaultHeight(1),
     mPixelFormat(PIXEL_FORMAT_RGBA_8888),
