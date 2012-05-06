@@ -30,11 +30,7 @@
 
 #include <ui/egl/android_natives.h>
 
-#ifdef QCOM_HARDWARE
-#define NUM_FRAMEBUFFERS_MAX  3
-#else
 #define NUM_FRAME_BUFFERS  2
-#endif
 
 extern "C" EGLNativeWindowType android_createDisplaySurface(void);
 
@@ -80,11 +76,7 @@ private:
     framebuffer_device_t* fbDev;
     alloc_device_t* grDev;
 
-#ifdef QCOM_HARDWARE
-    sp<NativeBuffer> buffers[NUM_FRAMEBUFFERS_MAX];
-#else
     sp<NativeBuffer> buffers[NUM_FRAME_BUFFERS];
-#endif
     sp<NativeBuffer> front;
     
     mutable Mutex mutex;
