@@ -499,8 +499,9 @@ class ContextImpl extends Context {
     /**
      * Refresh resources object which may have been changed by a theme
      * configuration change.
+     * @hide
      */
-    /* package */ void refreshResourcesIfNecessary() {
+    void refreshResourcesIfNecessary() {
         if (mResources == Resources.getSystem()) {
             return;
         }

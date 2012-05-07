@@ -403,6 +403,7 @@ final class ApplicationPackageManager extends PackageManager {
 
     @SuppressWarnings("unchecked")
     @Override
+    /* @hide */
     public List<PackageInfo> getInstalledThemePackages() {
         try {
             return mPM.getInstalledThemePackages();

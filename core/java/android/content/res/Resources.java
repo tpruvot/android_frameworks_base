@@ -1919,8 +1919,9 @@ public class Resources {
             mAssets.recreateStringBlocks();
         }
     }
- 
-    /*package*/ Drawable loadDrawable(TypedValue value, int id)
+
+    /*package @hide */
+    Drawable loadDrawable(TypedValue value, int id)
             throws NotFoundException {
 
         if (TRACE_FOR_PRELOAD) {
@@ -2056,7 +2057,8 @@ public class Resources {
         return null;
     }
 
-    /*package*/ ColorStateList loadColorStateList(TypedValue value, int id)
+    /*package @hide */
+    ColorStateList loadColorStateList(TypedValue value, int id)
             throws NotFoundException {
         if (TRACE_FOR_PRELOAD) {
             // Log only framework resources

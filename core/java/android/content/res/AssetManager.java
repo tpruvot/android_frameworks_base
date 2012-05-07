@@ -258,7 +258,8 @@ public final class AssetManager {
         return false;
     }
 
-    /*package*/ final void ensureStringBlocks() {
+    /*package @hide */
+    final void ensureStringBlocks() {
         if (mStringBlocks == null) {
             synchronized (this) {
                 if (mStringBlocks == null) {
@@ -268,7 +269,8 @@ public final class AssetManager {
         }
     }
 
-    /*package*/ final void recreateStringBlocks() {
+    /*package @hide */
+    final void recreateStringBlocks() {
         synchronized (this) {
             makeStringBlocks(true);
         }

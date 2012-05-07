@@ -1422,6 +1422,7 @@ public final class ActivityThread {
     // NOTE: this method can return null if the SystemServer is still
     // initializing (for example, of another SystemServer component is accessing
     // a resources object)
+    // @hide
     public static IAssetRedirectionManager getAssetRedirectionManager() {
         if (sAssetRedirectionManager != null) {
             return sAssetRedirectionManager;
