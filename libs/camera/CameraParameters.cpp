@@ -311,6 +311,33 @@ static int parse_pair(const char *str, int *first, int *second, char delim,
     return 0;
 }
 
+// Parse string like "(1, 2, 3, 4, ..., N)"
+// num is pointer to an allocated array of size N
+static int parseNDimVector(const char *str, int *num, int N, char delim = ',')
+{
+    char *start, *end;
+    if(num == NULL) {
+        LOGE("Invalid output array (num == NULL)");
+        return -1;
+    }
+    //check if string starts and ends with parantheses
+    if(str[0] != '(' || str[strlen(str)-1] != ')') {
+        LOGE("Invalid format of string %s, valid format is (n1, n2, n3, n4 ...)", str);
+        return -1;
+    }
+    start = (char*) str;
+    start++;
+    for(int i=0; i<N; i++) {
+        *(num+i) = (int) strtol(start, &end, 10);
+        if(*end != delim && i < N-1) {
+            LOGE("Cannot find delimeter '%c' in string \"%s\". end = %c", delim, str, *end);
+            return -1;
+        }
+        start = end+1;
+    }
+    return 0;
+}
+
 static void parseSizesList(const char *sizesStr, Vector<Size> &sizes)
 {
     if (sizesStr == 0) {
