@@ -58,13 +58,10 @@ ifeq ($(BOARD_USE_KINETO_COMPATIBILITY),true)
     LOCAL_CFLAGS += -DUSE_KINETO_COMPATIBILITY
 endif
 
-<<<<<<< HEAD
-=======
 ifeq ($(BOARD_USE_SAMSUNG_SEPARATEDSTREAM),true)
     LOCAL_CFLAGS += -DUSE_SAMSUNG_SEPARATEDSTREAM
 endif
 
->>>>>>> 6e2a42c... libmedia: renamed cflag for samsungs isSeparatedStream()
 LOCAL_SHARED_LIBRARIES := \
     libui libcutils libutils libbinder libsonivox libicuuc libexpat \
     libcamera_client libstagefright_foundation \
