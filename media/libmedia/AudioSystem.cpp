@@ -810,8 +810,6 @@ extern "C" bool _ZN7android11AudioSystem15isLowVisibilityENS0_11stream_typeE(aud
 
 #endif // AUDIO_LEGACY
 
-<<<<<<< HEAD
-=======
 #ifdef USE_SAMSUNG_SEPARATEDSTREAM
 extern "C" bool _ZN7android11AudioSystem17isSeparatedStreamE19audio_stream_type_t(audio_stream_type_t stream)
 {
@@ -832,6 +830,5 @@ extern "C" bool _ZN7android11AudioSystem17isSeparatedStreamE19audio_stream_type_
 }
 #endif // USE_SAMSUNG_SEPARATEDSTREAM
 
->>>>>>> 6e2a42c... libmedia: renamed cflag for samsungs isSeparatedStream()
 }; // namespace android
 
