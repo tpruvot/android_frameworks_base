@@ -1,5 +1,5 @@
 LOCAL_PATH:= $(call my-dir)
-
+ifeq (0,1)
 include $(CLEAR_VARS)
 
 LOCAL_C_INCLUDES := \
@@ -34,4 +34,4 @@ LOCAL_CFLAGS += -DGL_GLEXT_PROTOTYPES -DEGL_EGLEXT_PROTOTYPES
 LOCAL_CFLAGS += -fvisibility=hidden
 
 include $(BUILD_EXECUTABLE)
-
+endif
