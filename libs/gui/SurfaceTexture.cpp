@@ -888,18 +888,18 @@ bool SurfaceTexture::isExternalFormat(uint32_t format)
     // Legacy/deprecated YUV formats
     case HAL_PIXEL_FORMAT_YCbCr_422_SP:
     case HAL_PIXEL_FORMAT_YCrCb_420_SP:
-//    case HAL_PIXEL_FORMAT_YCbCr_422_I:
-        LOGV("%s: format=%u true", __FUNCTION__, format);
+    case HAL_PIXEL_FORMAT_YCbCr_422_I:
+        LOGD("%s: format=%u true", __FUNCTION__, format);
         return true;
     }
 
     // Any OEM format needs to be considered
     if (format>=0x100 && format<=0x1FF) {
-        LOGV("%s: format=%u true", __FUNCTION__, format);
+        LOGD("%s: format=%u true", __FUNCTION__, format);
         return true;
     }
 
-    LOGV("%s: format=%u false", __FUNCTION__, format);
+    LOGD("%s: format=%u false", __FUNCTION__, format);
     return false;
 }
 

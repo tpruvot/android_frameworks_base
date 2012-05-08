@@ -2278,6 +2278,12 @@ public final class Settings {
         public static final String LOCKSCREEN_QUICK_UNLOCK_CONTROL = "lockscreen_quick_unlock_control";
 
         /**
+         * Stores values for custom lockscreen targets
+         * @hide
+         */
+        public static final String LOCKSCREEN_TARGETS = "lockscreen_targets";
+
+        /**
          * Boolean value whether to link ringtone and notification volumes
          * 
          * @hide
@@ -3183,6 +3189,12 @@ public final class Settings {
          * @hide
          */
         public static final String TETHER_DUN_APN = "tether_dun_apn";
+
+        /** DHCP lease time for tethering in seconds {@hide} */
+        public static final String TETHER_LEASE_TIME = "tether_lease_time";
+
+        /** Default value for TETHER_LEASE_TIME {@hide} */
+        public static final int TETHER_LEASE_TIME_DEFAULT = -1;
 
         /**
          * No longer supported.

@@ -1139,7 +1139,6 @@ public class WifiStateMachine extends StateMachine {
 
         String[] wifiRegexs = mCm.getTetherableWifiRegexs();
 
-        log("startTethering...");
         for (String intf : available) {
             for (String regex : wifiRegexs) {
                 if (intf.matches(regex)) {
@@ -1158,12 +1157,12 @@ public class WifiStateMachine extends StateMachine {
                         }
                     } catch (Exception e) {
                         loge("Error configuring interface " + intf + ", :" + e);
-                        return false;
+                        continue;
                     }
 
                     if(mCm.tether(intf) != ConnectivityManager.TETHER_ERROR_NO_ERROR) {
                         loge("Error tethering on " + intf);
-                        return false;
+                        continue;
                     }
                     mTetherInterfaceName = intf;
                     return true;
@@ -1625,10 +1624,6 @@ public class WifiStateMachine extends StateMachine {
     private void handleNetworkDisconnect() {
         if (DBG) log("Stopping DHCP and clearing IP");
 
-        /* In case we were in middle of DHCP operation
-           restore back powermode */
-        handlePostDhcpSetup();
-
         /*
          * stop DHCP
          */
@@ -1776,17 +1771,19 @@ public class WifiStateMachine extends StateMachine {
         new Thread(new Runnable() {
             public void run() {
                 try {
+                    log("startAccessPoint wlan="+mInterfaceName+", softap="+mSoftApIface);
                     mNwService.startAccessPoint(config, mInterfaceName, mSoftApIface);
                 } catch (Exception e) {
                     loge("Exception in softap start " + e);
+                    // second try
                     try {
                         mNwService.stopAccessPoint(mInterfaceName);
                     } catch (Exception e0) {}
                     try {
-                        log("startAccessPoint iface="+mInterfaceName+", ap="+mSoftApIface);
+                        log("startAccessPoint wlan="+mInterfaceName+", softap="+mSoftApIface);
                         mNwService.startAccessPoint(config, mInterfaceName, mSoftApIface);
                     } catch (Exception e1) {
-                        loge("Exception in softap re-start " + e1);
+                        loge("Exception in second softap start " + e1);
                         sendMessage(CMD_START_AP_FAILURE);
                         return;
                     }
@@ -1965,35 +1962,26 @@ public class WifiStateMachine extends StateMachine {
                     switch(message.arg1) {
                         case WIFI_STATE_ENABLING:
                             setWifiState(WIFI_STATE_ENABLING);
+                            if(WifiNative.loadDriver()) {
+                                if (DBG) log("Driver load successful");
+                                sendMessage(CMD_LOAD_DRIVER_SUCCESS);
+                            } else {
+                                if (DBG) log("Failed to load driver!");
+                                setWifiState(WIFI_STATE_UNKNOWN);
+                                sendMessage(CMD_LOAD_DRIVER_FAILURE);
+                            }
                             break;
                         case WIFI_AP_STATE_ENABLING:
                             setWifiApState(WIFI_AP_STATE_ENABLING);
+                            if(WifiNative.loadHotspotDriver()) {
+                                if (DBG) log("Hotspot driver load successful");
+                                sendMessage(CMD_LOAD_DRIVER_SUCCESS);
+                            } else {
+                                if (DBG) log("Failed to load Hotspot driver!");
+                                setWifiState(WIFI_AP_STATE_FAILED);
+                                sendMessage(CMD_LOAD_DRIVER_FAILURE);
+                            }
                             break;
-                    }
-
-                    boolean loaded;
-                    if (SystemProperties.getBoolean("wifi.hotspot.ti", false)
-                        && message.arg1 == WIFI_AP_STATE_ENABLING) {
-                        if (DBG) log("Loading Hotspot Driver (via libhardware_legacy)\n");
-                        loaded = WifiNative.loadHotspotDriver();
-                    } else {
-                        if (DBG) log("Loading Wifi Driver\n");
-                        loaded = WifiNative.loadDriver();
-                    }
-                    if(loaded) {
-                        if (DBG) log("Driver load successful");
-                        sendMessage(CMD_LOAD_DRIVER_SUCCESS);
-                    } else {
-                        loge("Failed to load driver!");
-                        switch(message.arg1) {
-                            case WIFI_STATE_ENABLING:
-                                setWifiState(WIFI_STATE_UNKNOWN);
-                                break;
-                            case WIFI_AP_STATE_ENABLING:
-                                setWifiApState(WIFI_AP_STATE_FAILED);
-                                break;
-                        }
-                        sendMessage(CMD_LOAD_DRIVER_FAILURE);
                     }
                     mWakeLock.release();
                 }
@@ -2100,35 +2088,35 @@ public class WifiStateMachine extends StateMachine {
                 public void run() {
                     if (DBG) log(getName() + message.toString() + "\n");
                     mWakeLock.acquire();
-                    if(WifiNative.unloadDriver()) {
-                        if (DBG) log("Driver unload successful");
-                        sendMessage(CMD_UNLOAD_DRIVER_SUCCESS);
-
-                        switch(message.arg1) {
-                            case WIFI_STATE_DISABLED:
-                            case WIFI_STATE_UNKNOWN:
+                    switch(message.arg1) {
+                        case WIFI_STATE_DISABLED:
+                        case WIFI_STATE_UNKNOWN:
+                            if(WifiNative.unloadDriver()) {
+                                if (DBG) log("Driver unload successful");
+                                sendMessage(CMD_UNLOAD_DRIVER_SUCCESS);
                                 setWifiState(message.arg1);
-                                break;
-                            case WIFI_AP_STATE_DISABLED:
-                            case WIFI_AP_STATE_FAILED:
-                                setWifiApState(message.arg1);
-                                break;
-                        }
-                    } else {
-                        loge("Failed to unload driver!");
-                        sendMessage(CMD_UNLOAD_DRIVER_FAILURE);
-
-                        switch(message.arg1) {
-                            case WIFI_STATE_DISABLED:
-                            case WIFI_STATE_UNKNOWN:
+                            } else {
+                                loge("Failed to unload driver!");
+                                sendMessage(CMD_UNLOAD_DRIVER_FAILURE);
                                 setWifiState(WIFI_STATE_UNKNOWN);
-                                break;
-                            case WIFI_AP_STATE_DISABLED:
-                            case WIFI_AP_STATE_FAILED:
+                            }
+
+                            setWifiState(message.arg1);
+                            break;
+                        case WIFI_AP_STATE_DISABLED:
+                        case WIFI_AP_STATE_FAILED:
+                            if(WifiNative.unloadHotspotDriver()) {
+                                if (DBG) log("Hotspot driver unload successful");
+                                sendMessage(CMD_UNLOAD_DRIVER_SUCCESS);
+                                setWifiApState(message.arg1);
+                            } else {
+                                loge("Failed to unload hotspot driver!");
+                                sendMessage(CMD_UNLOAD_DRIVER_FAILURE);
                                 setWifiApState(WIFI_AP_STATE_FAILED);
-                                break;
-                        }
+                            }
+                            break;
                     }
+
                     mWakeLock.release();
                 }
             }).start();
@@ -3154,6 +3142,12 @@ public class WifiStateMachine extends StateMachine {
                      * and handle the rest of the events there
                      */
                     deferMessage(message);
+
+                    /* TI WLAN-specific */
+                    if (SystemProperties.getBoolean("wifi.hotspot.ti", false)) {
+                        handlePostDhcpSetup();
+                    }
+
                     handleNetworkDisconnect();
                     transitionTo(mDisconnectedState);
                     break;

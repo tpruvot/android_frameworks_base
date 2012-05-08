@@ -25,10 +25,12 @@ import static android.net.NetworkStats.TAG_NONE;
 import static android.net.NetworkStats.UID_ALL;
 import static android.net.TrafficStats.UID_TETHERING;
 import static android.provider.Settings.Secure.NETSTATS_ENABLED;
+import static android.provider.Settings.Secure.TETHER_LEASE_TIME;
 import static com.android.server.NetworkManagementSocketTagger.PROP_QTAGUID_ENABLED;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.net.INetworkManagementEventObserver;
 import android.net.InterfaceConfiguration;
 import android.net.LinkAddress;
@@ -37,7 +39,6 @@ import android.net.NetworkUtils;
 import android.net.RouteInfo;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiConfiguration.KeyMgmt;
-import android.net.wifi.WifiNative;
 import android.os.Binder;
 import android.os.INetworkManagementService;
 import android.os.SystemClock;
@@ -91,6 +92,11 @@ public class NetworkManagementService extends INetworkManagementService.Stub
      */
     public static final String LIMIT_GLOBAL_ALERT = "globalAlert";
 
+    /**
+     * Constant representing the default DHCP lease time
+     */
+    public static final int DEFAULT_LEASE_TIME = -1;
+
     class NetdResponseCode {
         /* Keep in sync with system/netd/ResponseCode.h */
         public static final int InterfaceListResult       = 110;
@@ -140,8 +146,6 @@ public class NetworkManagementService extends INetworkManagementService.Stub
     private SparseBooleanArray mUidRejectOnQuota = new SparseBooleanArray();
 
     private volatile boolean mBandwidthControlEnabled;
-
-    private String mLastDriverLoaded="";
 
     /**
      * Constructs a new NetworkManagementService instance
@@ -573,7 +577,7 @@ public class NetworkManagementService extends INetworkManagementService.Stub
             rsp = mConnector.doCommand(cmd.toString());
         } catch (NativeDaemonConnectorException e) {
             throw new IllegalStateException(
-                    "Unable to communicate with native daemon to change routes - "
+                    "Unable to communicate with native dameon to add routes - "
                     + e);
         }
 
@@ -733,14 +737,29 @@ public class NetworkManagementService extends INetworkManagementService.Stub
     }
 
     public void startTethering(String[] dhcpRange)
+            throws IllegalStateException {
+        startTethering(dhcpRange, Settings.Secure.getInt(mContext.getContentResolver(),
+            TETHER_LEASE_TIME, Settings.Secure.TETHER_LEASE_TIME_DEFAULT));
+    }
+
+    public void startTethering(String[] dhcpRange, int leaseTime)
              throws IllegalStateException {
         mContext.enforceCallingOrSelfPermission(
                 android.Manifest.permission.CHANGE_NETWORK_STATE, "NetworkManagementService");
-        // cmd is "tether start first_start first_stop second_start second_stop ..."
-        // an odd number of addrs will fail
+
+        // cmd is "tether start first_start first_stop second_start second_stop ... [lease_time]"
+
+        // Make sure CMD_ARGS_MAX in system/core/include/sysutils/FrameworkListener.h is big
+        // enough to hold 2 (tether start) + dhcpRange.length (by default 14) + optionally
+        // 1 (lease time) = (16/17) arguments.
         String cmd = "tether start";
+
         for (String d : dhcpRange) {
             cmd += " " + d;
+        }
+
+        if (leaseTime != Settings.Secure.TETHER_LEASE_TIME_DEFAULT) {
+            cmd += " " + leaseTime;
         }
 
         try {
@@ -950,15 +969,26 @@ public class NetworkManagementService extends INetworkManagementService.Stub
         mContext.enforceCallingOrSelfPermission(
                 android.Manifest.permission.CHANGE_WIFI_STATE, "NetworkManagementService");
         try {
-            wifiFirmwareReload(wlanIface, "AP");
-            if (SystemProperties.getBoolean("wifi.hotspot.ti", false)) {
-                NetworkUtils.enableInterface(softapIface);
-                mConnector.doCommand(String.format("softap startap " + softapIface));
+            Resources resources = mContext.getResources();
+            String mainIface = resources.getBoolean(
+                    com.android.internal.R.bool.config_wifi_ap_use_single_interface)
+                    ? softapIface : wlanIface;
+
+            if (resources.getBoolean(com.android.internal.R.bool.config_wifi_ap_firmware_reload)) {
+                if (DBG) Log.d(TAG, "wifiFirmwareReload()");
+                wifiFirmwareReload(wlanIface, "AP");
+            }
+            if(!SystemProperties.getBoolean("wifi.hotspot.ti", false)) {
+                mConnector.doCommand(String.format("softap start " + mainIface));
             } else {
-                mConnector.doCommand(String.format("softap start " + wlanIface));
+                if (DBG) Log.d(TAG, "enableInterface "+softapIface);
+                NetworkUtils.enableInterface(softapIface);
+                if (DBG) Log.d(TAG, "startap "+mainIface);
+                mConnector.doCommand(String.format("softap startap " + mainIface));
             }
             if (wifiConfig == null) {
-                mConnector.doCommand(String.format("softap set " + wlanIface + " " + softapIface));
+                if (DBG) Log.d(TAG, "set " + mainIface + " " + softapIface);
+                mConnector.doCommand(String.format("softap set " + mainIface + " " + softapIface));
             } else {
                 /**
                  * softap set arg1 arg2 arg3 [arg4 arg5 arg6 arg7 arg8]
@@ -971,14 +1001,18 @@ public class NetworkManagementService extends INetworkManagementService.Stub
                  * argv7 - Preamble
                  * argv8 - Max SCB
                  */
-                 String str = String.format("softap set " + wlanIface + " " + softapIface +
+                 String str = String.format("softap set " + mainIface + " " + softapIface +
                                        " %s %s %s", convertQuotedString(wifiConfig.SSID),
                                        getSecurityType(wifiConfig),
                                        convertQuotedString(wifiConfig.preSharedKey));
+                if (DBG) Log.d(TAG, str);
                 mConnector.doCommand(str);
             }
-            if(!SystemProperties.getBoolean("wifi.hotspot.ti", false))
+            //tiap is already started
+            if(!SystemProperties.getBoolean("wifi.hotspot.ti", false)) {
+                if (DBG) Log.d(TAG, "startap");
                 mConnector.doCommand(String.format("softap startap"));
+            }
         } catch (NativeDaemonConnectorException e) {
             throw new IllegalStateException("Error communicating to native daemon to start softap", e);
         }
@@ -1010,40 +1044,10 @@ public class NetworkManagementService extends INetworkManagementService.Stub
         mContext.enforceCallingOrSelfPermission(
                 android.Manifest.permission.CHANGE_WIFI_STATE, "NetworkManagementService");
 
-        if(SystemProperties.getBoolean("wifi.hotspot.ti", false)) {
-
-            boolean loaded = true;
-            if ("AP".equals(mode)) {
-                if (!mLastDriverLoaded.equals("AP")) {
-                    WifiNative.unloadDriver();
-                    try {
-                        loaded = WifiNative.loadHotspotDriver();
-                    } catch (Exception e) {
-                        throw new IllegalStateException("Error loading Hotspot driver ", e);
-                    }
-                }
-            } else {
-                if (mLastDriverLoaded.equals("AP")) {
-                    WifiNative.unloadHotspotDriver();
-                    try {
-                        loaded = WifiNative.loadDriver();
-                    } catch (Exception e) {
-                        throw new IllegalStateException("Error loading Sta driver ", e);
-                    }
-                }
-            }
-            if (loaded) {
-                mLastDriverLoaded = mode;
-            }
-
-        } else {
-
-            try {
-                mConnector.doCommand(String.format("softap fwreload " + wlanIface + " " + mode));
-                mLastDriverLoaded = mode;
-            } catch (NativeDaemonConnectorException e) {
-                throw new IllegalStateException("Error communicating to native daemon ", e);
-            }
+        try {
+            mConnector.doCommand(String.format("softap fwreload " + wlanIface + " " + mode));
+        } catch (NativeDaemonConnectorException e) {
+            throw new IllegalStateException("Error communicating to native daemon ", e);
         }
     }
 
@@ -1053,14 +1057,17 @@ public class NetworkManagementService extends INetworkManagementService.Stub
         mContext.enforceCallingOrSelfPermission(
                 android.Manifest.permission.CHANGE_WIFI_STATE, "NetworkManagementService");
         try {
+            Resources resources = mContext.getResources();
             mConnector.doCommand("softap stopap");
             if (SystemProperties.getBoolean("wifi.hotspot.ti", false)) {
                 String softApIface = SystemProperties.get("wifi.ap.interface", "tiap0");
                 mConnector.doCommand("softap stop " + softApIface);
-            }
-            else
+            } else {
                 mConnector.doCommand("softap stop " + wlanIface);
-            wifiFirmwareReload(wlanIface, "STA");
+            }
+            if (resources.getBoolean(com.android.internal.R.bool.config_wifi_ap_firmware_reload)) {
+                wifiFirmwareReload(wlanIface, "STA");
+            }
         } catch (NativeDaemonConnectorException e) {
             throw new IllegalStateException("Error communicating to native daemon to stop soft AP",
                     e);
