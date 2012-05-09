@@ -791,4 +791,8 @@
          [bootmode]:[original USB mode]:[USB mode used]-->
     <integer-array translatable="false" name="config_oemUsbModeOverride">
     </integer-array>
+
+    <!-- If true, Device uses Samsung CDMA Signal Strength fix for displaying signal bars -->
+    <bool name="config_SamsungCDMASignalStrength">false</bool>
+
 </resources>
