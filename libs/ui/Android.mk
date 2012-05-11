@@ -53,6 +53,11 @@ LOCAL_SRC_FILES:= \
 	Rect.cpp \
 	Region.cpp
 
+ifeq ($(BOARD_OVERLAY_BASED_CAMERA_HAL),true)
+    # to clean, tegra hack
+    LOCAL_CFLAGS += -DUSE_OVERLAY_CPP
+endif
+
 LOCAL_SHARED_LIBRARIES := \
 	libcutils \
 	libutils \
