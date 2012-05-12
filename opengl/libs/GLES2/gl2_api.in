@@ -449,7 +449,11 @@ void API_ENTRY(glVertexAttrib4f)(GLuint indx, GLfloat x, GLfloat y, GLfloat z, G
 void API_ENTRY(glVertexAttrib4fv)(GLuint indx, const GLfloat* values) {
     CALL_GL_API(glVertexAttrib4fv, indx, values);
 }
+#ifdef HOOK_MISSING_EGL_EXTERNAL_IMAGE
+void API_ENTRY(__glVertexAttribPointer)(GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* ptr) {
+#else
 void API_ENTRY(glVertexAttribPointer)(GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* ptr) {
+#endif
     CALL_GL_API(glVertexAttribPointer, indx, size, type, normalized, stride, ptr);
 }
 void API_ENTRY(glViewport)(GLint x, GLint y, GLsizei width, GLsizei height) {

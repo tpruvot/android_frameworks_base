@@ -16,7 +16,6 @@
 
 #define LOG_TAG "SurfaceTexture"
 //#define LOG_NDEBUG 0
-//#undef MISSING_GRALLOC_BUFFERS
 
 #define GL_GLEXT_PROTOTYPES
 #define EGL_EGLEXT_PROTOTYPES
@@ -1044,6 +1043,7 @@ void SurfaceTexture::freeAllBuffersExceptHeadLocked() {
         Fifo::iterator front(mQueue.begin());
         head = *front;
     }
+    LOGD("%s: head=%d", __func__, head);
     mCurrentTexture = head;
     for (int i = 0; i < NUM_BUFFER_SLOTS; i++) {
         if (i != head) {
