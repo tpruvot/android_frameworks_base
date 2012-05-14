@@ -15,6 +15,7 @@
  */
 
 #define LOG_TAG "GraphicBufferMapper"
+#define LOG_NDEBUG 0
 
 #include <stdint.h>
 #include <errno.h>
@@ -48,6 +49,7 @@ status_t GraphicBufferMapper::registerBuffer(buffer_handle_t handle)
 {
     status_t err;
 
+    LOGV("registerBuffer(%p)", handle);
     err = mAllocMod->registerBuffer(mAllocMod, handle);
 
     LOGW_IF(err, "registerBuffer(%p) failed %d (%s)",
@@ -59,6 +61,7 @@ status_t GraphicBufferMapper::unregisterBuffer(buffer_handle_t handle)
 {
     status_t err;
 
+    LOGV("unregisterBuffer(%p)", handle);
     err = mAllocMod->unregisterBuffer(mAllocMod, handle);
 
     LOGW_IF(err, "unregisterBuffer(%p) failed %d (%s)",
@@ -73,6 +76,9 @@ status_t GraphicBufferMapper::lock(buffer_handle_t handle,
 #ifdef MISSING_GRALLOC_BUFFERS
     int tries=5;
 #endif
+
+    LOGV("lock(%p usage=0x%x [%d,%d;%d,%d] @ %p)", handle, usage,
+        bounds.left, bounds.top, bounds.width(), bounds.height(), vaddr);
 
     err = mAllocMod->lock(mAllocMod, handle, usage,
             bounds.left, bounds.top, bounds.width(), bounds.height(),
@@ -96,6 +102,7 @@ status_t GraphicBufferMapper::unlock(buffer_handle_t handle)
 {
     status_t err;
 
+    LOGV("unlock(%p)", handle);
     err = mAllocMod->unlock(mAllocMod, handle);
 
     LOGW_IF(err, "unlock(...) failed %d (%s)", err, strerror(-err));
