@@ -81,6 +81,36 @@ const char CameraParameters::KEY_ZOOM_SUPPORTED[] = "zoom-supported";
 const char CameraParameters::KEY_SMOOTH_ZOOM_SUPPORTED[] = "smooth-zoom-supported";
 const char CameraParameters::KEY_FOCUS_DISTANCES[] = "focus-distances";
 const char CameraParameters::KEY_VIDEO_FRAME_FORMAT[] = "video-frame-format";
+
+#ifdef QCOM_HARDWARE
+const char CameraParameters::KEY_ISO_MODE[] = "iso";
+const char CameraParameters::KEY_SUPPORTED_ISO_MODES[] = "iso-values";
+const char CameraParameters::KEY_LENSSHADE[] = "lensshade";
+const char CameraParameters::KEY_SUPPORTED_LENSSHADE_MODES[] = "lensshade-values";
+const char CameraParameters::KEY_AUTO_EXPOSURE[] = "auto-exposure";
+const char CameraParameters::KEY_SUPPORTED_AUTO_EXPOSURE[] = "auto-exposure-values";
+const char CameraParameters::KEY_DENOISE[] = "denoise";
+const char CameraParameters::KEY_SUPPORTED_DENOISE[] = "denoise-values";
+const char CameraParameters::KEY_SELECTABLE_ZONE_AF[] = "selectable-zone-af";
+const char CameraParameters::KEY_SUPPORTED_SELECTABLE_ZONE_AF[] = "selectable-zone-af-values";
+const char CameraParameters::KEY_FACE_DETECTION[] = "face-detection";
+const char CameraParameters::KEY_SUPPORTED_FACE_DETECTION[] = "face-detection-values";
+const char CameraParameters::KEY_MEMORY_COLOR_ENHANCEMENT[] = "mce";
+const char CameraParameters::KEY_SUPPORTED_MEM_COLOR_ENHANCE_MODES[] = "mce-values";
+const char CameraParameters::KEY_VIDEO_HIGH_FRAME_RATE[] = "video-hfr";
+const char CameraParameters::KEY_SUPPORTED_VIDEO_HIGH_FRAME_RATE_MODES[] = "video-hfr-values";
+const char CameraParameters::KEY_REDEYE_REDUCTION[] = "redeye-reduction";
+const char CameraParameters::KEY_SUPPORTED_REDEYE_REDUCTION[] = "redeye-reduction-values";
+const char CameraParameters::KEY_HIGH_DYNAMIC_RANGE_IMAGING[] = "hdr";
+const char CameraParameters::KEY_SUPPORTED_HDR_IMAGING_MODES[] = "hdr-values";
+#endif
+
+#ifdef SAMSUNG_CAMERA_HARDWARE
+const char CameraParameters::KEY_METERING[] = "metering";
+const char CameraParameters::KEY_WDR[] = "wdr";
+const char CameraParameters::KEY_ANTI_SHAKE_MODE[] = "anti-shake";
+#endif
+
 const char CameraParameters::KEY_VIDEO_SIZE[] = "video-size";
 const char CameraParameters::KEY_SUPPORTED_VIDEO_SIZES[] = "video-size-values";
 const char CameraParameters::KEY_PREFERRED_PREVIEW_SIZE_FOR_VIDEO[] = "preferred-preview-size-for-video";
