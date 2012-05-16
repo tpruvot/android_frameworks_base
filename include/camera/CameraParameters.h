@@ -533,6 +533,30 @@ public:
     // Value for KEY_FOCUS_DISTANCES.
     static const char FOCUS_DISTANCE_INFINITY[];
 
+#ifdef QCOM_HARDWARE
+    // DENOISE
+    static const char KEY_DENOISE[];
+    static const char KEY_SUPPORTED_DENOISE[];
+
+    //Selectable zone AF.
+    static const char KEY_SELECTABLE_ZONE_AF[];
+    static const char KEY_SUPPORTED_SELECTABLE_ZONE_AF[];
+
+    //Face Detection
+    static const char KEY_FACE_DETECTION[];
+    static const char KEY_SUPPORTED_FACE_DETECTION[];
+
+    //Redeye Reduction
+    static const char KEY_REDEYE_REDUCTION[];
+    static const char KEY_SUPPORTED_REDEYE_REDUCTION[];
+#endif
+
+#ifdef SAMSUNG_CAMERA_HARDWARE
+     static const char KEY_METERING[];
+     static const char KEY_WDR[];
+     static const char KEY_ANTI_SHAKE_MODE[];
+#endif
+
     // Values for white balance settings.
     static const char WHITE_BALANCE_AUTO[];
     static const char WHITE_BALANCE_INCANDESCENT[];
