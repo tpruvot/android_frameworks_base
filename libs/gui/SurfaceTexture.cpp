@@ -491,6 +491,7 @@ status_t SurfaceTexture::dequeueBuffer(int *outBuf, uint32_t w, uint32_t h,
             if (updateFormat) {
                 mPixelFormat = format;
             }
+
             if (mPixelFormat != format) {
                 LOGW("dequeueBuffer: mPixelFormat %d != format %d", mPixelFormat, format);
             }
@@ -1050,6 +1051,11 @@ void SurfaceTexture::freeAllBuffersExceptHeadLocked() {
             freeBufferLocked(i);
         }
     }
+}
+
+void SurfaceTexture::freeAllBuffersExceptCurrentLocked() {
+    LOGW("freeAllBuffersExceptCurrentLocked is deprecated !");
+    freeAllBuffersExceptHeadLocked();
 }
 
 void SurfaceTexture::freeAllBuffersExceptCurrentLocked() {
