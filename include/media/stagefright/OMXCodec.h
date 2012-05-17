@@ -63,6 +63,10 @@ struct OMXCodec : public MediaSource,
         MAX_RESOLUTION_WIDTH = 864, // video width for TI Vid Dec
         MAX_RESOLUTION_HEIGHT = 864, // video height for TI Vid Dec
 
+#ifdef QCOM_HARDWARE
+        kEnableThumbnailMode = 512,
+        kUseMinBufferCount = 32768,
+#endif
     };
     static sp<MediaSource> Create(
             const sp<IOMX> &omx,
