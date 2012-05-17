@@ -381,7 +381,7 @@ public class PowerManagerService extends IPowerManager.Stub
             if (!mRefCounted || mCount++ == 0) {
                 long ident = Binder.clearCallingIdentity();
                 try {
-                   acquireWakelockLocked(mFlags, mToken, MY_UID, MY_PID, mTag, null);
+                    acquireWakeLockLocked(mFlags, mToken, MY_UID, MY_PID, mTag, null);
                     mHeld = true;
                 } finally {
                     Binder.restoreCallingIdentity(ident);
@@ -810,14 +810,22 @@ public class PowerManagerService extends IPowerManager.Stub
         if (ws != null) {
             enforceWakeSourcePermission(uid, pid);
         }
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> ff6b1761... update off of SaurusX's changes
         synchronized (mLocks) {
             if (mDeepSleepMode) {
                 putAcquiredWakeLocks(flags, lock, uid, pid, tag, ws);
                 return;
             }
         }
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> ff6b1761... update off of SaurusX's changes
         long ident = Binder.clearCallingIdentity();
         try {
             synchronized (mLocks) {
@@ -2544,7 +2552,11 @@ public class PowerManagerService extends IPowerManager.Stub
     }
 
     private void forceUserActivityLocked() {
+<<<<<<< HEAD
          if (!mDeepSleepMode) {
+=======
+        if (!mDeepSleepMode) {
+>>>>>>> ff6b1761... update off of SaurusX's changes
             if (isScreenTurningOffLocked()) {
                 // cancel animation so userActivity will succeed
                 mScreenBrightness.animating = false;
@@ -2575,7 +2587,11 @@ public class PowerManagerService extends IPowerManager.Stub
     }
 
     public void userActivity(long time, boolean noChangeLights, int eventType) {
+<<<<<<< HEAD
         if (mDeepSleepMode && eventType == BUTTON_EVENT) {
+=======
+        if (mDeepSleepMode && eventType == 5) {
+>>>>>>> ff6b1761... update off of SaurusX's changes
             mDeepSleepMode = false;
         }
         userActivity(time, -1, noChangeLights, eventType, false);
@@ -3315,6 +3331,10 @@ public class PowerManagerService extends IPowerManager.Stub
                 this.add(wl);
             }
         }
+<<<<<<< HEAD
+=======
+
+>>>>>>> ff6b1761... update off of SaurusX's changes
         void dump() {
             Slog.d(TAG, "******mAcquiredLocks contents*****");
             Iterator Iter = iterator();
