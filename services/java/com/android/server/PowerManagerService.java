@@ -2575,7 +2575,7 @@ public class PowerManagerService extends IPowerManager.Stub
     }
 
     public void userActivity(long time, boolean noChangeLights, int eventType) {
-        if (mDeepSleepMode && eventType == 1) {
+        if (mDeepSleepMode && eventType == BUTTON_EVENT) {
             mDeepSleepMode = false;
         }
         userActivity(time, -1, noChangeLights, eventType, false);
