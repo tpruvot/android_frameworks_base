@@ -381,7 +381,7 @@ public class PowerManagerService extends IPowerManager.Stub
             if (!mRefCounted || mCount++ == 0) {
                 long ident = Binder.clearCallingIdentity();
                 try {
-                   acquiredWakelockLocked(mFlags, mToken, MY_UID, MY_PID, mTag, null);
+                   acquireWakelockLocked(mFlags, mToken, MY_UID, MY_PID, mTag, null);
                     mHeld = true;
                 } finally {
                     Binder.restoreCallingIdentity(ident);
