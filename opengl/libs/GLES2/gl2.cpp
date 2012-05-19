@@ -160,7 +160,7 @@ void glShaderSource(GLuint shader, GLsizei count, const GLchar** string, const G
 {
     bool needRewrite = false;
 
-//    LOGW("Shader source dump:");
+    LOGD("Shader source dump:");
     for (GLsizei i = 0; i < count; i++) {
         LOGD("%s", string[i]);
         if (strstr(string[i], "GL_OES_EGL_image_external")) {
@@ -187,7 +187,7 @@ all real cases encountered so far.
         return;
     }
 
-//    LOGW("Shader source rewrite:");
+    LOGD("Shader source rewrite:");
 
     GLchar **newStrings = new GLchar*[count];
     const GLchar *start, *pos;
