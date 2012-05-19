@@ -210,10 +210,7 @@ public class SimUnlockScreen extends LinearLayout implements KeyguardScreen, Vie
 
         if (mSimUnlockProgressDialog == null) {
             mUiContext = ThemeUtils.createUiContext(mContext);
-<<<<<<< HEAD
             ThemeUtils.registerThemeChangeReceiver(mContext, mThemeChangeReceiver);
-=======
->>>>>>> 4a7625b... Allow theming of framework UI elements.
 
             final Context uiContext = mUiContext != null ? mUiContext : mContext;
 
