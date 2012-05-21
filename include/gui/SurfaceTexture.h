@@ -142,7 +142,7 @@ public:
     // setBufferCountServer set the buffer count. If the client has requested
     // a buffer count using setBufferCount, the server-buffer count will
     // take effect once the client sets the count back to zero.
-    status_t setBufferCountServer(int bufferCount);
+    status_t updateTexImage(bool isComposition = false);
 
     // getTransformMatrix retrieves the 4x4 texture coordinate transform matrix
     // associated with the texture image set by the most recent call to
@@ -504,7 +504,11 @@ private:
     // glCopyTexSubImage to read from the texture.  This is a hack to work
     // around a GL driver limitation on the number of FBO attachments, which the
     // browser's tile cache exceeds.
-    const GLenum mTexTarget;
+    #ifdef DECIDE_TEXTURE_TARGET
+        GLenum mTexTarget;
+    #else
+        const GLenum mTexTarget;
+    #endif
 
     // mFrameCounter is the free running counter, incremented for every buffer queued
     // with the surface Texture.
