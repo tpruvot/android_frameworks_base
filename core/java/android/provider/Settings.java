@@ -1114,7 +1114,17 @@ public final class Settings {
         public static void setShowGTalkServiceStatus(ContentResolver cr, boolean flag) {
             putInt(cr, SHOW_GTALK_SERVICE_STATUS, flag ? 1 : 0);
         }
-
+ 
+        /**
+         * the type of recent switcher
+         * 
+         * 0 = Stock
+         * 1 = Sense 4
+         *
+         * @hide
+         */
+         public static final String RECENT_APP_SWITCHER = "recent_app_switcher";
+ 
         /**
          * The content:// style URL for this table
          */
