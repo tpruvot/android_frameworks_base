@@ -51,6 +51,7 @@ import android.provider.Settings;
 import android.os.Handler;
 import android.database.ContentObserver;
 import android.content.ContentResolver;
+import android.net.Uri;
 
 import java.io.File;
 import java.net.URISyntaxException;
