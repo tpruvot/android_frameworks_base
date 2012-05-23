@@ -50,6 +50,7 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.os.Handler;
 import android.database.ContentObserver;
+import android.content.ContentResolver;
 
 import java.io.File;
 import java.net.URISyntaxException;
