@@ -48,6 +48,8 @@ import android.util.Log;
 import android.media.AudioManager;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.os.Handler;
+import android.database.ContentObserver;
 
 import java.io.File;
 import java.net.URISyntaxException;
