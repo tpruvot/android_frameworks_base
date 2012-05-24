@@ -2990,7 +2990,7 @@ public class PowerManagerService extends IPowerManager.Stub
                 mDeepSleepMode = true;
                 this.releaseWakeLocksWithForce();
                 goToSleepLocked((time + 5), WindowManagerPolicy.OFF_BECAUSE_OF_USER);
-                //Power.setDeepSleepState(true);
+                Power.setDeepSleepState(true);
             }
         } else {
             mDeepSleepMode = false;
