@@ -1114,7 +1114,17 @@ public final class Settings {
         public static void setShowGTalkServiceStatus(ContentResolver cr, boolean flag) {
             putInt(cr, SHOW_GTALK_SERVICE_STATUS, flag ? 1 : 0);
         }
-
+ 
+        /**
+         * the type of recent switcher
+         * 
+         * 0 = Stock
+         * 1 = Sense 4
+         *
+         * @hide
+         */
+         public static final String RECENT_APP_SWITCHER = "recent_app_switcher";
+ 
         /**
          * The content:// style URL for this table
          */
@@ -2300,6 +2310,12 @@ public final class Settings {
          */
         public static final String STATUS_BAR_BRIGHTNESS_CONTROL = "status_bar_brightness_control";
 
+        /**
+        * Whether to show the IME switcher in the status bar
+        * @hide
+        */
+        public static final String STATUS_BAR_IME_SWITCHER = "status_bar_ime_switcher";
+      
         /**
          * Whether to use a separate delay for "slide to unlock" and security
          * lock

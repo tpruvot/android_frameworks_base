@@ -59,6 +59,16 @@ LOCAL_C_INCLUDES:= \
         $(TOP)/external/tremolo \
         $(TOP)/external/openssl/include \
 
+ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
+
+LOCAL_CFLAGS += -DQCOM_HARDWARE
+
+ifeq ($(TARGET_BOARD_PLATFORM), true)
+LOCAL_CFLAGS += -DCAMERA_MM_HEAP
+endif
+
+endif # QCOM_HARDWARE
+
 LOCAL_SHARED_LIBRARIES := \
         libbinder         \
         libmedia          \

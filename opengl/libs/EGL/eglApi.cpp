@@ -971,12 +971,7 @@ EGLBoolean eglSwapBuffers(EGLDisplay dpy, EGLSurface draw)
         return setError(EGL_BAD_SURFACE, EGL_FALSE);
 
     egl_surface_t const * const s = get_surface(draw);
-#ifdef MISSING_EGL_EXTERNAL_IMAGE
-    s->cnx->egl.eglSwapBuffers(dp->disp[s->impl].dpy, s->surface);
-    return EGL_TRUE;
-#else
     return s->cnx->egl.eglSwapBuffers(dp->disp[s->impl].dpy, s->surface);
-#endif
 }
 
 EGLBoolean eglCopyBuffers(  EGLDisplay dpy, EGLSurface surface,
@@ -1009,6 +1004,9 @@ const char* eglQueryString(EGLDisplay dpy, EGLint name)
         case EGL_VERSION:
             return dp->getVersionString();
         case EGL_EXTENSIONS:
+            if (dp->disp[IMPL_HARDWARE].queryString.extensions) {
+                return dp->disp[IMPL_HARDWARE].queryString.extensions;
+            }
             return dp->getExtensionString();
         case EGL_CLIENT_APIS:
             return dp->getClientApiString();

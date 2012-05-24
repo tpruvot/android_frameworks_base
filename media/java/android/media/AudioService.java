@@ -1,11 +1,11 @@
-/*
+/**
  * Copyright (C) 2006 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -148,12 +148,16 @@ public class AudioService extends IAudioService.Stub {
     private Object mSettingsLock = new Object();
     private boolean mMediaServerOk;
 
+    private static final String MAIN_MIC_CHOICE = "omap.audio.mic.main";
+    private static final String SUB_MIC_CHOICE = "omap.audio.mic.sub";
+    private static final String EXTDISP_STATUS_DISPLAY = "com.motorola.intent.action.EXTDISP_STATUS_DISPLAY";
+
     private SoundPool mSoundPool;
     private Object mSoundEffectsLock = new Object();
     private static final int NUM_SOUNDPOOL_CHANNELS = 4;
     private static final int SOUND_EFFECT_VOLUME = 1000;
 
-    /* Sound effect file names  */
+    /* Sound effect file names */
     private static final String SOUND_EFFECTS_PATH = "/media/audio/ui/";
     private static final String[] SOUND_EFFECT_FILES = new String[] {
         "Effect_Tick.ogg",
@@ -167,44 +171,44 @@ public class AudioService extends IAudioService.Stub {
      * file index in SOUND_EFFECT_FILES[] (first column) and indicating if effect
      * uses soundpool (second column) */
     private int[][] SOUND_EFFECT_FILES_MAP = new int[][] {
-        {0, -1},  // FX_KEY_CLICK
-        {0, -1},  // FX_FOCUS_NAVIGATION_UP
-        {0, -1},  // FX_FOCUS_NAVIGATION_DOWN
-        {0, -1},  // FX_FOCUS_NAVIGATION_LEFT
-        {0, -1},  // FX_FOCUS_NAVIGATION_RIGHT
-        {1, -1},  // FX_KEYPRESS_STANDARD
-        {2, -1},  // FX_KEYPRESS_SPACEBAR
-        {3, -1},  // FX_FOCUS_DELETE
-        {4, -1}   // FX_FOCUS_RETURN
+        {0, -1}, // FX_KEY_CLICK
+        {0, -1}, // FX_FOCUS_NAVIGATION_UP
+        {0, -1}, // FX_FOCUS_NAVIGATION_DOWN
+        {0, -1}, // FX_FOCUS_NAVIGATION_LEFT
+        {0, -1}, // FX_FOCUS_NAVIGATION_RIGHT
+        {1, -1}, // FX_KEYPRESS_STANDARD
+        {2, -1}, // FX_KEYPRESS_SPACEBAR
+        {3, -1}, // FX_FOCUS_DELETE
+        {4, -1} // FX_FOCUS_RETURN
     };
 
    /** @hide Maximum volume index values for audio streams */
     private int[] MAX_STREAM_VOLUME = new int[] {
-        5,  // STREAM_VOICE_CALL
-        7,  // STREAM_SYSTEM
-        7,  // STREAM_RING
+        5, // STREAM_VOICE_CALL
+        7, // STREAM_SYSTEM
+        7, // STREAM_RING
         15, // STREAM_MUSIC
-        7,  // STREAM_ALARM
-        7,  // STREAM_NOTIFICATION
+        7, // STREAM_ALARM
+        7, // STREAM_NOTIFICATION
         15, // STREAM_BLUETOOTH_SCO
-        7,  // STREAM_SYSTEM_ENFORCED
+        7, // STREAM_SYSTEM_ENFORCED
         15, // STREAM_DTMF
         15, // STREAM_TTS
-        15  // STREAM_FM
+        15 // STREAM_FM
     };
     /* STREAM_VOLUME_ALIAS[] indicates for each stream if it uses the volume settings
      * of another stream: This avoids multiplying the volume settings for hidden
      * stream types that follow other stream behavior for volume settings
      * NOTE: do not create loops in aliases! */
     private int[] STREAM_VOLUME_ALIAS = new int[] {
-        AudioSystem.STREAM_VOICE_CALL,  // STREAM_VOICE_CALL
-        AudioSystem.STREAM_SYSTEM,  // STREAM_SYSTEM
-        AudioSystem.STREAM_RING,  // STREAM_RING
+        AudioSystem.STREAM_VOICE_CALL, // STREAM_VOICE_CALL
+        AudioSystem.STREAM_SYSTEM, // STREAM_SYSTEM
+        AudioSystem.STREAM_RING, // STREAM_RING
         AudioSystem.STREAM_MUSIC, // STREAM_MUSIC
-        AudioSystem.STREAM_ALARM,  // STREAM_ALARM
-        AudioSystem.STREAM_RING,   // STREAM_NOTIFICATION
+        AudioSystem.STREAM_ALARM, // STREAM_ALARM
+        AudioSystem.STREAM_RING, // STREAM_NOTIFICATION
         AudioSystem.STREAM_BLUETOOTH_SCO, // STREAM_BLUETOOTH_SCO
-        AudioSystem.STREAM_SYSTEM,  // STREAM_SYSTEM_ENFORCED
+        AudioSystem.STREAM_SYSTEM, // STREAM_SYSTEM_ENFORCED
         AudioSystem.STREAM_VOICE_CALL, // STREAM_DTMF
         AudioSystem.STREAM_MUSIC, // STREAM_TTS
         AudioSystem.STREAM_FM
@@ -279,8 +283,8 @@ public class AudioService extends IAudioService.Stub {
     // Broadcast receiver for device connections intent broadcasts
     private final BroadcastReceiver mReceiver = new AudioServiceBroadcastReceiver();
 
-    //  Broadcast receiver for media button broadcasts (separate from mReceiver to
-    //  independently change its priority)
+    // Broadcast receiver for media button broadcasts (separate from mReceiver to
+    // independently change its priority)
     private final BroadcastReceiver mMediaButtonReceiver = new MediaButtonBroadcastReceiver();
 
     // Used to alter media button redirection when the phone is ringing.
@@ -398,6 +402,8 @@ public class AudioService extends IAudioService.Stub {
         intentFilter.addAction(Intent.ACTION_BOOT_COMPLETED);
         intentFilter.addAction(Intent.ACTION_SCREEN_ON);
         intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
+        // See if this works as in GB to fix hdmi audio out
+        intentFilter.addAction(EXTDISP_STATUS_DISPLAY);
         context.registerReceiver(mReceiver, intentFilter);
 
         // Register for package removal intent broadcasts for media button receiver persistence
@@ -1168,9 +1174,9 @@ public class AudioService extends IAudioService.Stub {
     }
 
     /**
-     *  Unloads samples from the sound pool.
-     *  This method can be called to free some memory when
-     *  sound effects are disabled.
+     * Unloads samples from the sound pool.
+     * This method can be called to free some memory when
+     * sound effects are disabled.
      */
     public void unloadSoundEffects() {
         synchronized (mSoundEffectsLock) {
@@ -1388,7 +1394,7 @@ public class AudioService extends IAudioService.Stub {
                         mCb.linkToDeath(this, 0);
                     } catch (RemoteException e) {
                         // client has already died!
-                        Log.w(TAG, "ScoClient  incCount() could not link to "+mCb+" binder death");
+                        Log.w(TAG, "ScoClient incCount() could not link to "+mCb+" binder death");
                     }
                 }
                 mStartcount++;
@@ -1803,7 +1809,7 @@ public class AudioService extends IAudioService.Stub {
                 return AudioSystem.STREAM_MUSIC;
             } else if (suggestedStreamType == AudioManager.USE_DEFAULT_STREAM_TYPE) {
                 // Log.v(TAG, "getActiveStreamType: Forcing STREAM_RING..."
-                //        + " b/c USE_DEFAULT_STREAM_TYPE...");
+                // + " b/c USE_DEFAULT_STREAM_TYPE...");
                 return AudioSystem.STREAM_RING;
             } else {
                 // Log.v(TAG, "getActiveStreamType: Returning suggested type " + suggestedStreamType);
@@ -1828,7 +1834,7 @@ public class AudioService extends IAudioService.Stub {
             } else if (AudioSystem.isStreamActive(AudioSystem.STREAM_MUSIC, 0) ||
                        (suggestedStreamType == AudioManager.USE_DEFAULT_STREAM_TYPE)) {
                 // Log.v(TAG, "getActiveStreamType: Forcing STREAM_MUSIC "
-                //        + " b/c USE_DEFAULT_STREAM_TYPE...");
+                // + " b/c USE_DEFAULT_STREAM_TYPE...");
                 return AudioSystem.STREAM_MUSIC;
             } else {
                 // Log.v(TAG, "getActiveStreamType: Returning suggested type " + suggestedStreamType);
@@ -2318,7 +2324,7 @@ public class AudioService extends IAudioService.Stub {
                     break;
 
                 case MSG_BTA2DP_DOCK_TIMEOUT:
-                    // msg.obj  == address of BTA2DP device
+                    // msg.obj == address of BTA2DP device
                     synchronized (mConnectedDevices) {
                         makeA2dpDeviceUnavailableNow( (String) msg.obj );
                     }
@@ -2610,7 +2616,7 @@ public class AudioService extends IAudioService.Stub {
                                     AudioSystem.DEVICE_STATE_UNAVAILABLE,
                                     "");
                             mConnectedDevices.remove(AudioSystem.DEVICE_OUT_WIRED_HEADSET);
-                        } else if (state == 1 && !isConnected)  {
+                        } else if (state == 1 && !isConnected) {
                             AudioSystem.setDeviceConnectionState(AudioSystem.DEVICE_OUT_WIRED_HEADSET,
                                     AudioSystem.DEVICE_STATE_AVAILABLE,
                                     "");
@@ -2626,7 +2632,7 @@ public class AudioService extends IAudioService.Stub {
                                     AudioSystem.DEVICE_STATE_UNAVAILABLE,
                                     "");
                             mConnectedDevices.remove(AudioSystem.DEVICE_OUT_WIRED_HEADPHONE);
-                        } else if (state == 1 && !isConnected)  {
+                        } else if (state == 1 && !isConnected) {
                             AudioSystem.setDeviceConnectionState(
                                     AudioSystem.DEVICE_OUT_WIRED_HEADPHONE,
                                     AudioSystem.DEVICE_STATE_AVAILABLE,
@@ -2648,7 +2654,7 @@ public class AudioService extends IAudioService.Stub {
                                                         AudioSystem.DEVICE_STATE_UNAVAILABLE,
                                                         "");
                         mConnectedDevices.remove(AudioSystem.DEVICE_OUT_ANLG_DOCK_HEADSET);
-                    } else if (state == 1 && !isConnected)  {
+                    } else if (state == 1 && !isConnected) {
                         // Only Route the Audio if enabled in Dock Settings
                         if (Settings.System.getInt(mContentResolver,Settings.System.DOCK_USB_AUDIO_ENABLED, 0) == 1) {
                             AudioSystem.setDeviceConnectionState(
@@ -2662,6 +2668,23 @@ public class AudioService extends IAudioService.Stub {
                         }
                     }
                 }
+            } else if (action.equals(EXTDISP_STATUS_DISPLAY)) {
+             Log.v(TAG,"Broadcast Receiver: Got action EXTDISP_STATUS_DISPLAY");
+                boolean audio = intent.getBooleanExtra("audio", false);
+                boolean isConnected = mConnectedDevices.containsKey(AudioSystem.DEVICE_OUT_HDMI);
+                if (!audio && isConnected) {
+                    Log.v(TAG,"Broadcast Receiver: For HDMI Audio State = 0 && isConnected = TRUE");
+                    AudioSystem.setDeviceConnectionState(AudioSystem.DEVICE_OUT_HDMI,
+                            AudioSystem.DEVICE_STATE_UNAVAILABLE,
+                            "");
+                    mConnectedDevices.remove(AudioSystem.DEVICE_OUT_HDMI);
+                } else if ((audio != true) || isConnected) {
+                    Log.v(TAG,"Broadcast Receiver: For HDMI Audio State = 0 && isConnected = FALSE");
+                    AudioSystem.setDeviceConnectionState(AudioSystem.DEVICE_OUT_HDMI,
+                            AudioSystem.DEVICE_STATE_AVAILABLE,
+                            "");
+                    mConnectedDevices.put( new Integer(AudioSystem.DEVICE_OUT_HDMI), "");
+                }
             } else if (action.equals(Intent.ACTION_HDMI_AUDIO_PLUG)) {
                 int state = intent.getIntExtra("state", 0);
                 Log.v(TAG, "Broadcast Receiver: Got ACTION_HDMI_AUDIO_PLUG, state = "+state);
@@ -2673,7 +2696,7 @@ public class AudioService extends IAudioService.Stub {
                                                              AudioSystem.DEVICE_STATE_UNAVAILABLE,
                                                              "");
                         mConnectedDevices.remove(AudioSystem.DEVICE_OUT_AUX_DIGITAL);
-                    } else if (state == 1 && !isConnected)  {
+                    } else if (state == 1 && !isConnected) {
                         AudioSystem.setDeviceConnectionState(AudioSystem.DEVICE_OUT_AUX_DIGITAL,
                                                              AudioSystem.DEVICE_STATE_AVAILABLE,
                                                              "");
@@ -2692,7 +2715,7 @@ public class AudioService extends IAudioService.Stub {
                                                          AudioSystem.DEVICE_STATE_UNAVAILABLE,
                                                          "");
                         mConnectedDevices.remove(AudioSystem.DEVICE_OUT_DGTL_DOCK_HEADSET);
-                    } else if (state == 1 && !isConnected)  {
+                    } else if (state == 1 && !isConnected) {
                         AudioSystem.setDeviceConnectionState(
                                                          AudioSystem.DEVICE_OUT_DGTL_DOCK_HEADSET,
                                                          AudioSystem.DEVICE_STATE_AVAILABLE,
@@ -2905,7 +2928,7 @@ public class AudioService extends IAudioService.Stub {
             Iterator<FocusStackEntry> stackIterator = mFocusStack.iterator();
             while(stackIterator.hasNext()) {
                 FocusStackEntry fse = stackIterator.next();
-                pw.println("     source:" + fse.mSourceRef + " -- client: " + fse.mClientId
+                pw.println(" source:" + fse.mSourceRef + " -- client: " + fse.mClientId
                         + " -- duration: " + fse.mFocusChangeType
                         + " -- uid: " + fse.mCallingUid);
             }
@@ -2918,13 +2941,13 @@ public class AudioService extends IAudioService.Stub {
      * Remove a focus listener from the focus stack.
      * @param focusListenerToRemove the focus listener
      * @param signal if true and the listener was at the top of the focus stack, i.e. it was holding
-     *   focus, notify the next item in the stack it gained focus.
+     * focus, notify the next item in the stack it gained focus.
      */
     private void removeFocusStackEntry(String clientToRemove, boolean signal) {
         // is the current top of the focus stack abandoning focus? (because of request, not death)
         if (!mFocusStack.empty() && mFocusStack.peek().mClientId.equals(clientToRemove))
         {
-            //Log.i(TAG, "   removeFocusStackEntry() removing top of stack");
+            //Log.i(TAG, " removeFocusStackEntry() removing top of stack");
             FocusStackEntry fse = mFocusStack.pop();
             fse.unlinkToDeath();
             if (signal) {
@@ -2942,7 +2965,7 @@ public class AudioService extends IAudioService.Stub {
             while(stackIterator.hasNext()) {
                 FocusStackEntry fse = (FocusStackEntry)stackIterator.next();
                 if(fse.mClientId.equals(clientToRemove)) {
-                    Log.i(TAG, " AudioFocus  abandonAudioFocus(): removing entry for "
+                    Log.i(TAG, " AudioFocus abandonAudioFocus(): removing entry for "
                             + fse.mClientId);
                     stackIterator.remove();
                     fse.unlinkToDeath();
@@ -2964,7 +2987,7 @@ public class AudioService extends IAudioService.Stub {
         while(stackIterator.hasNext()) {
             FocusStackEntry fse = (FocusStackEntry)stackIterator.next();
             if(fse.mSourceRef.equals(cb)) {
-                Log.i(TAG, " AudioFocus  abandonAudioFocus(): removing entry for "
+                Log.i(TAG, " AudioFocus abandonAudioFocus(): removing entry for "
                         + fse.mClientId);
                 stackIterator.remove();
                 // the client just died, no need to unlink to its death
@@ -2972,7 +2995,7 @@ public class AudioService extends IAudioService.Stub {
         }
         if (isTopOfStackForClientToRemove) {
             // we removed an entry at the top of the stack:
-            //  notify the new top of the stack it gained focus.
+            // notify the new top of the stack it gained focus.
             notifyTopOfAudioFocusStack();
             // there's a new top of the stack, let the remote control know
             synchronized(mRCStack) {
@@ -3007,7 +3030,7 @@ public class AudioService extends IAudioService.Stub {
 
         public void binderDied() {
             synchronized(mAudioFocusLock) {
-                Log.w(TAG, "  AudioFocus   audio focus client died");
+                Log.w(TAG, " AudioFocus audio focus client died");
                 removeFocusStackEntryForClient(mCb);
             }
         }
@@ -3021,7 +3044,7 @@ public class AudioService extends IAudioService.Stub {
     /** @see AudioManager#requestAudioFocus(IAudioFocusDispatcher, int, int) */
     public int requestAudioFocus(int mainStreamType, int focusChangeHint, IBinder cb,
             IAudioFocusDispatcher fd, String clientId, String callingPackageName) {
-        Log.i(TAG, " AudioFocus  requestAudioFocus() from " + clientId);
+        Log.i(TAG, " AudioFocus requestAudioFocus() from " + clientId);
         // the main stream type for the audio focus request is currently not used. It may
         // potentially be used to handle multiple stream type-dependent audio focuses.
 
@@ -3044,7 +3067,7 @@ public class AudioService extends IAudioService.Stub {
                 cb.linkToDeath(afdh, 0);
             } catch (RemoteException e) {
                 // client has already died!
-                Log.w(TAG, "AudioFocus  requestAudioFocus() could not link to "+cb+" binder death");
+                Log.w(TAG, "AudioFocus requestAudioFocus() could not link to "+cb+" binder death");
                 return AudioManager.AUDIOFOCUS_REQUEST_FAILED;
             }
 
@@ -3093,7 +3116,7 @@ public class AudioService extends IAudioService.Stub {
 
     /** @see AudioManager#abandonAudioFocus(IAudioFocusDispatcher) */
     public int abandonAudioFocus(IAudioFocusDispatcher fl, String clientId) {
-        Log.i(TAG, " AudioFocus  abandonAudioFocus() from " + clientId);
+        Log.i(TAG, " AudioFocus abandonAudioFocus() from " + clientId);
         try {
             // this will take care of notifying the new focus owner if needed
             synchronized(mAudioFocusLock) {
@@ -3103,7 +3126,7 @@ public class AudioService extends IAudioService.Stub {
             // Catching this exception here is temporary. It is here just to prevent
             // a crash seen when the "Silent" notification is played. This is believed to be fixed
             // but this try catch block is left just to be safe.
-            Log.e(TAG, "FATAL EXCEPTION AudioFocus  abandonAudioFocus() caused " + cme);
+            Log.e(TAG, "FATAL EXCEPTION AudioFocus abandonAudioFocus() caused " + cme);
             cme.printStackTrace();
         }
 
@@ -3137,7 +3160,7 @@ public class AudioService extends IAudioService.Stub {
             if (event != null) {
                 // if in a call or ringing, do not break the current phone app behavior
                 // TODO modify this to let the phone app specifically get the RC focus
-                //      add modify the phone app to take advantage of the new API
+                // add modify the phone app to take advantage of the new API
                 synchronized(mRingingLock) {
                     if (mIsRinging || (getMode() == AudioSystem.MODE_IN_CALL) ||
                             (getMode() == AudioSystem.MODE_IN_COMMUNICATION) ||
@@ -3205,9 +3228,9 @@ public class AudioService extends IAudioService.Stub {
         }
 
         public void binderDied() {
-            Log.w(TAG, "  RemoteControlClient died");
+            Log.w(TAG, " RemoteControlClient died");
             // remote control client died, make sure the displays don't use it anymore
-            //  by setting its remote control client to null
+            // by setting its remote control client to null
             registerRemoteControlClient(mMediaIntent, null/*rcClient*/, null/*ignored*/);
         }
 
@@ -3218,9 +3241,9 @@ public class AudioService extends IAudioService.Stub {
 
     private static class RemoteControlStackEntry {
         /**
-         * The target for the ACTION_MEDIA_BUTTON events.
-         * Always non null.
-         */
+     * The target for the ACTION_MEDIA_BUTTON events.
+     * Always non null.
+     */
         public PendingIntent mMediaIntent;
         /**
          * The registered media button event receiver.
@@ -3232,7 +3255,7 @@ public class AudioService extends IAudioService.Stub {
         /**
          * Provides access to the information to display on the remote control.
          * May be null (when a media button event receiver is registered,
-         *     but no remote control client has been registered) */
+         * but no remote control client has been registered) */
         public IRemoteControlClient mRcClient;
         public RcClientDeathHandler mRcClientDeathHandler;
 
@@ -3265,10 +3288,10 @@ public class AudioService extends IAudioService.Stub {
     }
 
     /**
-     *  The stack of remote control event receivers.
-     *  Code sections and methods that modify the remote control event receiver stack are
-     *  synchronized on mRCStack, but also BEFORE on mFocusLock as any change in either
-     *  stack, audio focus or RC, can lead to a change in the remote control display
+     * The stack of remote control event receivers.
+     * Code sections and methods that modify the remote control event receiver stack are
+     * synchronized on mRCStack, but also BEFORE on mFocusLock as any change in either
+     * stack, audio focus or RC, can lead to a change in the remote control display
      */
     private Stack<RemoteControlStackEntry> mRCStack = new Stack<RemoteControlStackEntry>();
 
@@ -3282,10 +3305,10 @@ public class AudioService extends IAudioService.Stub {
             Iterator<RemoteControlStackEntry> stackIterator = mRCStack.iterator();
             while(stackIterator.hasNext()) {
                 RemoteControlStackEntry rcse = stackIterator.next();
-                pw.println("  pi: " + rcse.mMediaIntent +
-                        "  -- ercvr: " + rcse.mReceiverComponent +
-                        "  -- client: " + rcse.mRcClient +
-                        "  -- uid: " + rcse.mCallingUid);
+                pw.println(" pi: " + rcse.mMediaIntent +
+                        " -- ercvr: " + rcse.mReceiverComponent +
+                        " -- client: " + rcse.mRcClient +
+                        " -- uid: " + rcse.mCallingUid);
             }
         }
     }
@@ -3339,7 +3362,7 @@ public class AudioService extends IAudioService.Stub {
             // construct a PendingIntent targeted to the restored component name
             // for the media button and register it
             Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
-            //     the associated intent will be handled by the component being registered
+            // the associated intent will be handled by the component being registered
             mediaButtonIntent.setComponent(eventReceiver);
             PendingIntent pi = PendingIntent.getBroadcast(mContext,
                     0/*requestCode, ignored*/, mediaButtonIntent, 0/*flags*/);
@@ -3451,9 +3474,9 @@ public class AudioService extends IAudioService.Stub {
      * Update the displays and clients with the new "focused" client generation and name
      * @param newClientGeneration the new generation value matching a client update
      * @param newClientEventReceiver the media button event receiver associated with the client.
-     *    May be null, which implies there is no registered media button event receiver.
+     * May be null, which implies there is no registered media button event receiver.
      * @param clearing true if the new client generation value maps to a remote control update
-     *    where the display should be cleared.
+     * where the display should be cleared.
      */
     private void setNewRcClient_syncRcsCurrc(int newClientGeneration,
             PendingIntent newMediaIntent, boolean clearing) {
@@ -3490,7 +3513,7 @@ public class AudioService extends IAudioService.Stub {
 
                     mCurrentRcClientGen++;
                     // synchronously update the displays and clients with
-                    //      the new client generation
+                    // the new client generation
                     setNewRcClient_syncRcsCurrc(mCurrentRcClientGen,
                             rcse.mMediaIntent /*newMediaIntent*/,
                             false /*clearing*/);
@@ -3527,17 +3550,17 @@ public class AudioService extends IAudioService.Stub {
 
     /**
      * Helper function for code readability: only to be called from
-     *    checkUpdateRemoteControlDisplay_syncAfRcs() which checks the preconditions for
-     *    this method.
+     * checkUpdateRemoteControlDisplay_syncAfRcs() which checks the preconditions for
+     * this method.
      * Preconditions:
-     *    - called synchronized mAudioFocusLock then on mRCStack
-     *    - mRCStack.isEmpty() is false
+     * - called synchronized mAudioFocusLock then on mRCStack
+     * - mRCStack.isEmpty() is false
      */
     private void updateRemoteControlDisplay_syncAfRcs(int infoChangedFlags) {
         RemoteControlStackEntry rcse = mRCStack.peek();
         int infoFlagsAboutToBeUsed = infoChangedFlags;
         // this is where we enforce opt-in for information display on the remote controls
-        //   with the new AudioManager.registerRemoteControlClient() API
+        // with the new AudioManager.registerRemoteControlClient() API
         if (rcse.mRcClient == null) {
             //Log.w(TAG, "Can't update remote control display with null remote control client");
             clearRemoteControlDisplay_syncAfRcs();
@@ -3560,8 +3583,8 @@ public class AudioService extends IAudioService.Stub {
      * Called synchronized on mAudioFocusLock, then mRCStack
      * Check whether the remote control display should be updated, triggers the update if required
      * @param infoChangedFlags the flags corresponding to the remote control client information
-     *     that has changed, if applicable (checking for the update conditions might trigger a
-     *     clear, rather than an update event).
+     * that has changed, if applicable (checking for the update conditions might trigger a
+     * clear, rather than an update event).
      */
     private void checkUpdateRemoteControlDisplay_syncAfRcs(int infoChangedFlags) {
         // determine whether the remote control display should be refreshed
@@ -3579,7 +3602,7 @@ public class AudioService extends IAudioService.Stub {
             return;
         }
         // if the audio focus didn't originate from the same Uid as the one in which the remote
-        //   control information will be retrieved, clear
+        // control information will be retrieved, clear
         if (mRCStack.peek().mCallingUid != mFocusStack.peek().mCallingUid) {
             clearRemoteControlDisplay_syncAfRcs();
             return;
@@ -3594,7 +3617,7 @@ public class AudioService extends IAudioService.Stub {
      * precondition: mediaIntent != null, target != null
      */
     public void registerMediaButtonIntent(PendingIntent mediaIntent, ComponentName eventReceiver) {
-        Log.i(TAG, "  Remote Control   registerMediaButtonIntent() for " + mediaIntent);
+        Log.i(TAG, " Remote Control registerMediaButtonIntent() for " + mediaIntent);
 
         synchronized(mAudioFocusLock) {
             synchronized(mRCStack) {
@@ -3611,7 +3634,7 @@ public class AudioService extends IAudioService.Stub {
      */
     public void unregisterMediaButtonIntent(PendingIntent mediaIntent, ComponentName eventReceiver)
     {
-        Log.i(TAG, "  Remote Control   unregisterMediaButtonIntent() for " + mediaIntent);
+        Log.i(TAG, " Remote Control unregisterMediaButtonIntent() for " + mediaIntent);
 
         synchronized(mAudioFocusLock) {
             synchronized(mRCStack) {
@@ -3628,8 +3651,8 @@ public class AudioService extends IAudioService.Stub {
     /**
      * see AudioManager.registerRemoteControlClient(ComponentName eventReceiver, ...)
      * Note: using this method with rcClient == null is a way to "disable" the IRemoteControlClient
-     *     without modifying the RC stack, but while still causing the display to refresh (will
-     *     become blank as a result of this)
+     * without modifying the RC stack, but while still causing the display to refresh (will
+     * become blank as a result of this)
      */
     public void registerRemoteControlClient(PendingIntent mediaIntent,
             IRemoteControlClient rcClient, String callingPackageName) {
@@ -3822,7 +3845,7 @@ public class AudioService extends IAudioService.Stub {
     /**
      * Unregister an IRemoteControlDisplay.
      * Since only one IRemoteControlDisplay is supported, this has no effect if the one to
-     *    unregister is not the current one.
+     * unregister is not the current one.
      * @param rcd the IRemoteControlDisplay to unregister. No effect if null.
      */
     public void unregisterRemoteControlDisplay(IRemoteControlDisplay rcd) {
@@ -3830,7 +3853,7 @@ public class AudioService extends IAudioService.Stub {
         synchronized(mRCStack) {
             // only one display here, so you can only unregister the current display
             if ((rcd == null) || (rcd != mRcDisplay)) {
-                if (DEBUG_RC) Log.w(TAG, "    trying to unregister unregistered RCD");
+                if (DEBUG_RC) Log.w(TAG, " trying to unregister unregistered RCD");
                 return;
             }
             // if we had a display before, stop monitoring its death

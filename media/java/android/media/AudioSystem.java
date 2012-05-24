@@ -1,11 +1,12 @@
-/*
+/**
+ *
  * Copyright (C) 2006 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -68,7 +69,7 @@ public class AudioSystem
      * Sets the microphone mute on or off.
      *
      * @param on set <var>true</var> to mute the microphone;
-     *           <var>false</var> to turn mute off
+     * <var>false</var> to turn mute off
      * @return command completion status see AUDIO_STATUS_OK, see AUDIO_STATUS_ERROR
      */
     public static native int muteMicrophone(boolean on);
@@ -81,30 +82,30 @@ public class AudioSystem
     public static native boolean isMicrophoneMuted();
 
     /* modes for setPhoneState, must match AudioSystem.h audio_mode */
-    public static final int MODE_INVALID            = -2;
-    public static final int MODE_CURRENT            = -1;
-    public static final int MODE_NORMAL             = 0;
-    public static final int MODE_RINGTONE           = 1;
-    public static final int MODE_IN_CALL            = 2;
-    public static final int MODE_IN_COMMUNICATION   = 3;
-    public static final int NUM_MODES               = 4;
+    public static final int MODE_INVALID = -2;
+    public static final int MODE_CURRENT = -1;
+    public static final int MODE_NORMAL = 0;
+    public static final int MODE_RINGTONE = 1;
+    public static final int MODE_IN_CALL = 2;
+    public static final int MODE_IN_COMMUNICATION = 3;
+    public static final int NUM_MODES = 4;
 
 
     /* Routing bits for the former setRouting/getRouting API */
     /** @deprecated */
-    @Deprecated public static final int ROUTE_EARPIECE          = (1 << 0);
+    @Deprecated public static final int ROUTE_EARPIECE = (1 << 0);
     /** @deprecated */
-    @Deprecated public static final int ROUTE_SPEAKER           = (1 << 1);
+    @Deprecated public static final int ROUTE_SPEAKER = (1 << 1);
     /** @deprecated use {@link #ROUTE_BLUETOOTH_SCO} */
     @Deprecated public static final int ROUTE_BLUETOOTH = (1 << 2);
     /** @deprecated */
-    @Deprecated public static final int ROUTE_BLUETOOTH_SCO     = (1 << 2);
+    @Deprecated public static final int ROUTE_BLUETOOTH_SCO = (1 << 2);
     /** @deprecated */
-    @Deprecated public static final int ROUTE_HEADSET           = (1 << 3);
+    @Deprecated public static final int ROUTE_HEADSET = (1 << 3);
     /** @deprecated */
-    @Deprecated public static final int ROUTE_BLUETOOTH_A2DP    = (1 << 4);
+    @Deprecated public static final int ROUTE_BLUETOOTH_A2DP = (1 << 4);
     /** @deprecated */
-    @Deprecated public static final int ROUTE_ALL               = 0xFFFFFFFF;
+    @Deprecated public static final int ROUTE_ALL = 0xFFFFFFFF;
 
     /*
      * Checks whether the specified stream type is active.
@@ -117,8 +118,8 @@ public class AudioSystem
      * Sets a group generic audio configuration parameters. The use of these parameters
      * are platform dependent, see libaudio
      *
-     * param keyValuePairs  list of parameters key value pairs in the form:
-     *    key1=value1;key2=value2;...
+     * param keyValuePairs list of parameters key value pairs in the form:
+     * key1=value1;key2=value2;...
      */
     public static native int setParameters(String keyValuePairs);
 
@@ -126,16 +127,16 @@ public class AudioSystem
      * Gets a group generic audio configuration parameters. The use of these parameters
      * are platform dependent, see libaudio
      *
-     * param keys  list of parameters
+     * param keys list of parameters
      * return value: list of parameters key value pairs in the form:
-     *    key1=value1;key2=value2;...
+     * key1=value1;key2=value2;...
      */
     public static native String getParameters(String keys);
 
     // These match the enum AudioError in frameworks/base/core/jni/android_media_AudioSystem.cpp
     /* Command sucessful or Media server restarted. see ErrorCallback */
     public static final int AUDIO_STATUS_OK = 0;
-    /* Command failed or unspecified audio error.  see ErrorCallback */
+    /* Command failed or unspecified audio error. see ErrorCallback */
     public static final int AUDIO_STATUS_ERROR = 1;
     /* Media server died. see ErrorCallback */
     public static final int AUDIO_STATUS_SERVER_DIED = 100;
@@ -149,7 +150,7 @@ public class AudioSystem
     {
         /*
          * Callback for audio server errors.
-         * param error   error code:
+         * param error error code:
          * - AUDIO_STATUS_OK
          * - AUDIO_STATUS_SERVER_DIED
          * - AUDIO_STATUS_ERROR
@@ -205,6 +206,8 @@ public class AudioSystem
     public static final int DEVICE_OUT_ANLG_DOCK_HEADSET = 0x800;
     public static final int DEVICE_OUT_DGTL_DOCK_HEADSET = 0x1000;
     public static final int DEVICE_OUT_DEFAULT = 0x8000;
+    public static final int DEVICE_OUT_FM = 0x800;
+    public static final int DEVICE_OUT_HDMI = 0x1000;
     // input devices
     public static final int DEVICE_IN_COMMUNICATION = 0x10000;
     public static final int DEVICE_IN_AMBIENT = 0x20000;
@@ -215,6 +218,10 @@ public class AudioSystem
     public static final int DEVICE_IN_WIRED_HEADSET = 0x400000;
     public static final int DEVICE_IN_AUX_DIGITAL = 0x800000;
     public static final int DEVICE_IN_DEFAULT = 0x80000000;
+    // For OMAP
+    public static final int DEVICE_OUT_FM_TRANSMIT = 0x800;
+    public static final int DEVICE_IN_FM_ANALOG = 0x1000000;
+    public static final int DEVICE_OUT_LOW_POWER = 0x900;
 
     // device states, must match AudioSystem::device_connection_state
     public static final int DEVICE_STATE_UNAVAILABLE = 0;

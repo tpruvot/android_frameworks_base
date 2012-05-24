@@ -153,6 +153,7 @@ class ServerThread extends Thread {
         ThrottleService throttle = null;
         NetworkTimeUpdateService networkTimeUpdater = null;
         CpuGovernorService cpuGovernorManager = null;
+        DynamicMemoryManagerService dmm = null;
 
         // Critical services...
         try {
