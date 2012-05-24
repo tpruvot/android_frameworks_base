@@ -643,11 +643,17 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
         SettingsObserver(Handler handler) {
             super(handler);
         }
-    }
-
-    void observe() {
+    
+        void observe() {
             ContentResolver resolver = mContext.getContentResolver();
+            resolver.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.LOCKSCREEN_LAYOUT), false,
+                    this);
+            resolver.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.LOCKSCREEN_CUSTOM_TEXT_COLOR), false,
+                    this);
             updateSettings();
-        }
+         }
+    }
 }
 
