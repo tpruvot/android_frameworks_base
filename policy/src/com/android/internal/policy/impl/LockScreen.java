@@ -654,6 +654,11 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
                     this);
             updateSettings();
          }
+
+          @Override
+        public void onChange(boolean selfChange) {
+            updateSettings();
+        }
     }
 }
 
