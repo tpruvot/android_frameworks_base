@@ -1329,8 +1329,9 @@ private NetworkStateTracker makeWimaxStateTracker() {
                         mNetd.removeRoute(ifaceName, r);
                     } catch (Exception e) {
                         // never crash - catch them all
+                        log("Error when removing " + r + " for interface " + ifaceName);
                         if (DBG) loge("Exception trying to remove a route: " + e);
-                        // return false;
+                        return false;
                     }
                 } else {
                     if (VDBG) log("not removing " + r + " as it's still in use");
@@ -1341,8 +1342,9 @@ private NetworkStateTracker makeWimaxStateTracker() {
                     mNetd.removeSecondaryRoute(ifaceName, r);
                 } catch (Exception e) {
                     // never crash - catch them all
+                    log("Error when removing secondary " + r + " for interface " + ifaceName);
                     if (DBG) loge("Exception trying to remove a route: " + e);
-                    // return false;
+                    return false;
                 }
             }
         }
