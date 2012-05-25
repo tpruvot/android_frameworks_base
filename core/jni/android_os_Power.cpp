@@ -89,11 +89,7 @@ static void android_os_Power_reboot(JNIEnv *env, jobject clazz, jstring reason)
 static int
 SetUnstableMemoryState(JNIEnv *env, jobject clazz, jboolean on)
 {
-#ifdef QCOM_HARDWARE
     return set_unstable_memory_state(on);
-#else
-    return 0;
-#endif
 }
 
 static JNINativeMethod method_table[] = {
