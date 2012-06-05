@@ -45,12 +45,12 @@
     <string name="weather_3">Orages sévères</string>
     <string name="weather_4">Orages</string>
     <string name="weather_5">Neige ou pluie</string>
-    <string name="weather_6">Pluie</string>
+    <string name="weather_6">Pluie ou verglas</string>
     <string name="weather_7">Neige ou verglas</string>
     <string name="weather_8">Brouillard givrant</string>
     <string name="weather_9">Bruine</string>
     <string name="weather_10">Pluie givrante</string>
-    <string name="weather_11">Pluie verglaçante</string>
+    <string name="weather_11">Pluie</string>
     <string name="weather_12">Averses</string>
     <string name="weather_13">Chûtes de neige</string>
     <string name="weather_14">Neige légère</string>
@@ -65,8 +65,8 @@
     <string name="weather_23">Vent</string>
     <string name="weather_24">Venteux</string>
     <string name="weather_25">Froid</string>
-    <string name="weather_26">Nuageux</string>
-    <string name="weather_27">Nuageux</string> <!-- Night -->
+    <string name="weather_26">Couvert</string>
+    <string name="weather_27">Ciel couvert</string> <!-- Night -->
     <string name="weather_28">Nuageux</string> <!-- Day -->
     <string name="weather_29">Peu nuageux</string> <!-- Night -->
     <string name="weather_30">Peu nuageux</string> <!-- Day -->
