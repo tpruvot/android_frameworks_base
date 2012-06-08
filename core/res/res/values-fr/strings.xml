@@ -68,8 +68,8 @@
     <string name="weather_26">Couvert</string>
     <string name="weather_27">Ciel couvert</string> <!-- Night -->
     <string name="weather_28">Nuageux</string> <!-- Day -->
-    <string name="weather_29">Peu nuageux</string> <!-- Night -->
-    <string name="weather_30">Peu nuageux</string> <!-- Day -->
+    <string name="weather_29">Quelques nuages</string> <!-- Night -->
+    <string name="weather_30">Quelques nuages</string> <!-- Day -->
     <string name="weather_31">Ciel dégagé</string> <!-- Night -->
     <string name="weather_32">Ensoleillé</string>
     <string name="weather_33">Plutôt dégagé</string> <!-- Fair, Night -->
