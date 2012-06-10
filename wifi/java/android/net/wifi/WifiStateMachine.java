@@ -3150,7 +3150,7 @@ public class WifiStateMachine extends StateMachine {
 
                     /* TI WLAN-specific */
                     if (SystemProperties.getBoolean("wifi.hotspot.ti", false)) {
-                        handlePostDhcpSetup();
+                    //    handlePostDhcpSetup();
                     }
 
                     handleNetworkDisconnect();
