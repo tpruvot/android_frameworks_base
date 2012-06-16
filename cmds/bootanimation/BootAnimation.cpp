@@ -299,14 +299,13 @@ status_t BootAnimation::readyToRun() {
         // We could use readahead..
         // ... if bionic supported it :(
         //readahead(fd, 0, INT_MAX);
-        void *crappyBuffer = malloc(1024*1024);
+        void *crappyBuffer = malloc(2*1024*1024);
         if (crappyBuffer != NULL) {
+            // Read all the zip
+            while (!feof(fd))
+                fread(crappyBuffer, 1024, 2*1024, fd);
 
-            while (!feof(fd) && crappyBuffer)
-                fread(crappyBuffer, 1024, 1024, fd);
-
-            if (crappyBuffer != NULL)
-                free(crappyBuffer);
+            free(crappyBuffer);
         } else {
             LOGW("Unable to allocate memory to preload the animation");
         }
