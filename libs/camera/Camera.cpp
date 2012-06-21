@@ -15,7 +15,7 @@
 ** limitations under the License.
 */
 
-#define LOG_NDEBUG 0
+//#define LOG_NDEBUG 0
 #define LOG_TAG "Camera"
 #include <utils/Log.h>
 #include <utils/threads.h>
@@ -447,5 +447,37 @@ Camera::RecordingProxy::RecordingProxy(const sp<Camera>& camera)
 {
     mCamera = camera;
 }
+
+#ifndef USE_OVERLAY_CPP
+extern "C" status_t _ZN7android7Overlay13dequeueBufferEPPv(void** buffer)
+{
+    LOGW("%s *stub*", __FUNCTION__);
+    return NO_ERROR;
+}
+
+extern "C" status_t _ZN7android7Overlay11queueBufferEPv(void* buffer)
+{
+    LOGW("%s *stub*", __FUNCTION__);
+    return NO_ERROR;
+}
+
+extern "C" int32_t _ZNK7android7Overlay14getBufferCountEv(void)
+{
+    LOGW("%s *stub*", __FUNCTION__);
+    return 0;
+}
+
+extern "C" void* _ZN7android7Overlay16getBufferAddressEPv(void* buffer)
+{
+    LOGW("%s *stub*", __FUNCTION__);
+    return NULL;
+}
+
+extern "C" void _ZN7android7Overlay7destroyEv(void)
+{
+    LOGW("%s *stub*", __FUNCTION__);
+    return;
+}
+#endif
 
 }; // namespace android
