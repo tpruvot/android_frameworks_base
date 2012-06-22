@@ -23,7 +23,7 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 
-//#define LOG_NDEBUG 0
+#define LOG_NDEBUG 0
 #include <cutils/log.h>
 #include <cutils/properties.h>
 
@@ -142,89 +142,70 @@ extern "C" void __glEGLImageTargetTexture2DOES(GLenum target, GLeglImageOES imag
 extern "C" void __glEGLImageTargetRenderbufferStorageOES(GLenum target, GLeglImageOES image);
 
 #ifdef HOOK_MISSING_EGL_EXTERNAL_IMAGE
-/*
-const GLubyte* glGetString(GLenum name)
-{
-    if (name == GL_EXTENSIONS) {
-        char *exts = (char *)__glGetString(GL_EXTENSIONS);
-        char *extensions;
-        extensions = new char[850];
-        strcpy(extensions, exts);
-        strcat(extensions, "GL_OES_EGL_image_external ");
-        LOGW("glGetString(GL_EXTENSIONS): GL_OES_EGL_image_external added");
-        return (GLubyte*)extensions;
-    }
-    return __glGetString(name);
-}
-*/
-
 void glShaderSource(GLuint shader, GLsizei count, const GLchar** string, const GLint* length)
 {
     bool needRewrite = false;
-
-    LOGV("Shader source dump:");
     for (GLsizei i = 0; i < count; i++) {
-        LOGV("  %s", string[i]);
         if (strstr(string[i], "GL_OES_EGL_image_external")) {
             needRewrite = true;
         }
     }
 
-/* TODO
-The following code (made to replace "samplerExternalOES" with "sampler2D")
-is currently very dumb:
-- it assumes that "#extension GL_OES_EGL_image_external : require"
-  is present and appears before the first newline in the shader source
-  (the first line is then replaced with an empty one)
-- it assumes only one appearence of "samplerExternalOES" in the shader code
-  (and replaces this first appearence with "sampler2D")
-
-Despite the mentioned limitations, it seems to capture
-all real cases encountered so far.
-*/
-
+/*
+ * The following code is made to replace "samplerExternalOES" with "sampler2D"
+ * and GL_OES_EGL_image_external by a supported extension in the shader source
+ * if "#extension GL_OES_EGL_image_external" is present
+ */
     if (!needRewrite) {
         __glShaderSource(shader, count, string, length);
         return;
     }
 
-    LOGW("Shader source rewrite");
+    LOGD("Shader OES source need a small patch");
 
     GLchar **newStrings = new GLchar*[count];
-    const GLchar *start, *pos;
 
+    // count is the number of chunks, not lines count
     for (GLsizei i = 0; i < count; i++) {
-        start = strstr(string[i], "\n");
-        if (!start) {
-            start = string[i];
-        } else {
-            /* skip '\n' */
-            start++;
+        int rw = 0, len = strlen(string[i]);
+        newStrings[i] = new GLchar[len + 1];
+        GLchar *pcr, *pch = &newStrings[i][0];
+        strcpy(pch, string[i]);
+        pch = &newStrings[i][0];
+
+        // just patch the strings, safely
+        while(true) {
+            pch = strstr(pch, "samplerExternalOES");
+            if (pch == NULL) break;
+            strncpy(pch, "sampler2D         ", 18);
         }
 
-        newStrings[i] = new GLchar[strlen(start) + 1];
-        pos = strstr(start, "samplerExternalOES");
-        if (pos) {
-            /* copy part before 'samplerExternalOES' */
-            strncpy(newStrings[i], start, pos - start);
-            /* ensure NUL termination */
-            newStrings[i][pos - start] = '\0';
-            strcat(newStrings[i], "sampler2D");
-            /* copy remainder */
-            pos += strlen("samplerExternalOES");
-            strcat(newStrings[i], pos);
-        } else {
-            strcpy(newStrings[i], start);
+        pch = &newStrings[i][0];
+        while(true) {
+            pch = strstr(pch, "GL_OES_EGL_image_external");
+            if (pch == NULL) break;
+
+            pch += sizeof("GL_OES_EGL_image_external");
+            pcr = strstr(pch, "\n");
+
+            // replace "require" by "enable", which never fails.
+            if (pcr && strstr(pch, "require")) {
+                pch = strstr(pch, "require");
+                if (pcr > pch)
+                   strncpy(pch, "enable ", 7);
+            }
         }
-        LOGD("%s", newStrings[i]);
     }
 
     __glShaderSource(shader, count, const_cast<const GLchar **>(newStrings), length);
 
+#if 1
     for (GLsizei i = 0; i < count; i++) {
         delete [] newStrings[i];
     }
     delete [] newStrings;
+    LOGV("shader source freed");
+#endif
 }
 
 void glTexParameterf(GLenum target, GLenum pname, GLfloat param)
@@ -285,7 +266,7 @@ void glBindTexture(GLenum target, GLuint texture)
 {
     if (target == GL_TEXTURE_EXTERNAL_OES) {
         target = GL_TEXTURE_2D;
-        LOGV("glBindTexture(%d,%x): EXTERNAL_OES > 2D", target, texture);
+        //LOGV("glBindTexture(%d,%x): EXTERNAL_OES > 2D", target, texture);
     }
     __glBindTexture(target, texture);
 }
@@ -296,7 +277,7 @@ void glEGLImageTargetTexture2DOES(GLenum target, GLeglImageOES image)
 #ifdef HOOK_MISSING_EGL_EXTERNAL_IMAGE
     if (target == GL_TEXTURE_EXTERNAL_OES) {
         target = GL_TEXTURE_2D;
-        LOGV("glEGLImageTargetTexture2DOES(%d): EXTERNAL_OES > 2D", target);
+        //LOGV("glEGLImageTargetTexture2DOES(%d): EXTERNAL_OES > 2D", target);
     }
 #endif
     GLeglImageOES implImage = 
