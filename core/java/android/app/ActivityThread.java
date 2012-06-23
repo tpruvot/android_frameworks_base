@@ -3884,8 +3884,42 @@ public final class ActivityThread {
         } catch (RemoteException e) {
             // Ignore
         }
-    }    
-    
+    }
+
+    /* hwui.whitelist allows to restrict the hw renderer usage only
+     * to certain processes (0 - any)
+     * hwui.blacklist allows to disable the hw renderer usage for certain processes
+     * if whitelist is set to "0"
+     * You can also touch a file in /data/local/hwui.allow/ to allow processes
+     * because property strings are limited in length
+     */
+    private boolean hwuiForbidden(String process) {
+        String hwuiWhitelist = SystemProperties.get("hwui.whitelist", "0");
+        String hwuiBlacklist = SystemProperties.get("hwui.blacklist", "0");
+        File hwuiConfig;
+        boolean blacklisted = !hwuiWhitelist.equals("0"); // if 0, default whitelisted
+        if (TextUtils.isEmpty(process))
+            return blacklisted;
+
+        hwuiConfig = new File("/data/local/hwui.allow/" + process);
+        if (hwuiConfig.exists()) {
+            Slog.d(TAG, process + " white listed for hwui");
+            blacklisted = false;
+            hwuiConfig = null;
+        }
+        else if (!blacklisted && hwuiBlacklist.contains(process)) {
+            blacklisted = true;
+        }
+        else if (blacklisted && hwuiWhitelist.contains(process)) {
+            blacklisted = false;
+        }
+        if (!blacklisted)
+            Slog.v(TAG, process + " white listed for hwui");
+        else
+            Slog.d(TAG, process + " black listed for hwui");
+        return blacklisted;
+    }
+
     private void handleBindApplication(AppBindData data) {
         mBoundApplication = data;
         mConfiguration = new Configuration(data.config);
@@ -3900,13 +3934,6 @@ public final class ActivityThread {
         Process.setArgV0(data.processName);
         android.ddm.DdmHandleAppName.setAppName(data.processName);
 
-        // hwui.whitelist allows to restrict the hw renderer usage
-        // only to certain processes (0 - any)
-        // hwui.blacklist allows to disable the hw renderer usage
-        // for certain processes
-        String hwuiWhitelist = SystemProperties.get("hwui.whitelist", "0");
-        String hwuiBlacklist = SystemProperties.get("hwui.blacklist", "0");
-
         if (data.persistent) {
             // Persistent processes on low-memory devices do not get to
             // use hardware accelerated drawing, since this can add too much
@@ -3915,8 +3942,7 @@ public final class ActivityThread {
             if (!ActivityManager.isHighEndGfx(display)) {
                 HardwareRenderer.disable(false);
             }
-        } else if ((!hwuiWhitelist.equals("0") && !hwuiWhitelist.contains(data.processName))
-                    || hwuiBlacklist.contains(data.processName)) {
+        } else if (hwuiForbidden(data.processName)) {
             HardwareRenderer.disable(false);
         }
         
