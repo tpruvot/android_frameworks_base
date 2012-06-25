@@ -23,7 +23,7 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 
-#define LOG_NDEBUG 0
+//#define LOG_NDEBUG 0
 #include <cutils/log.h>
 #include <cutils/properties.h>
 
@@ -148,13 +148,14 @@ void glShaderSource(GLuint shader, GLsizei count, const GLchar** string, const G
     for (GLsizei i = 0; i < count; i++) {
         if (strstr(string[i], "GL_OES_EGL_image_external")) {
             needRewrite = true;
+            break;
         }
     }
 
 /*
  * The following code is made to replace "samplerExternalOES" with "sampler2D"
- * and GL_OES_EGL_image_external by a supported extension in the shader source
- * if "#extension GL_OES_EGL_image_external" is present
+ * and "#extension GL_OES_EGL_image_external" "require" parameter by "enable"
+ * which doesnt break the shader compilation (warning only)
  */
     if (!needRewrite) {
         __glShaderSource(shader, count, string, length);
@@ -168,10 +169,8 @@ void glShaderSource(GLuint shader, GLsizei count, const GLchar** string, const G
     // count is the number of chunks, not lines count
     for (GLsizei i = 0; i < count; i++) {
         int rw = 0, len = strlen(string[i]);
-        newStrings[i] = new GLchar[len + 1];
+        newStrings[i] = strdup(string[i]);
         GLchar *pcr, *pch = &newStrings[i][0];
-        strcpy(pch, string[i]);
-        pch = &newStrings[i][0];
 
         // just patch the strings, safely
         while(true) {
@@ -199,13 +198,14 @@ void glShaderSource(GLuint shader, GLsizei count, const GLchar** string, const G
 
     __glShaderSource(shader, count, const_cast<const GLchar **>(newStrings), length);
 
-#if 1
     for (GLsizei i = 0; i < count; i++) {
-        delete [] newStrings[i];
+        if (newStrings[i]) {
+            free(newStrings[i]);
+            newStrings[i] = NULL;
+        }
     }
     delete [] newStrings;
     LOGV("shader source freed");
-#endif
 }
 
 void glTexParameterf(GLenum target, GLenum pname, GLfloat param)
