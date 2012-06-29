@@ -226,6 +226,13 @@ public class MediaRecorder
 
         /** @hide H.264/AAC data encapsulated in MPEG2/TS */
         public static final int OUTPUT_FORMAT_MPEG2TS = 8;
+
+        /** QCP file format
+         * @hide */
+        public static final int QCP = 9;
+        /** 3GPP2 media file format
+         * @hide */
+        public static final int THREE_GPP2 = 10;
     };
 
     /**
@@ -244,10 +251,18 @@ public class MediaRecorder
         public static final int AMR_WB = 2;
         /** AAC audio codec */
         public static final int AAC = 3;
-        /** @hide enhanced AAC audio codec */
+        /** enhanced AAC audio codec
+         * @hide */
         public static final int AAC_PLUS = 4;
-        /** @hide enhanced AAC plus audio codec */
+        /** enhanced AAC plus audio codec
+         * @hide */
         public static final int EAAC_PLUS = 5;
+        /** EVRC audio codec
+         * @hide */
+        public static final int EVRC = 6;
+        /** QCELP audio codec
+         * @hide */
+        public static final int QCELP =7;
     }
 
     /**
@@ -659,6 +674,8 @@ public class MediaRecorder
      *
      * @throws IllegalStateException if it is called before
      * prepare().
+     *
+     * @hide
      */
     public native void native_start() throws IllegalStateException;
 
@@ -673,6 +690,8 @@ public class MediaRecorder
      * the output file is not properly constructed when this happens.
      *
      * @throws IllegalStateException if it is called before start()
+     *
+     * @hide
      */
     public native void native_stop() throws IllegalStateException;
 
