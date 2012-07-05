@@ -3897,26 +3897,38 @@ public final class ActivityThread {
         String hwuiWhitelist = SystemProperties.get("hwui.whitelist", "0");
         String hwuiBlacklist = SystemProperties.get("hwui.blacklist", "0");
         File hwuiConfig;
-        boolean blacklisted = !hwuiWhitelist.equals("0"); // if 0, default whitelisted
+        boolean blacklisted = !hwuiWhitelist.equals("0"); // default is whitelisted
+
         if (TextUtils.isEmpty(process))
             return blacklisted;
 
-        hwuiConfig = new File("/data/local/hwui.allow/" + process);
-        if (hwuiConfig.exists()) {
-            Slog.d(TAG, process + " white listed for hwui");
-            blacklisted = false;
-            hwuiConfig = null;
+        if (!blacklisted) {
+            hwuiConfig = new File("/data/local/hwui.deny/" + process);
+            if (hwuiConfig.exists()) {
+                blacklisted = true;
+                hwuiConfig = null;
+            }
+        } else {
+            hwuiConfig = new File("/data/local/hwui.allow/" + process);
+            if (hwuiConfig.exists()) {
+                blacklisted = false;
+                hwuiConfig = null;
+            }
         }
-        else if (!blacklisted && hwuiBlacklist.contains(process)) {
+
+        // old system to whitelist/blacklist (to be removed)
+        if (!blacklisted && hwuiBlacklist.contains(process)) {
             blacklisted = true;
         }
         else if (blacklisted && hwuiWhitelist.contains(process)) {
             blacklisted = false;
         }
+
         if (!blacklisted)
             Slog.v(TAG, process + " white listed for hwui");
         else
             Slog.d(TAG, process + " black listed for hwui");
+
         return blacklisted;
     }
 
