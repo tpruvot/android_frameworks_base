@@ -533,6 +533,9 @@ public:
     // Value for KEY_FOCUS_DISTANCES.
     static const char FOCUS_DISTANCE_INFINITY[];
 
+    static const char KEY_ISO_MODE[];
+    static const char KEY_SUPPORTED_ISO_MODES[];
+
 #ifdef QCOM_HARDWARE
     // DENOISE
     static const char KEY_DENOISE[];
@@ -555,8 +558,6 @@ public:
     static const char KEY_METERING[];
     static const char KEY_WDR[];
     static const char KEY_ANTI_SHAKE_MODE[];
-    static const char KEY_ISO_MODE[];
-    static const char KEY_SUPPORTED_ISO_MODES[];
 #endif
 
     // Values for white balance settings.
