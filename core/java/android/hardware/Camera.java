@@ -211,6 +211,18 @@ public class Camera {
         public static final int CAMERA_FACING_FRONT = 1;
 
         /**
+         * The facing of the camera is the same as that of the screen.
+         * @hide QCOM
+         */
+        public static final int CAMERA_SUPPORT_MODE_ZSL = 2;
+
+        /**
+         * The facing of the camera is the same as that of the screen.
+         * @hide QCOM
+         */
+        public static final int CAMERA_SUPPORT_MODE_NONZSL = 3;
+
+        /**
          * The direction that the camera faces. It should be
          * CAMERA_FACING_BACK or CAMERA_FACING_FRONT.
          */
@@ -1726,6 +1738,12 @@ public class Camera {
         public static final String ISO_800 = "ISO800";
         /** @hide */
         public static final String ISO_1600 = "ISO1600";
+
+        // QCOM Values for ZSL settings.
+        /** @hide */
+        public static final String ZSL_ON = "on";
+        /** @hide */
+        public static final String ZSL_OFF = "off";
 
         // Values for flash mode settings.
         /**
@@ -3617,6 +3635,60 @@ public class Camera {
         public List<String> getSupportedAutoexposure() {
             String str = get(KEY_AUTO_EXPOSURE + SUPPORTED_VALUES_SUFFIX);
             return split(str);
+        }
+
+        /**
+         * @hide QCOM
+         * Gets the current ZSL Mode.
+         *
+         * @return ZSL mode value
+         */
+        public String getZSLMode() {
+            return get(KEY_ZSL);
+        }
+
+        /**
+         * @hide QCOM
+         * Sets the current ZSL Mode. ZSL mode is set as a 0th bit in KEY_CAMERA_MODE.
+         *
+         * @return null
+         */
+        public void setZSLMode(String zsl) {
+            set(KEY_ZSL, zsl);
+        }
+
+        /**
+         * @hide QCOM
+         * Gets the supported ZSL modes.
+         *
+         * @return a List of ZSL_OFF/OFF string constants. null if ZSL mode
+         * setting is not supported.
+         */
+        public List<String> getSupportedZSLModes() {
+            String str = get(KEY_ZSL + SUPPORTED_VALUES_SUFFIX);
+            return split(str);
+        }
+
+        /**
+         * @hide
+         * Gets the current Camera Mode Flag. Camera mode includes a
+         * flag(byte) which indicates different camera modes.
+         * For now support for ZSL added at bit0
+         *
+         * @return Camera Mode.
+         */
+        public String getCameraMode() {
+            return get(KEY_CAMERA_MODE);
+        }
+
+        /**
+         * @hide
+         * Sets the current Camera Mode.
+         *
+         * @return null
+         */
+        public void setCameraMode(int cameraMode) {
+            set(KEY_CAMERA_MODE, cameraMode);
         }
 
         /**
