@@ -1530,6 +1530,11 @@ status_t OMXCodec::setVideoOutputFormat(
                 format.eColorFormat = OMX_COLOR_FormatYUV420SemiPlanar;
         }
 #endif
+#ifdef OMAP_COMPAT
+        if (!strncmp("OMX.TI.", mComponentName, 7)) {
+            format.eColorFormat = OMX_COLOR_FormatYUV420Planar;
+        }
+#endif
 
         err = mOMX->setParameter(
                 mNode, OMX_IndexParamVideoPortFormat,
@@ -1630,6 +1635,9 @@ OMXCodec::OMXCodec(
       mPaused(false),
       mNativeWindow(
               (!strncmp(componentName, "OMX.google.", 11)
+#ifdef OMAP_COMPAT
+              || !strncmp(componentName, "OMX.TI.", 7)
+#endif
               || !strcmp(componentName, "OMX.Nvidia.mpeg2v.decode"))
                         ? NULL : nativeWindow) {
     mPortStatus[kPortIndexInput] = ENABLED;
