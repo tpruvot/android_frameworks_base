@@ -16,7 +16,6 @@
 
 #define LOG_TAG "SurfaceTexture"
 //#define LOG_NDEBUG 0
-//#undef MISSING_GRALLOC_BUFFERS
 
 #define GL_GLEXT_PROTOTYPES
 #define EGL_EGLEXT_PROTOTYPES
@@ -781,7 +780,6 @@ status_t SurfaceTexture::setScalingMode(int mode) {
 }
 
 status_t SurfaceTexture::updateTexImage() {
-    //ST_LOGV("updateTexImage");
     Mutex::Autolock lock(mMutex);
 
     if (mAbandoned) {
@@ -889,17 +887,17 @@ bool SurfaceTexture::isExternalFormat(uint32_t format)
     case HAL_PIXEL_FORMAT_YCbCr_422_SP:
     case HAL_PIXEL_FORMAT_YCrCb_420_SP:
     case HAL_PIXEL_FORMAT_YCbCr_422_I:
-        LOGD("%s: format=%u true", __FUNCTION__, format);
+        LOGV("%s: format=%u true", __FUNCTION__, format);
         return true;
     }
 
     // Any OEM format needs to be considered
     if (format>=0x100 && format<=0x1FF) {
-        LOGD("%s: format=%u true", __FUNCTION__, format);
+        LOGV("%s: format=%u true", __FUNCTION__, format);
         return true;
     }
 
-    LOGD("%s: format=%u false", __FUNCTION__, format);
+    LOGV("%s: format=%u false", __FUNCTION__, format);
     return false;
 }
 
@@ -1044,7 +1042,7 @@ void SurfaceTexture::freeAllBuffersExceptHeadLocked() {
         Fifo::iterator front(mQueue.begin());
         head = *front;
     }
-    mCurrentTexture = head;
+    mCurrentTexture = INVALID_BUFFER_SLOT;
     for (int i = 0; i < NUM_BUFFER_SLOTS; i++) {
         if (i != head) {
             freeBufferLocked(i);
@@ -1157,7 +1155,7 @@ int SurfaceTexture::query(int what, int* outValue)
 }
 
 void SurfaceTexture::abandon() {
-    LOGD("abandon()");
+    LOGV("abandon()");
     Mutex::Autolock lock(mMutex);
     mQueue.clear();
     mAbandoned = true;
