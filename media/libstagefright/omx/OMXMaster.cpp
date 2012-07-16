@@ -122,7 +122,7 @@ OMX_ERRORTYPE OMXMaster::makeComponentInstance(
     ssize_t index = mPluginByComponentName.indexOfKey(String8(name));
 
     if (index < 0) {
-        LOGW("makeComponentInstance: ErrorInvalidComponentName");
+        LOGW("makeComponentInstance: ErrorInvalidComponentName %s", name);
         return OMX_ErrorInvalidComponentName;
     }
 
