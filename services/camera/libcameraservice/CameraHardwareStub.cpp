@@ -418,6 +418,12 @@ status_t CameraHardwareStub::getBufferInfo(sp<IMemory>& Frame, size_t *alignedSi
 }
 #endif
 
+#ifdef CAF_CAMERA_GB_REL
+void  CameraHardwareStub::encodeData() {
+    /* No Support in STUB Camera. */
+}
+#endif
+
 extern "C" int HAL_getNumberOfCameras()
 {
     return sizeof(sCameraInfo) / sizeof(sCameraInfo[0]);

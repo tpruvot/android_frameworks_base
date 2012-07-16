@@ -68,6 +68,9 @@ public:
 #ifdef USE_GETBUFFERINFO
     virtual status_t getBufferInfo( sp<IMemory>& Frame, size_t *alignedSize);
 #endif
+#ifdef CAF_CAMERA_GB_REL
+    virtual void     encodeData();
+#endif
     static sp<CameraHardwareInterface> createInstance();
 
 private:
