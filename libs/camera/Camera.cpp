@@ -331,7 +331,7 @@ status_t Camera::setCustomParameters(const String8& params)
 String8 Camera::getParameters() const
 {
     LOGV("getParameters");
-    String8 params;
+    String8 params = String8("");
     sp <ICamera> c = mCamera;
     if (c != 0) params = mCamera->getParameters();
     return params;
