@@ -73,7 +73,6 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.StrictMode;
 import android.os.SystemClock;
-import android.os.SystemProperties;
 import android.text.TextUtils;
 import android.util.AndroidRuntimeException;
 import android.util.DisplayMetrics;
@@ -3884,54 +3883,8 @@ public final class ActivityThread {
         } catch (RemoteException e) {
             // Ignore
         }
-    }
-
-    /* hwui.whitelist allows to restrict the hw renderer usage only
-     * to certain processes (0 - any)
-     * hwui.blacklist allows to disable the hw renderer usage for certain processes
-     * if whitelist is set to "0"
-     * You can also touch a file in /data/local/hwui.allow/ to allow processes
-     * because property strings are limited in length
-     */
-    private boolean hwuiForbidden(String process) {
-        String hwuiWhitelist = SystemProperties.get("hwui.whitelist", "0");
-        String hwuiBlacklist = SystemProperties.get("hwui.blacklist", "0");
-        File hwuiConfig;
-        boolean blacklisted = !hwuiWhitelist.equals("0"); // default is whitelisted
-
-        if (TextUtils.isEmpty(process))
-            return blacklisted;
-
-        if (!blacklisted) {
-            hwuiConfig = new File("/data/local/hwui.deny/" + process);
-            if (hwuiConfig.exists()) {
-                blacklisted = true;
-                hwuiConfig = null;
-            }
-        } else {
-            hwuiConfig = new File("/data/local/hwui.allow/" + process);
-            if (hwuiConfig.exists()) {
-                blacklisted = false;
-                hwuiConfig = null;
-            }
-        }
-
-        // old system to whitelist/blacklist (to be removed)
-        if (!blacklisted && hwuiBlacklist.contains(process)) {
-            blacklisted = true;
-        }
-        else if (blacklisted && hwuiWhitelist.contains(process)) {
-            blacklisted = false;
-        }
-
-        if (!blacklisted)
-            Slog.v(TAG, process + " white listed for hwui");
-        else
-            Slog.d(TAG, process + " black listed for hwui");
-
-        return blacklisted;
-    }
-
+    }    
+    
     private void handleBindApplication(AppBindData data) {
         mBoundApplication = data;
         mConfiguration = new Configuration(data.config);
@@ -3954,8 +3907,6 @@ public final class ActivityThread {
             if (!ActivityManager.isHighEndGfx(display)) {
                 HardwareRenderer.disable(false);
             }
-        } else if (hwuiForbidden(data.processName)) {
-            HardwareRenderer.disable(false);
         }
         
         if (mProfiler.profileFd != null) {
