@@ -5043,6 +5043,7 @@
             <enum name="ring" value="2" />
             <enum name="music" value="3" />
             <enum name="alarm" value="4" />
+            <enum name="fm" value="10" />
         </attr>
     </declare-styleable>
 
