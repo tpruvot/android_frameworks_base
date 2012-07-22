@@ -172,7 +172,10 @@ public class DigitalClock extends RelativeLayout {
         mTimeDisplayBackground.setVisibility(View.INVISIBLE);
 
         mTimeDisplayForeground = (TextView) findViewById(R.id.timeDisplayForeground);
-        mTimeDisplayForeground.setTypeface(sForegroundFont);
+        if (mTimeDisplayForeground != null) {
+            mTimeDisplayForeground.setTypeface(sForegroundFont);
+        }
+
         mAmPm = new AmPm(this, null);
         mCalendar = Calendar.getInstance();
 
