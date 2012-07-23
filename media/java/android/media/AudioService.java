@@ -188,6 +188,8 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
     // Maximum volume adjust steps allowed in a single batch call.
     private static final int MAX_BATCH_VOLUME_ADJUST_STEPS = 4;
 
+    private static final String ACTION_FM_STATE_CHANGED = "com.android.media.intent.action.FM_STATE_CHANGED";
+
     /* Sound effect file names  */
     private static final String SOUND_EFFECTS_PATH = "/media/audio/ui/";
     private static final String[] SOUND_EFFECT_FILES = new String[] {
@@ -359,6 +361,7 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
 
     // Devices currently connected
     private final HashMap <Integer, String> mConnectedDevices = new HashMap <Integer, String>();
+    private boolean mFmActive = false;
 
     // Forced device usage for communications
     private int mForcedUseForComm;
@@ -501,6 +504,7 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
         intentFilter.addAction(Intent.ACTION_SCREEN_ON);
         intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
         intentFilter.addAction(Intent.ACTION_HEADSET_PLUG);
+        intentFilter.addAction(ACTION_FM_STATE_CHANGED);
 
         // Register a configuration change listener only if requested by system properties
         // to monitor orientation changes (off by default)
@@ -530,6 +534,10 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
         TelephonyManager tmgr = (TelephonyManager)
                 context.getSystemService(Context.TELEPHONY_SERVICE);
         tmgr.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+
+        if (context.getResources().getBoolean(com.android.internal.R.bool.config_fmSeparateVolumeControl)) {
+            STREAM_VOLUME_ALIAS[AudioSystem.STREAM_FM] = AudioSystem.STREAM_FM;
+        }
 
         mUseMasterVolume = context.getResources().getBoolean(
                 com.android.internal.R.bool.config_useMasterVolume);
@@ -753,6 +761,10 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
             flags &= ~AudioManager.FLAG_PLAY_SOUND;
         }
 
+        if (streamType == AudioSystem.STREAM_FM) {
+            flags &= ~AudioManager.FLAG_PLAY_SOUND;
+        }
+
         if (streamType == STREAM_REMOTE_MUSIC) {
             // don't play sounds for remote
             flags &= ~AudioManager.FLAG_PLAY_SOUND;
@@ -769,6 +781,11 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
 
         ensureValidDirection(direction);
         ensureValidStreamType(streamType);
+
+        if (streamType == AudioManager.STREAM_FM && !mFmActive) {
+            Log.d(TAG, "Got request to adjust inactive FM stream, ignoring.");
+            return;
+        }
 
         // use stream type alias here so that streams with same alias have the same behavior,
         // including with regard to silent mode control (e.g the use of STREAM_RING below and in
@@ -1357,6 +1374,11 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
             return mCb;
         }
     }
+
+    /** @see AudioManager#isFmActive() */
+    public boolean isFmActive() {
+            return mFmActive;
+        }
 
     /** @see AudioManager#setMode(int) */
     public void setMode(int mode, IBinder cb) {
@@ -2271,6 +2293,8 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
                     if (DEBUG_VOL)
                         Log.v(TAG, "getActiveStreamType: Forcing STREAM_MUSIC stream active");
                     return AudioSystem.STREAM_MUSIC;
+                } else if (mFmActive) {
+                    return AudioSystem.STREAM_FM;
                 } else {
                     if (DEBUG_VOL)
                         Log.v(TAG, "getActiveStreamType: Forcing STREAM_RING b/c default");
@@ -3660,6 +3684,8 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
                     adapter.getProfileProxy(mContext, mBluetoothProfileServiceListener,
                                             BluetoothProfile.A2DP);
                 }
+            } else if (action.equals(ACTION_FM_STATE_CHANGED)) {
+                mFmActive = intent.getBooleanExtra("active", false);
             } else if (action.equals(Intent.ACTION_PACKAGE_REMOVED)) {
                 if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
                     // a package is being removed, not replaced

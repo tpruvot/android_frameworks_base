@@ -881,6 +881,9 @@
     <!-- Set to true to add links to Cell Broadcast app from Settings and MMS app. -->
     <bool name="config_cellBroadcastAppLinks">false</bool>
 
+    <!-- FM volume stream -->
+    <bool name="config_fmSeparateVolumeControl">true</bool>
+
     <!-- CM CHANGES START HERE -->
 
     <!-- LUN file to be used by legacy USB manager.
