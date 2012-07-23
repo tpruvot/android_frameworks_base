@@ -102,6 +102,7 @@ public class VolumePanel extends Handler implements OnSeekBarChangeListener, Vie
 
     public static final String ACTION_VOLUME_OVERLAY_CHANGED
         = "android.intent.action.VOLUME_OVERLAY_CHANGED";
+    private static final int FM_VOLUME_TEXT = com.android.internal.R.string.volume_fm;
 
     protected Context mContext;
     private AudioManager mAudioManager;
@@ -155,7 +156,12 @@ public class VolumePanel extends Handler implements OnSeekBarChangeListener, Vie
                 R.string.volume_icon_description_media,
                 R.drawable.ic_audio_vol,
                 R.drawable.ic_audio_vol_mute,
-                true),
+                true),       
+        FMStream(AudioManager.STREAM_FM,
+                R.string.volume_fm,
+                R.drawable.ic_audio_vol,
+                R.drawable.ic_audio_vol_mute,
+                false),
         NotificationStream(AudioManager.STREAM_NOTIFICATION,
                 R.string.volume_icon_description_notification,
                 R.drawable.ic_audio_notification,
@@ -195,6 +201,7 @@ public class VolumePanel extends Handler implements OnSeekBarChangeListener, Vie
         StreamResources.RingerStream,
         StreamResources.VoiceStream,
         StreamResources.MediaStream,
+        StreamResources.FMStream,
         StreamResources.NotificationStream,
         StreamResources.AlarmStream,
         StreamResources.MasterStream,
@@ -685,6 +692,14 @@ public class VolumePanel extends Handler implements OnSeekBarChangeListener, Vie
                  */
                 index++;
                 max++;
+                break;
+            }
+
+            case AudioManager.STREAM_FM: {
+            // message = FM_VOLUME_TEXT; 
+                //TODO
+                setMusicIcon(R.drawable.ic_audio_vol, R.drawable.ic_audio_vol_mute);
+           //  setSmallIcon(index);
                 break;
             }
 

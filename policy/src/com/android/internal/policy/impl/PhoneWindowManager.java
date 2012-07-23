@@ -3260,6 +3260,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         return am.isMusicActive();
     }
 
+    boolean isFmActive() {
+        final AudioManager am = (AudioManager)mContext.getSystemService(Context.AUDIO_SERVICE);
+        if (am == null) {
+            Log.w(TAG, "isMusicActive: couldn't get AudioManager reference");
+            return false;
+        }
+        return am.isFmActive();
+    }
+
     /**
      * Tell the audio service to adjust the volume appropriate to the event.
      * @param keycode
@@ -3518,23 +3527,25 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                         }
                     }
                 }
-                if (isMusicActive() && (result & ACTION_PASS_TO_USER) == 0) {
-                    if (mVolBtnMusicControls && down && (keyCode != KeyEvent.KEYCODE_VOLUME_MUTE)) {
-                        mIsLongPress = false;
-                        handleVolumeLongPress(keyCode);
-                        break;
-                    } else {
+
+                if ((result & ACTION_PASS_TO_USER) == 0) {
+                    if (isFmActive()) {
+                        handleVolumeKey(AudioManager.STREAM_FM, keyCode);
+                    } else if (isMusicActive()) {
                         if (mVolBtnMusicControls && !down) {
-                            handleVolumeLongPressAbort();
-                            if (mIsLongPress) {
-                                break;
-                            }
-                        }
-                        if (!isScreenOn && !mVolumeWakeScreen) {
+                            // initialize long press flag to false for volume events
+                            mIsLongPress = false;
+                            // if the button is held long enough, the following
+                            // procedure will set mIsLongPress=true
+                            handleVolumeLongPress(keyCode);
+                         } else {
+                            // If music is playing but we decided not to pass the key to the
+                            // application, handle the volume change here.
                             handleVolumeKey(AudioManager.STREAM_MUSIC, keyCode);
-                        }
+                         }
                     }
                 }
+
                 if (isScreenOn || !mVolumeWakeScreen) {
                     break;
                 } else if (keyguardActive) {

@@ -842,6 +842,7 @@
   <java-symbol type="string" name="twenty_four_hour_time_format" />
   <java-symbol type="string" name="upload_file" />
   <java-symbol type="string" name="volume_alarm" />
+  <java-symbol type="string" name="volume_fm" />
   <java-symbol type="string" name="volume_icon_description_bluetooth" />
   <java-symbol type="string" name="volume_icon_description_incall" />
   <java-symbol type="string" name="volume_icon_description_media" />
@@ -3666,8 +3667,9 @@
   <eat-comment />
 
   <!-- Config.xml entries -->
-  <java-symbol type="array" name="config_vendorServices" />
   <java-symbol type="string" name="config_legacyUmsLunFile" />
+  <java-symbol type="array" name="config_vendorServices" />
+  <java-symbol type="bool" name="config_fmSeparateVolumeControl" />
   <java-symbol type="bool" name="config_forceDisableHardwareKeyboard" />
   <java-symbol type="array" name="config_telephony_set_audioparameters" />
   <java-symbol type="bool" name="config_autoBrightnessButtonKeyboard" />
