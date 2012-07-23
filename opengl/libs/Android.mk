@@ -40,7 +40,17 @@ LOCAL_CFLAGS += -fvisibility=hidden
 LOCAL_CFLAGS += -DEGL_TRACE=1
 
 ifeq ($(TARGET_BOARD_PLATFORM),msm7k)
-LOCAL_CFLAGS += -DADRENO130=1
+  LOCAL_CFLAGS += -DADRENO130=1
+endif
+
+ifeq ($(TARGET_BOARD_PLATFORM), s5pc110)
+  # see Loader.cpp for details
+  LOCAL_CFLAGS += -DSYSTEMUI_PBSIZE_HACK=1
+endif
+
+ifeq ($(TARGET_BOARD_PLATFORM), omap3)
+  # see Loader.cpp for details
+  LOCAL_CFLAGS += -DSYSTEMUI_PBSIZE_HACK=1
 endif
 
 ifneq ($(MAX_EGL_CACHE_ENTRY_SIZE),)
