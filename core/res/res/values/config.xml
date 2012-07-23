@@ -916,6 +916,6 @@
     <!-- Device has a h/w rotation lock switch -->
     <bool name="config_hasRotationLockSwitch">false</bool>
 
-    <bool name="config_fmSeparateVolumeControl">true</bool>
+    <bool name="config_fmSeparateVolumeControl">false</bool>
 
 </resources>
