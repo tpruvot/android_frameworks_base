@@ -492,7 +492,6 @@ sp<AudioSystem::AudioPolicyServiceClient> AudioSystem::gAudioPolicyServiceClient
 // establish binder interface to AudioFlinger service
 const sp<IAudioPolicyService>& AudioSystem::get_audio_policy_service()
 {
-    int timeout = 10; // 5 sec (and then retry)
     gLock.lock();
     if (gAudioPolicyService.get() == 0) {
         sp<IServiceManager> sm = defaultServiceManager();
@@ -503,13 +502,7 @@ const sp<IAudioPolicyService>& AudioSystem::get_audio_policy_service()
                 break;
             LOGW("AudioPolicyService not published, waiting...");
             usleep(500000); // 0.5 s
-            timeout--;
-        } while(timeout);
-        if (timeout == 0) {
-            gLock.unlock();
-            LOGE("Unable to get AudioPolicyService singleton !");
-            return NULL;
-        }
+        } while(true);
         if (gAudioPolicyServiceClient == NULL) {
             gAudioPolicyServiceClient = new AudioPolicyServiceClient();
         }
