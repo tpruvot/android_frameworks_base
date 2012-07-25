@@ -226,7 +226,7 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
         15, // STREAM_BLUETOOTH_SCO
         7,  // STREAM_SYSTEM_ENFORCED
         15, // STREAM_DTMF
-        15,  // STREAM_TTS
+        15, // STREAM_TTS
         15  // STREAM_FM
     };
     /* mStreamVolumeAlias[] indicates for each stream if it uses the volume settings
@@ -247,7 +247,7 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
         AudioSystem.STREAM_BLUETOOTH_SCO,   // STREAM_BLUETOOTH_SCO
         AudioSystem.STREAM_RING,            // STREAM_SYSTEM_ENFORCED
         AudioSystem.STREAM_RING,            // STREAM_DTMF
-        AudioSystem.STREAM_MUSIC,          // STREAM_TTS
+        AudioSystem.STREAM_MUSIC,           // STREAM_TTS
         AudioSystem.STREAM_FM               // STREAM_FM
     };
     private final int[] STREAM_VOLUME_ALIAS_NON_VOICE = new int[] {
@@ -1377,8 +1377,8 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
 
     /** @see AudioManager#isFmActive() */
     public boolean isFmActive() {
-            return mFmActive;
-        }
+        return mFmActive;
+    }
 
     /** @see AudioManager#setMode(int) */
     public void setMode(int mode, IBinder cb) {
