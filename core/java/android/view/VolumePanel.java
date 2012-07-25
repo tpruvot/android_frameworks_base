@@ -156,7 +156,7 @@ public class VolumePanel extends Handler implements OnSeekBarChangeListener, Vie
                 R.string.volume_icon_description_media,
                 R.drawable.ic_audio_vol,
                 R.drawable.ic_audio_vol_mute,
-                true),       
+                true),
         FMStream(AudioManager.STREAM_FM,
                 R.string.volume_fm,
                 R.drawable.ic_audio_vol,
@@ -696,7 +696,7 @@ public class VolumePanel extends Handler implements OnSeekBarChangeListener, Vie
             }
 
             case AudioManager.STREAM_FM: {
-            // message = FM_VOLUME_TEXT; 
+            // message = FM_VOLUME_TEXT;
                 //TODO
                 setMusicIcon(R.drawable.ic_audio_vol, R.drawable.ic_audio_vol_mute);
            //  setSmallIcon(index);
