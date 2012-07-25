@@ -33,7 +33,7 @@
     <string name="global_action_reboot">Redémarrer</string>
     <string name="global_action_screenshot">Capture d\'écran</string>
     <string name="global_action_choose_profile">Profils</string>
- 
+
     <!-- Names of default profiles. -->
     <string name="profileNameDefault">Défaut</string>
     <string name="profileNameWork">Bureau</string>
