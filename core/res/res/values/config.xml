@@ -881,6 +881,9 @@
     <!-- Set to true to add links to Cell Broadcast app from Settings and MMS app. -->
     <bool name="config_cellBroadcastAppLinks">false</bool>
 
+    <!-- FM volume stream -->
+    <bool name="config_fmSeparateVolumeControl">true</bool>
+
     <!-- CM CHANGES START HERE -->
 
     <!-- LUN file to be used by legacy USB manager.
@@ -919,9 +922,7 @@
     <!-- Device has a h/w rotation lock switch -->
     <bool name="config_hasRotationLockSwitch">false</bool>
 
-    <!-- fm radio volume channel -->
-    <bool name="config_fmSeparateVolumeControl">false</bool>
-
     <!-- Asus dock compatibility disabled by default -->
     <bool name="config_hasDockBattery">false</bool>
+
 </resources>
