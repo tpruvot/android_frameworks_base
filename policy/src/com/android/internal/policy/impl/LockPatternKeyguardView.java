@@ -219,7 +219,9 @@ public class LockPatternKeyguardView extends KeyguardViewBase {
                 mode = Mode.LockScreen;
                 dismissAfterCreation = true;
             }
-            updateScreen(mode, true);
+            final boolean suspendRecreate = mUnlockScreen != null
+                    && ((KeyguardScreen) mUnlockScreen).suspendRecreate();
+            updateScreen(mode, !suspendRecreate);
             restoreWidgetState();
             if (dismissAfterCreation) {
                 mKeyguardScreenCallback.keyguardDone(false);
@@ -700,8 +702,7 @@ public class LockPatternKeyguardView extends KeyguardViewBase {
     protected void onConfigurationChanged(Configuration newConfig) {
         Resources resources = getResources();
         mShowLockBeforeUnlock = resources.getBoolean(R.bool.config_enableLockBeforeUnlockScreen) ||
-                        (Settings.Secure.getInt(mContext.getContentResolver(),
-                        Settings.Secure.LOCK_BEFORE_UNLOCK, 0) != 0);
+                mLockPatternUtils.getLockBeforeUnlock();;
         mConfiguration = newConfig;
         if (DEBUG_CONFIGURATION) Log.v(TAG, "**** re-creating lock screen since config changed");
         saveWidgetState();
@@ -1065,8 +1066,7 @@ public class LockPatternKeyguardView extends KeyguardViewBase {
         final IccCard.State simState = mUpdateMonitor.getSimState();
 
         mShowLockBeforeUnlock = mContext.getResources().getBoolean(R.bool.config_enableLockBeforeUnlockScreen) ||
-                        (Settings.Secure.getInt(mContext.getContentResolver(),
-                        Settings.Secure.LOCK_BEFORE_UNLOCK, 0) != 0);
+                mLockPatternUtils.getLockBeforeUnlock();
 
         if (stuckOnLockScreenBecauseSimMissing() ||
                 (simState == IccCard.State.PUK_REQUIRED &&
