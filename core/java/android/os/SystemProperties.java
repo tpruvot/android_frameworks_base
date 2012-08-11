@@ -36,6 +36,7 @@ public class SystemProperties
     // OMAP4 and OMAP3's OMAP_COMPAT
     public static final boolean OMAP_ENHANCEMENT = native_get_boolean("com.ti.omap_enhancement", false);
     public static final boolean OMAP_COMPAT = native_get_boolean("com.ti.omap_compat", false);
+    public static final boolean QCOM_HARDWARE = native_get_boolean("com.qc.hardware", false);
 
     private static final ArrayList<Runnable> sChangeCallbacks = new ArrayList<Runnable>();
 
