@@ -153,6 +153,8 @@ public class AudioService extends IAudioService.Stub {
     private static final int NUM_SOUNDPOOL_CHANNELS = 4;
     private static final int SOUND_EFFECT_VOLUME = 1000;
 
+    private static final String ACTION_FM_STATE_CHANGED = "com.android.media.intent.action.FM_STATE_CHANGED";
+
     /* Sound effect file names  */
     private static final String SOUND_EFFECTS_PATH = "/media/audio/ui/";
     private static final String[] SOUND_EFFECT_FILES = new String[] {
@@ -289,6 +291,9 @@ public class AudioService extends IAudioService.Stub {
 
     // Used to alter media button redirection when the phone is ringing.
     private boolean mIsRinging = false;
+
+    // FM Radio
+    private boolean mFmActive = false;
 
     // Devices currently connected
     private HashMap <Integer, String> mConnectedDevices = new HashMap <Integer, String>();
@@ -564,6 +569,11 @@ public class AudioService extends IAudioService.Stub {
     public void adjustStreamVolume(int streamType, int direction, int flags) {
         ensureValidDirection(direction);
         ensureValidStreamType(streamType);
+
+        if (streamType == AudioManager.STREAM_FM && !mFmActive) {
+            Log.d(TAG, "Got request to adjust inactive FM stream, ignoring.");
+            return;
+        }
 
         // use stream type alias here so that streams with same alias have the same behavior,
         // including with regard to silent mode control (e.g the use of STREAM_RING below and in
@@ -891,6 +901,11 @@ public class AudioService extends IAudioService.Stub {
         public IBinder getBinder() {
             return mCb;
         }
+    }
+
+    /** @see AudioManager#isFmActive() */
+    public boolean isFmActive() {
+        return mFmActive;
     }
 
     /** @see AudioManager#setMode(int) */
@@ -2804,6 +2819,8 @@ public class AudioService extends IAudioService.Stub {
                     adapter.getProfileProxy(mContext, mBluetoothProfileServiceListener,
                                             BluetoothProfile.A2DP);
                 }
+            } else if (action.equals(ACTION_FM_STATE_CHANGED)) {
+                mFmActive = intent.getBooleanExtra("active", false);
             } else if (action.equals(Intent.ACTION_PACKAGE_REMOVED)) {
                 if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
                     // a package is being removed, not replaced

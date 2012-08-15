@@ -1636,6 +1636,22 @@ public class AudioManager {
     }
 
     /**
+     * Checked whether FM radio is active.
+     *
+     * @return true if FM radio is active
+     * @hide
+     */
+    public boolean isFmActive() {
+        IAudioService service = getService();
+        try {
+            return service.isFmActive();
+        } catch (RemoteException e) {
+            Log.e(TAG, "Dead object in isFmActive", e);
+        }
+        return false;
+    }
+
+    /**
      * @hide
      * Registers a listener to be called when audio focus changes. Calling this method is optional
      * before calling {@link #requestAudioFocus(OnAudioFocusChangeListener, int, int)}, as it
