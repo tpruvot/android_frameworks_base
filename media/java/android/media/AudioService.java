@@ -407,6 +407,7 @@ public class AudioService extends IAudioService.Stub {
         intentFilter.addAction(Intent.ACTION_BOOT_COMPLETED);
         intentFilter.addAction(Intent.ACTION_SCREEN_ON);
         intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
+        intentFilter.addAction(ACTION_FM_STATE_CHANGED);
         context.registerReceiver(mReceiver, intentFilter);
 
         // Register for package removal intent broadcasts for media button receiver persistence
