@@ -58,7 +58,7 @@ import java.util.Arrays;
 public class LegacyUsbDeviceManager extends UsbDeviceManager {
 
     private static final String TAG = LegacyUsbDeviceManager.class.getSimpleName();
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private static final String USB_CONNECTED_MATCH =
             "DEVPATH=/devices/virtual/switch/usb_connected";
