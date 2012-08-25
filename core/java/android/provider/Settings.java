@@ -802,6 +802,8 @@ public final class Settings {
             MOVED_TO_SECURE.add(Secure.LOCK_BIOMETRIC_WEAK_FLAGS);
             MOVED_TO_SECURE.add(Secure.LOCK_PATTERN_ENABLED);
             MOVED_TO_SECURE.add(Secure.LOCK_PATTERN_VISIBLE);
+            MOVED_TO_SECURE.add(Secure.LOCK_SHOW_ERROR_PATH);
+            MOVED_TO_SECURE.add(Secure.LOCK_DOTS_VISIBLE);
             MOVED_TO_SECURE.add(Secure.LOCK_PATTERN_TACTILE_FEEDBACK_ENABLED);
             MOVED_TO_SECURE.add(Secure.LOGGING_ID);
             MOVED_TO_SECURE.add(Secure.PARENTAL_CONTROL_ENABLED);
@@ -2236,6 +2238,12 @@ public final class Settings {
         public static final String LOCKSCREEN_DISABLED = "lockscreen.disabled";
 
         /**
+         * Whether the lockscreen vibrate should be enabled.
+         * @hide
+         */
+        public static final String LOCKSCREEN_VIBRATE_ENABLED = "lockscreen.vibrate_enabled";
+
+        /**
          * Stores values for custom lockscreen targets
          * @hide
          */
@@ -2377,6 +2385,7 @@ public final class Settings {
         public static final String WIDGET_BUTTONS_TABLET = "expanded_widget_buttons_tablet";
 
         /**
+
          * Navigation controls to Use
          *
          * @hide
@@ -2688,10 +2697,22 @@ public final class Settings {
         public static final String SYSTEM_PROFILES_ENABLED = "system_profiles_enabled";
 
         /**
+         * Whether the power menu reboot menu is enabled
+         * @hide
+         */
+        public static final String POWER_MENU_REBOOT_ENABLED = "power_menu_reboot_enabled";
+
+        /**
          * Whether power menu screenshot is enabled
          * @hide
          */
         public static final String POWER_MENU_SCREENSHOT_ENABLED = "power_menu_screenshot_enabled";
+
+        /**
+         * Whether power menu profiles switcher is enabled
+         * @hide
+         */
+        public static final String POWER_MENU_PROFILES_ENABLED = "power_menu_profiles_enabled";
 
         /**
          * Whether to enable custom rebindings of the actions performed on
@@ -2849,6 +2870,9 @@ public final class Settings {
             LOCKSCREEN_ALWAYS_SHOW_BATTERY,
             SYSTEM_PROFILES_ENABLED,
             POWER_MENU_SCREENSHOT_ENABLED,
+            POWER_MENU_REBOOT_ENABLED,
+            POWER_MENU_PROFILES_ENABLED,
+            LOCKSCREEN_VIBRATE_ENABLED,
         };
 
         // Settings moved to Settings.Secure
@@ -3102,6 +3126,8 @@ public final class Settings {
             MOVED_TO_LOCK_SETTINGS = new HashSet<String>(3);
             MOVED_TO_LOCK_SETTINGS.add(Secure.LOCK_PATTERN_ENABLED);
             MOVED_TO_LOCK_SETTINGS.add(Secure.LOCK_PATTERN_VISIBLE);
+            MOVED_TO_LOCK_SETTINGS.add(Secure.LOCK_SHOW_ERROR_PATH);
+            MOVED_TO_LOCK_SETTINGS.add(Secure.LOCK_DOTS_VISIBLE);
             MOVED_TO_LOCK_SETTINGS.add(Secure.LOCK_PATTERN_TACTILE_FEEDBACK_ENABLED);
             MOVED_TO_LOCK_SETTINGS.add(Secure.LOCK_BEFORE_UNLOCK);
         }
@@ -3576,6 +3602,18 @@ public final class Settings {
             "lock_pattern_tactile_feedback_enabled";
 
         /**
+         * Whether lock pattern will show dots (0 = false, 1 = true)
+         * @hide
+         */
+        public static final String LOCK_DOTS_VISIBLE = "lock_pattern_dotsvisible";
+
+        /**
+         * Whether lockscreen error pattern is visible (0 = false, 1 = true)
+         * @hide
+         */
+        public static final String LOCK_SHOW_ERROR_PATH = "lock_pattern_show_error_path";
+
+        /**
          * This preference allows the device to be locked given time after screen goes off,
          * subject to current DeviceAdmin policy limits.
          * @hide
@@ -3617,6 +3655,11 @@ public final class Settings {
          */
         public static final String ASSISTED_GPS_ENABLED = "assisted_gps_enabled";
 
+        /**
+         * External GPS source/device
+         * @hide
+         */
+        public static final String EXTERNAL_GPS_BT_DEVICE = "0";
         /**
          * The Logging ID (a unique 64-bit value) as a hex string.
          * Used as a pseudonymous identifier for logging.
