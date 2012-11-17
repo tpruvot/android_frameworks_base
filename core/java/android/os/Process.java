@@ -110,6 +110,12 @@ public class Process {
     public static final int MEDIA_RW_GID = 1023;
 
     /**
+     * Defines the UID/GID for the SmartCard service process.
+     * @hide
+     */
+    public static final int SMARTCARD_UID = 1028;
+
+    /**
      * Defines the start of a range of UIDs (and GIDs), going from this
      * number to {@link #LAST_APPLICATION_UID} that are reserved for assigning
      * to applications.
