@@ -85,11 +85,13 @@ public class WifiConfiguration implements Parcelable {
     public EnterpriseField private_key = new EnterpriseField("private_key");
     /** {@hide} */
     public EnterpriseField ca_cert = new EnterpriseField("ca_cert");
+    /** {@hide} */
+    public EnterpriseField pcsc = new EnterpriseField("pcsc");
 
     /** {@hide} */
     public EnterpriseField[] enterpriseFields = {
             eap, phase2, identity, anonymous_identity, password, client_cert,
-            private_key, ca_cert };
+            private_key, ca_cert, pcsc };
 
     /**
      * Recognized key management schemes.
