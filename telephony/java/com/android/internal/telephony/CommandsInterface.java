@@ -1137,6 +1137,25 @@ public interface CommandsInterface {
             String data, String pin2, Message response);
 
     /**
+     * EAP SIM
+     * @hide
+     */
+    void iccExchangeAPDU(int cla, int command, int channel, int p1, int p2,
+            int p3, String data, Message response);
+
+   /**
+     * EAP SIM
+     * @hide
+     */
+    void iccOpenChannel(String AID, Message response);
+
+   /**
+     * EAP SIM
+     * @hide
+     */
+    void iccCloseChannel(int channel, Message response);
+
+    /**
      * (AsyncResult)response.obj).result is an int[] with element [0] set to
      * 1 for "CLIP is provisioned", and 0 for "CLIP is not provisioned".
      *

@@ -102,6 +102,9 @@ public abstract class IccCard {
     private static final int EVENT_ICC_STATUS_CHANGED = 12;
     private static final int EVENT_CARD_REMOVED = 13;
     private static final int EVENT_CARD_ADDED = 14;
+    private static final int EVENT_EXCHANGE_APDU_DONE = 15;
+    private static final int EVENT_OPEN_CHANNEL_DONE = 16;
+    private static final int EVENT_CLOSE_CHANNEL_DONE = 17;
 
     /*
       UNKNOWN is a transient state, for example, after uesr inputs ICC pin under
@@ -683,6 +686,18 @@ public abstract class IccCard {
                 case EVENT_CARD_ADDED:
                     onIccSwap(true);
                     break;
+                case EVENT_EXCHANGE_APDU_DONE:
+                case EVENT_OPEN_CHANNEL_DONE:
+                case EVENT_CLOSE_CHANNEL_DONE:
+                    ar = (AsyncResult)msg.obj;
+                    if(ar.exception != null) {
+                        Log.e(mLogTag, "Error in SIM access with exception"
+                            + ar.exception);
+                    }
+                    AsyncResult.forMessage(((Message)ar.userObj),
+                            ar.result, ar.exception);
+                    ((Message)ar.userObj).sendToTarget();
+                    break;
                 default:
                     Log.e(mLogTag, "[IccCard] Unknown Event " + msg.what);
             }
@@ -829,5 +844,27 @@ public abstract class IccCard {
 
     private void log(String msg) {
         Log.d(mLogTag, "[IccCard] " + msg);
+    }
+
+    /**
+     * EAP SIM
+     * @hide
+     */
+    public void exchangeAPDU(int cla, int command, int channel, int p1, int p2,
+            int p3, String data, Message onComplete) {
+        mPhone.mCM.iccExchangeAPDU(cla, command, channel, p1, p2, p3, data,
+                mHandler.obtainMessage(EVENT_EXCHANGE_APDU_DONE, onComplete));
+    }
+
+    /* @hide */
+    public void openLogicalChannel(String AID, Message onComplete) {
+        mPhone.mCM.iccOpenChannel(AID,
+                mHandler.obtainMessage(EVENT_OPEN_CHANNEL_DONE, onComplete));
+    }
+
+    /* @hide */
+    public void closeLogicalChannel(int channel, Message onComplete) {
+        mPhone.mCM.iccCloseChannel(channel,
+                mHandler.obtainMessage(EVENT_CLOSE_CHANNEL_DONE, onComplete));
     }
 }

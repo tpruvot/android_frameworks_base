@@ -620,4 +620,17 @@ class UsimDataDownloadCommands extends BaseCommands {
     @Override
     public void unSetOnCatSendSmsResult(Handler h) {
     }
+
+    @Override
+    public void iccExchangeAPDU (int cla, int command, int channel, int p1,
+                         int p2, int p3, String data, Message response) {
+    }
+
+    @Override
+    public void iccOpenChannel(String AID, Message response) {
+    }
+
+    @Override
+    public void iccCloseChannel(int channel, Message response) {
+    }
 }
