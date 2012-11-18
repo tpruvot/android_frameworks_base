@@ -23,6 +23,14 @@ public class CatResponseMessage {
         String usersInput  = null;
         boolean usersYesNoSelection = false;
         boolean usersConfirm = false;
+        String envelopeCmd = null;
+        byte[] channelData = null;
+        int channelDataLength = 0;
+        int[] channelStatus = null;
+
+        public CatResponseMessage(String envCmd) {
+            this.envelopeCmd = envCmd;
+        }
 
         public CatResponseMessage(CatCmdMessage cmdMsg) {
             this.cmdDet = cmdMsg.mCmdDet;
@@ -46,6 +54,15 @@ public class CatResponseMessage {
 
         public void setConfirmation(boolean confirm) {
             usersConfirm = confirm;
+        }
+
+        public void setChannelData(byte[] data, int len) {
+            this.channelData = data;
+            this.channelDataLength = len;
+        }
+
+        public void setChannelStatus(int[] status) {
+            this.channelStatus = status;
         }
 
         CommandDetails getCmdDetails() {

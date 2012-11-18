@@ -28,6 +28,8 @@ import com.android.internal.telephony.cat.AppInterface.CommandType;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 
+import android.util.Log;
+
 abstract class ResponseData {
     /**
      * Format the data appropriate for TERMINAL RESPONSE and write it into
@@ -277,5 +279,130 @@ class DTTZResponseData extends ResponseData {
          return isNegative ?  (bcdVal |= 0x08) : bcdVal;
     }
 
+}
+
+class OpenChannelResponseData extends ResponseData {
+    // members
+    private int bufSize;
+    private Integer channelStatus;
+    private BearerDescription bearer;
+
+    public OpenChannelResponseData(int bufSize, Integer channelStatus, BearerDescription bearer) {
+        super();
+        this.bufSize = bufSize;
+        this.channelStatus = channelStatus;
+        this.bearer = bearer;
+    }
+
+    @Override
+    public void format(ByteArrayOutputStream buf) {
+        // Item identifier object
+        int tag;
+        if (channelStatus != null) {
+            tag = ComprehensionTlvTag.CHANNEL_STATUS.value();
+            buf.write(tag);
+            buf.write(2);
+            buf.write((channelStatus >> 8) & 0xff);
+            buf.write(channelStatus & 0xff);
+        }
+
+        if (bearer != null) {
+            tag = ComprehensionTlvTag.BEARER_DESC.value();
+            buf.write(tag);
+            int len = 1;
+            if (bearer.parameters != null) {
+                len += bearer.parameters.length;
+                buf.write(len);
+                buf.write(bearer.type.value() & 0xff);
+                buf.write(bearer.parameters, 0, bearer.parameters.length);
+            } else {
+
+                buf.write(len);
+                buf.write(bearer.type.value() & 0xff);
+            }
+        }
+
+        tag = ComprehensionTlvTag.BUFFER_SIZE.value();
+        buf.write(tag);
+        buf.write(2);
+        buf.write((bufSize >> 8) & 0xff);
+        buf.write(bufSize & 0xff);
+    }
+}
+
+class ReceiveDataResponseData extends ResponseData {
+    // members
+    private byte[] mData = null;
+    private int mLength = 0;
+
+    public ReceiveDataResponseData(byte[] data, int len) {
+        super();
+        mData = data;
+        mLength = len;
+    }
+
+    @Override
+    public void format(ByteArrayOutputStream buf) {
+        int tag = 0x80 | ComprehensionTlvTag.CHANNEL_DATA.value();
+        // write CHANNEL DATA TLV only if data are available.
+        if (mData != null) {
+            buf.write(tag);
+            if (mData.length > 0x7f)
+                buf.write(0x81);
+            buf.write(mData.length & 0xff);
+
+            for (byte b : mData) {
+                buf.write(b);
+            }
+        }
+
+        tag = 0x80 | ComprehensionTlvTag.CHANNEL_DATA_LENGTH.value();
+        buf.write(tag);
+        buf.write(1);
+        buf.write(mLength & 0xff);
+    }
+}
+
+class SendDataResponseData extends ResponseData {
+    // members
+    private int mLength = 0;
+
+    public SendDataResponseData(int len) {
+        super();
+        mLength = len;
+    }
+
+    @Override
+    public void format(ByteArrayOutputStream buf) {
+        int tag = ComprehensionTlvTag.CHANNEL_DATA_LENGTH.value();
+        buf.write(tag);
+        buf.write(1);
+        buf.write(mLength & 0xff);
+    }
+}
+
+class ChannelStatusResponseData extends ResponseData {
+    // members
+    private int[] channelStatus;
+
+    public ChannelStatusResponseData(int[] channelStatus) {
+        super();
+        this.channelStatus = channelStatus;
+    }
+
+    @Override
+    public void format(ByteArrayOutputStream buf) {
+        if (channelStatus != null) {
+            int tag = ComprehensionTlvTag.CHANNEL_STATUS.value();
+            for (int status : channelStatus) {
+                if (status > 0) {
+                    buf.write(tag);
+                    buf.write(2);
+                    buf.write((status >> 8) & 0xff);
+                    buf.write(status & 0xff);
+                }
+            }
+        }
+    }
 }
 

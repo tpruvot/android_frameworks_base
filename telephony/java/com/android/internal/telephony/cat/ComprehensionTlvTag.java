@@ -46,6 +46,14 @@ public enum ComprehensionTlvTag {
     LANGUAGE(0x2d),
     URL(0x31),
     BROWSER_TERMINATION_CAUSE(0x34),
+    BEARER_DESC(0x35),
+    CHANNEL_DATA(0x36),
+    CHANNEL_DATA_LENGTH(0x37),
+    CHANNEL_STATUS(0x38),
+    BUFFER_SIZE(0x39),
+    IF_TRANS_LEVEL(0x3c),
+    OTHER_ADDRESS(0x3e),
+    NETWORK_ACCESS_NAME(0x47),
     TEXT_ATTRIBUTE(0x50);
 
     private int mValue;

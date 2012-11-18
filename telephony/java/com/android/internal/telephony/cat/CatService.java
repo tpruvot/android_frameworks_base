@@ -20,6 +20,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.NetworkUtils;
 import android.os.AsyncResult;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -34,9 +37,17 @@ import com.android.internal.telephony.IccFileHandler;
 import com.android.internal.telephony.IccRecords;
 import com.android.internal.telephony.IccSmsInterfaceManager;
 
+import com.android.internal.telephony.cat.BearerDescription.BearerType;
+import com.android.internal.telephony.cat.Duration.TimeUnit;
+import com.android.internal.telephony.cat.InterfaceTransportLevel.TransportProtocol;
+import com.android.internal.telephony.cat.CatCmdMessage.ChannelSettings;
+import com.android.internal.telephony.cat.CatCmdMessage.DataSettings;
+
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Locale;
+
+import android.util.Log;
 
 class RilMessage {
     int mId;
@@ -81,6 +92,9 @@ public class CatService extends Handler implements AppInterface {
     private RilMessageDecoder mMsgDecoder = null;
     private boolean mStkAppInstalled = false;
 
+    private byte[] mEventList = null;
+    private BipProxy mBipProxy = null;
+
     // Service constants.
     static final int MSG_ID_SESSION_END              = 1;
     static final int MSG_ID_PROACTIVE_COMMAND        = 2;
@@ -104,7 +118,7 @@ public class CatService extends Handler implements AppInterface {
     private static final int DEV_ID_TERMINAL    = 0x82;
     private static final int DEV_ID_NETWORK     = 0x83;
 
-    static final String STK_DEFAULT = "Defualt Message";
+    static final String STK_DEFAULT = "Default Message";
 
     // Sms send result constants.
     static final int SMS_SEND_OK = 0;
@@ -248,6 +262,11 @@ public class CatService extends Handler implements AppInterface {
                 }
                 break;
             case REFRESH:
+                // Invalidate event list if the SIM resets
+                if (cmdParams.cmdDet.commandQualifier
+                        == CommandParamsFactory.REFRESH_UICC_RESET) {
+                    mEventList = null;
+                }
                 // ME side only handles refresh commands which meant to remove IDLE
                 // MODE TEXT.
                 cmdParams.cmdDet.typeOfCommand = CommandType.SET_UP_IDLE_MODE_TEXT.value();
@@ -314,6 +333,7 @@ public class CatService extends Handler implements AppInterface {
                     ((CallSetupParams) cmdParams).confirmMsg.text = message.toString();
                 }
                 break;
+/*
             case OPEN_CHANNEL:
             case CLOSE_CHANNEL:
             case RECEIVE_DATA:
@@ -337,12 +357,14 @@ public class CatService extends Handler implements AppInterface {
                         return;
                     }
                 }
+*/
                 /*
                  * CLOSE_CHANNEL, RECEIVE_DATA and SEND_DATA can be delivered by
                  * either PROACTIVE_COMMAND or EVENT_NOTIFY.
                  * If PROACTIVE_COMMAND is used for those commands, send terminal
                  * response here.
                  */
+/*
                 if (isProactiveCmd &&
                     ((cmdParams.getCommandType() == CommandType.CLOSE_CHANNEL) ||
                      (cmdParams.getCommandType() == CommandType.RECEIVE_DATA) ||
@@ -350,6 +372,55 @@ public class CatService extends Handler implements AppInterface {
                     sendTerminalResponse(cmdParams.cmdDet, ResultCode.OK, false, 0, null);
                 }
                 break;
+*/
+            case SET_UP_EVENT_LIST:
+                // Store eventlist
+                mCurrntCmd = cmdMsg;
+                mEventList = mCurrntCmd.getEventList();
+
+                /*
+                if (mEventList != null) {
+                    for (byte b : mEventList) {
+                            CatLog.d( this, "Registered Event: " + b );
+                    }
+                } else {
+                    CatLog.d( this, "WARNING: No Event in event list!" );
+                }
+                */
+
+               // TR should NOT be sent here, TR is sent by baseband!
+               sendTerminalResponse(cmdParams.cmdDet, ResultCode.OK, false, 0, null);
+               return;
+
+            case OPEN_CHANNEL:
+                ChannelSettings newChannel = cmdMsg.getChannelSettings();
+                if (newChannel == null) {
+                    // Send TR cmd data not understood
+                    sendTerminalResponse(cmdParams.cmdDet, ResultCode.CMD_DATA_NOT_UNDERSTOOD, false, 0, null);
+                     return;
+                }
+
+                // Check if BipProxy can handle more channels
+                if (!mBipProxy.canHandleNewChannel()) {
+                    ResponseData chanResp = new OpenChannelResponseData(
+                            newChannel.bufSize, null, newChannel.bearerDescription);
+                    sendTerminalResponse(cmdParams.cmdDet, ResultCode.BIP_ERROR, true, 0x01, chanResp);
+                    return;
+                }
+
+                // Check if user confirmation is needed
+                if (cmdMsg.geTextMessage() != null && cmdMsg.geTextMessage().responseNeeded) {
+                    break;
+                }
+
+            // fall through
+            case CLOSE_CHANNEL:
+            case RECEIVE_DATA:
+            case SEND_DATA:
+            case GET_CHANNEL_STATUS:
+                mCurrntCmd = cmdMsg;
+                mBipProxy.handleBipCommand(cmdMsg);
+                return;
             default:
                 CatLog.d(this, "Unsupported command");
                 return;
@@ -370,9 +441,11 @@ public class CatService extends Handler implements AppInterface {
         mCurrntCmd = mMenuCmd;
         Intent intent = new Intent(AppInterface.CAT_SESSION_END_ACTION);
         mContext.sendBroadcast(intent);
+
+        mBipProxy.handleBipCommand(null);
     }
 
-    private void sendTerminalResponse(CommandDetails cmdDet,
+    protected void sendTerminalResponse(CommandDetails cmdDet,
             ResultCode resultCode, boolean includeAdditionalInfo,
             int additionalInfo, ResponseData resp) {
 
@@ -532,8 +605,32 @@ public class CatService extends Handler implements AppInterface {
         mCmdIf.sendEnvelope(hexString, null);
     }
 
-    private void eventDownload(int event, int sourceId, int destinationId,
+    public void onEventDownload(CatEventMessage eventMsg) {
+        CatLog.d(this, "Download event: " + eventMsg.getEvent() );
+        eventDownload(eventMsg.getEvent(),
+                      eventMsg.getSourceId(),
+                      eventMsg.getDestId(),
+                      eventMsg.getAdditionalInfo(),
+                      eventMsg.isOneShot() );
+    }
+
+    protected void eventDownload(int event, int sourceId, int destinationId,
             byte[] additionalInfo, boolean oneShot) {
+
+        // Check if the SIM have subscribed to this event using setup eventlist
+        boolean allowed = false;
+        if (mEventList != null) {
+            for (byte b : mEventList) {
+                if (b == (byte)event) {
+                    allowed = true;
+                    break;
+                }
+            }
+        }
+        if (!allowed) {
+            CatLog.d(this, "(U)SIM has not subscribed for event: " + event );
+            return;
+        }
 
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
 
@@ -655,6 +752,7 @@ public class CatService extends Handler implements AppInterface {
             break;
         case MSG_ID_SIM_READY:
             CatLog.d(this, "SIM ready. Reporting STK service running now...");
+            mBipProxy = new BipProxy(this, mCmdIf, mContext);
             mCmdIf.reportStkServiceIsRunning(null);
             break;
         // Samsung ril sms send handling part
@@ -759,12 +857,18 @@ public class CatService extends Handler implements AppInterface {
         // (long press on the home button). Relaunching that activity can send
         // the same command's result again to the CatService and can cause it to
         // get out of sync with the SIM.
+        if ((resMsg != null) && (resMsg.envelopeCmd != null)) {
+            mCmdIf.sendEnvelope(resMsg.envelopeCmd, null);
+            return;
+        }
         if (!validateResponse(resMsg)) {
             return;
         }
         ResponseData resp = null;
         boolean helpRequired = false;
         CommandDetails cmdDet = resMsg.getCmdDetails();
+        boolean includeAdditionalInfo = false;
+        int additionalInfo = 0;
 
         switch (resMsg.resCode) {
         case HELP_INFO_REQUIRED:
@@ -813,18 +917,39 @@ public class CatService extends Handler implements AppInterface {
                 // invoked by the CommandInterface call above.
                 mCurrntCmd = null;
                 return;
+            case OPEN_CHANNEL:
+                if (resMsg.resCode == ResultCode.OK && resMsg.usersConfirm) {
+                    // user has accepted OPEN CHANNEL
+                    mBipProxy.handleBipCommand(mCurrntCmd);
+                    return;
+                }
+                break;
             }
             break;
         case NO_RESPONSE_FROM_USER:
         case UICC_SESSION_TERM_BY_USER:
         case BACKWARD_MOVE_BY_USER:
         case USER_NOT_ACCEPT:
-            resp = null;
+            switch (AppInterface.CommandType.fromInt(cmdDet.typeOfCommand)) {
+                case OPEN_CHANNEL:
+                    if( !resMsg.usersConfirm &&
+                        mCurrntCmd.geTextMessage().responseNeeded) {
+                        // user has OPEN CHANNEL rejected
+                        ChannelSettings params = mCurrntCmd.getChannelSettings();
+                        resMsg.resCode = ResultCode.USER_NOT_ACCEPT;
+                        resp = new OpenChannelResponseData(params.bufSize,
+                                null, params.bearerDescription);
+                    }
+                    break;
+                default:
+                    resp = null;
+                    break;
+            }
             break;
         default:
             return;
         }
-        sendTerminalResponse(cmdDet, resMsg.resCode, false, 0, resp);
+        sendTerminalResponse(cmdDet, resMsg.resCode, includeAdditionalInfo, additionalInfo, resp);
         mCurrntCmd = null;
     }
 

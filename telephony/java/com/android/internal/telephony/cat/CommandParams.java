@@ -203,3 +203,80 @@ class SendSMSParams extends DisplayTextParams {
         pdu = smsPdu;
     }
 }
+
+/*
+ * New BIP commands
+ */
+class EventListParams extends CommandParams {
+    byte[] eventList = null;
+
+    EventListParams(CommandDetails cmdDet, byte[] eventList) {
+        super(cmdDet);
+        this.eventList = eventList;
+    }
+}
+
+class OpenChannelParams extends CommandParams {
+    TextMessage confirmMsg = null;
+    int bufSize = 0;
+    InterfaceTransportLevel itl = null;
+    byte[] destinationAddress = null;
+    BearerDescription bearerDescription = null;
+    String networkAccessName = null;
+    String userLogin = null;
+    String userPassword = null;
+
+    OpenChannelParams(CommandDetails cmdDet, TextMessage confirmMsg,
+            int bufSize, InterfaceTransportLevel itl, byte[] destinationAddress,
+            BearerDescription bearerDescription, String networkAccessName,
+            String userLogin, String userPassword) {
+        super(cmdDet);
+        this.confirmMsg = confirmMsg;
+        this.bufSize = bufSize;
+        this.itl = itl;
+        this.destinationAddress = destinationAddress;
+        this.bearerDescription = bearerDescription;
+        this.networkAccessName = networkAccessName;
+        this.userLogin = userLogin;
+        this.userPassword = userPassword;
+    }
+}
+
+class CloseChannelParams extends CommandParams {
+    int channel = 0;
+
+    CloseChannelParams(CommandDetails cmdDet, int channel) {
+        super(cmdDet);
+        this.channel = channel;
+    }
+}
+ 
+class ReceiveDataParams extends CommandParams {
+    int datLen = 0;
+    int channel = 0;
+
+    ReceiveDataParams(CommandDetails cmdDet, int channel, int datLen) {
+        super(cmdDet);
+        this.channel = channel;
+        this.datLen = datLen;
+    }
+}
+
+class SendDataParams extends CommandParams {
+    byte[] data = null;
+    int channel = 0;
+
+    SendDataParams(CommandDetails cmdDet, int channel, byte[] data) {
+        super(cmdDet);
+        this.channel = channel;
+        this.data = data;
+    }
+}
+
+class GetChannelStatusParams extends CommandParams {
+
+    GetChannelStatusParams(CommandDetails cmdDet) {
+        super(cmdDet);
+    }
+}
+
