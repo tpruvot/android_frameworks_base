@@ -28,7 +28,7 @@ ifeq ($(TARGET_SIMULATOR),true)
 LOCAL_CFLAGS += -DSINGLE_PROCESS
 endif
 
-LOCAL_SHARED_LIBRARIES:= libui libseccameraadaptor
+LOCAL_SHARED_LIBRARIES:= libui
 
 ifeq ($(BOARD_USE_CAF_LIBCAMERA_GB_REL),true)
 LOCAL_CFLAGS += -DCAF_CAMERA_GB_REL
@@ -67,7 +67,6 @@ endif
 
 ifeq ($(USE_CAMERA_STUB), true)
 LOCAL_STATIC_LIBRARIES += libcamerastub
-LOCAL_SHARED_LIBRARIES += libcamera libseccameraadaptor
 else
 LOCAL_SHARED_LIBRARIES += libcamera 
 endif

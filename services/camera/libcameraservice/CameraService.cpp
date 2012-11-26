@@ -52,7 +52,7 @@ namespace android {
 // ----------------------------------------------------------------------------
 // Logging support -- this is for debugging only
 // Use "adb shell dumpsys media.camera -v 1" to change it.
-static volatile int32_t gLogLevel = 1;
+static volatile int32_t gLogLevel = 0;
 
 #define LOG1(...) LOGD_IF(gLogLevel >= 1, __VA_ARGS__);
 #define LOG2(...) LOGD_IF(gLogLevel >= 2, __VA_ARGS__);
