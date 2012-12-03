@@ -362,6 +362,14 @@ static jboolean android_net_wifi_stopDriverCommand(JNIEnv* env, jobject)
     The  SETSUSPENDOPT driver command overrides the filtering rules
 */
 
+static jboolean android_net_wifi_initRxFilters(JNIEnv* env, jobject)
+{
+    return doBooleanCommand("OK", "DRIVER RXFILTER-ADD 0")
+            && doBooleanCommand("OK", "DRIVER RXFILTER-ADD 1")
+            && doBooleanCommand("OK", "DRIVER RXFILTER-ADD 2")
+            && doBooleanCommand("OK", "DRIVER RXFILTER-START");
+}
+
 static jboolean android_net_wifi_startMultiV4Filtering(JNIEnv* env, jobject)
 {
     return doBooleanCommand("OK", "DRIVER RXFILTER-STOP")
@@ -371,7 +379,8 @@ static jboolean android_net_wifi_startMultiV4Filtering(JNIEnv* env, jobject)
 
 static jboolean android_net_wifi_stopMultiV4Filtering(JNIEnv* env, jobject)
 {
-    return doBooleanCommand("OK", "DRIVER RXFILTER-ADD 2")
+    return doBooleanCommand("OK", "DRIVER RXFILTER-STOP")
+            && doBooleanCommand("OK", "DRIVER RXFILTER-ADD 2")
             && doBooleanCommand("OK", "DRIVER RXFILTER-START");
 }
 
@@ -384,8 +393,9 @@ static jboolean android_net_wifi_startMultiV6Filtering(JNIEnv* env, jobject)
 
 static jboolean android_net_wifi_stopMultiV6Filtering(JNIEnv* env, jobject)
 {
-    return doBooleanCommand("OK", "DRIVER RXFILTER-ADD 3")
-        && doBooleanCommand("OK", "DRIVER RXFILTER-START");
+    return doBooleanCommand("OK", "DRIVER RXFILTER-STOP")
+            && doBooleanCommand("OK", "DRIVER RXFILTER-ADD 3")
+            && doBooleanCommand("OK", "DRIVER RXFILTER-START");
 }
 
 
@@ -608,6 +618,7 @@ static JNINativeMethod gWifiMethods[] = {
     { "setScanModeCommand", "(Z)Z", (void*) android_net_wifi_setScanModeCommand },
     { "startDriverCommand", "()Z", (void*) android_net_wifi_startDriverCommand },
     { "stopDriverCommand", "()Z", (void*) android_net_wifi_stopDriverCommand },
+    { "initializeRxFilters", "()Z", (void*) android_net_wifi_initRxFilters},
     { "startFilteringMulticastV4Packets", "()Z", (void*) android_net_wifi_startMultiV4Filtering},
     { "stopFilteringMulticastV4Packets", "()Z", (void*) android_net_wifi_stopMultiV4Filtering},
     { "startFilteringMulticastV6Packets", "()Z", (void*) android_net_wifi_startMultiV6Filtering},

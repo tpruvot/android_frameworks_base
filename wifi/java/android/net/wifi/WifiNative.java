@@ -120,6 +120,7 @@ public class WifiNative {
 
     public native static boolean stopDriverCommand();
 
+    public native static boolean initializeRxFilters();
 
     /**
      * Start filtering out Multicast V4 packets
