@@ -1875,6 +1875,12 @@ public final class Settings {
          */
         public static final String VOLUME_BLUETOOTH_SCO = "volume_bluetooth_sco";
 
+        /* @hide */
+        public static final String VOLUME_NA = "volume_na";
+
+        /* @hide */
+        public static final String VOLUME_FM = "volume_fm";
+
         /**
          * Whether to prevent loud volume levels when headset is first plugged in.
          * @hide
@@ -1955,7 +1961,8 @@ public final class Settings {
          */
         public static final String[] VOLUME_SETTINGS = {
             VOLUME_VOICE, VOLUME_SYSTEM, VOLUME_RING, VOLUME_MUSIC,
-            VOLUME_ALARM, VOLUME_NOTIFICATION, VOLUME_BLUETOOTH_SCO
+            VOLUME_ALARM, VOLUME_NOTIFICATION, VOLUME_BLUETOOTH_SCO,
+            VOLUME_NA, VOLUME_NA, VOLUME_NA, VOLUME_FM
         };
 
         /**

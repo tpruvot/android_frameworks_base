@@ -3769,6 +3769,18 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
 
     /**
+     * @hide
+     */
+    boolean isFmActive() {
+        final AudioManager am = (AudioManager)mContext.getSystemService(Context.AUDIO_SERVICE);
+        if (am == null) {
+            Log.w(TAG, "isFmActive: couldn't get AudioManager reference");
+            return false;
+        }
+        return am.isFmActive();
+    }
+
+    /**
      * Tell the audio service to adjust the volume appropriate to the event.
      * @param keycode
      */
@@ -4044,6 +4056,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                             Log.w(TAG, "ITelephony threw RemoteException", ex);
                         }
                     }
+                }
+                if (isFmActive() && (result & ACTION_PASS_TO_USER) == 0) {
+                    handleVolumeKey(AudioManager.STREAM_FM, keyCode);
                 }
                 if (isMusicActive() && (result & ACTION_PASS_TO_USER) == 0) {
                     if (mVolBtnMusicControls && down && (keyCode != KeyEvent.KEYCODE_VOLUME_MUTE)) {

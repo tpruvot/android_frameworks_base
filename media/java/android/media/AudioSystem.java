@@ -52,13 +52,18 @@ public class AudioSystem
     public static final int STREAM_DTMF = 8;
     /* @hide The audio stream for text to speech (TTS) */
     public static final int STREAM_TTS = 9;
+    /* @hide The audio stream for FM Radio */
+    public static final int STREAM_FM = 10;
+    /* @hide fm quick toggle */
+    public static final int HAS_FM_RADIO = 1;
+
     /**
      * @deprecated Use {@link #numStreamTypes() instead}
      */
     public static final int NUM_STREAMS = 5;
 
     // Expose only the getter method publicly so we can change it in the future
-    private static final int NUM_STREAM_TYPES = 10;
+    private static final int NUM_STREAM_TYPES = 10 + HAS_FM_RADIO;
     public static final int getNumStreamTypes() { return NUM_STREAM_TYPES; }
 
     /*

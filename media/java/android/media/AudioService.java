@@ -237,7 +237,8 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
         15, // STREAM_BLUETOOTH_SCO
         7,  // STREAM_SYSTEM_ENFORCED
         15, // STREAM_DTMF
-        15  // STREAM_TTS
+        15, // STREAM_TTS
+        15  // STREAM_FM
     };
     /* mStreamVolumeAlias[] indicates for each stream if it uses the volume settings
      * of another stream: This avoids multiplying the volume settings for hidden
@@ -257,7 +258,8 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
         AudioSystem.STREAM_BLUETOOTH_SCO,   // STREAM_BLUETOOTH_SCO
         AudioSystem.STREAM_RING,            // STREAM_SYSTEM_ENFORCED
         AudioSystem.STREAM_RING,            // STREAM_DTMF
-        AudioSystem.STREAM_MUSIC            // STREAM_TTS
+        AudioSystem.STREAM_MUSIC,           // STREAM_TTS
+        AudioSystem.STREAM_FM
     };
     private final int[] STREAM_VOLUME_ALIAS_NON_VOICE = new int[] {
         AudioSystem.STREAM_VOICE_CALL,      // STREAM_VOICE_CALL
@@ -269,7 +271,8 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
         AudioSystem.STREAM_BLUETOOTH_SCO,   // STREAM_BLUETOOTH_SCO
         AudioSystem.STREAM_MUSIC,           // STREAM_SYSTEM_ENFORCED
         AudioSystem.STREAM_MUSIC,           // STREAM_DTMF
-        AudioSystem.STREAM_MUSIC            // STREAM_TTS
+        AudioSystem.STREAM_MUSIC,           // STREAM_TTS
+        AudioSystem.STREAM_FM
     };
     private int[] mStreamVolumeAlias;
 
@@ -284,7 +287,8 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
             "STREAM_BLUETOOTH_SCO",
             "STREAM_SYSTEM_ENFORCED",
             "STREAM_DTMF",
-            "STREAM_TTS"
+            "STREAM_TTS",
+            "STREAM_FM"
     };
 
     private boolean mLinkNotificationWithVolume;
@@ -455,6 +459,10 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
 
     private boolean mVolumeKeysControlRingStream;
 
+    // FM Radio
+    private boolean mFmActive = false;
+    private static final String ACTION_FM_STATE_CHANGED = "com.android.media.intent.action.FM_STATE_CHANGED";
+
     ///////////////////////////////////////////////////////////////////////////
     // Construction
     ///////////////////////////////////////////////////////////////////////////
@@ -537,6 +545,7 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
         intentFilter.addAction(Intent.ACTION_USER_SWITCHED);
         intentFilter.addAction(Intent.ACTION_WIFI_DISPLAY_AUDIO);
         intentFilter.addAction(Intent.ACTION_HEADSET_PLUG);
+        intentFilter.addAction(ACTION_FM_STATE_CHANGED);
 
         intentFilter.addAction(Intent.ACTION_CONFIGURATION_CHANGED);
         // Register a configuration change listener only if requested by system properties
@@ -871,6 +880,11 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
 
         ensureValidDirection(direction);
         ensureValidStreamType(streamType);
+
+        if (streamType == AudioManager.STREAM_FM && !mFmActive) {
+            Log.d(TAG, "Got request to adjust inactive FM stream, ignoring.");
+            return;
+        }
 
         // use stream type alias here so that streams with same alias have the same behavior,
         // including with regard to silent mode control (e.g the use of STREAM_RING below and in
@@ -1523,6 +1537,11 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
         public IBinder getBinder() {
             return mCb;
         }
+    }
+
+    /** @see AudioManager#isFmActive() */
+    public boolean isFmActive() {
+        return mFmActive;
     }
 
     /** @see AudioManager#setMode(int) */
@@ -4079,6 +4098,8 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
                         SAFE_VOLUME_CONFIGURE_TIMEOUT_MS);
 
                 adjustCurrentStreamVolume();
+            } else if (action.equals(ACTION_FM_STATE_CHANGED)) {
+                mFmActive = intent.getBooleanExtra("active", false);
             } else if (action.equals(Intent.ACTION_PACKAGE_REMOVED)) {
                 if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
                     // a package is being removed, not replaced
